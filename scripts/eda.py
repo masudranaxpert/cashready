@@ -119,10 +119,10 @@ def main():
           f"vs TRUE {hourly.true_cashout_demand_amount.sum()/1e6:.1f}M BDT "
           f"-> {gap/1e6:.2f}M BDT invisible ({100*gap/hourly.true_cashout_demand_amount.sum():.1f}%)")
     print(f"4. salary days 2-3 and Eid 60-64 clearly elevated (plot 4)")
-    print(f"5. neighbour reroute: at cash-stockout hours, same-area peers serve "
-          f"{lift.mean():.2f}x their normal same-hour volume "
-          f"(median {lift.median():.2f}x, n={len(lift):,}) => demand migrates, "
-          f"this is the recovery signal")
+    print(f"5. neighbour reroute: same-area peers at stock-out hours serve "
+          f"on average {lift.mean():.2f}x their normal same-hour volume "
+          f"(median {lift.median():.2f}x, n={len(lift):,}) — weak-to-mixed "
+          f"reroute signal; the recovery model (P4) quantifies it properly")
     print(f"\nPNGs saved to {OUT}/")
     return peers
 
