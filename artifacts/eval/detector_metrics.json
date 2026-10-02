@@ -1,0 +1,24 @@
+{
+  "rule": {
+    "f1_macro": 0.3989,
+    "f1_cash_stockout": 0.1214,
+    "precision_cash_stockout": 0.073,
+    "recall_cash_stockout": 0.3601,
+    "n_evaluated": 114110
+  },
+  "hmm": {
+    "f1_macro": 0.6553,
+    "f1_cash_stockout": 0.0,
+    "precision_cash_stockout": 0.0,
+    "recall_cash_stockout": 0.0,
+    "n_evaluated": 114110
+  },
+  "lgbm": {
+    "f1_macro": 0.7852,
+    "f1_cash_stockout": 0.3793,
+    "precision_cash_stockout": 0.5493,
+    "recall_cash_stockout": 0.2896,
+    "n_evaluated": 114110
+  },
+  "best": "lgbm"
+}
