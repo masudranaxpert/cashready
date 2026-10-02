@@ -1,5 +1,6 @@
 # CashReady
 
+
 AI liquidity planner for mobile-money (MFS) agents of upay, Bangladesh —
 AI DEV FEST 2026, Track 05 (DIU CPC × upay).
 
