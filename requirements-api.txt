@@ -1,0 +1,4 @@
+# API serving only — slim install for the Docker image
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7

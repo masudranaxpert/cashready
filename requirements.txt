@@ -1,3 +1,20 @@
+# Full ML pipeline (train + evaluate + export)
 pandas>=2.2
 numpy>=1.26
 pyarrow>=17
+scipy>=1.13
+scikit-learn>=1.5
+lightgbm>=4.3
+hmmlearn>=0.3
+shap>=0.46
+matplotlib>=3.8
+
+# API serving
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+
+# utils
+python-dotenv>=1.0
+httpx>=0.27
+pytest>=8.0
