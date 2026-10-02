@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Secrets
+.env
+
+# Data & models (regenerable via make data / make pipeline)
+data/raw/
+data/processed/
+data/ground_truth/
+artifacts/models/
