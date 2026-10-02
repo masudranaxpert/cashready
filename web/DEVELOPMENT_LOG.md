@@ -12,7 +12,7 @@
   - `git status` clean check.
   - Inspected sample schema of `agents.json`, `metrics.json`, `plans/2026-10-02.json`, `lost_demand/2026-W40.json`, `area_risk/2026-10-02.json`.
 - **Outcome**: Confirmed contracts, protected paths, and initial strategy.
-- **Commit hash**: N/A (no files committed in milestone 0).
+- **Commit hash**: `1e3dc6f` (included with Milestone 1).
 - **Blockers / dependencies**: None.
 
 ## Milestone 1 — Frontend Foundation
@@ -41,8 +41,27 @@
   - `web/lib/types.ts`
   - `web/DEVELOPMENT_LOG.md`
 - **Tests / checks performed**:
-  - `npm run build` ran successfully; static page generation passed for all 7 routes.
+  - `npm run build` ran successfully; static page generation passed for all routes.
   - TypeScript validation and ESLint passed with 0 errors.
 - **Outcome**: Frontend foundation initialized and verified.
+- **Commit hash**: `1e3dc6f`
+- **Blockers / dependencies**: None.
+
+## Milestone 2 — Data Layer and Mock Mode
+- **Work performed**:
+  - Created `web/lib/types.ts` with complete domain and API interfaces (`Agent`, `Area`, `AgentPlan`, `Reason`, `RiskLevel`, `AgentLostDemand`, `AreaRiskResponse`, `AreaLostDemandResponse`, `MetricsResponse`).
+  - Created `web/lib/strings.ts` with domain-specific Bangla strings, BDT formatting helpers, and percentage helpers.
+  - Created `web/lib/mock-data.ts` covering 20 agents across 4 areas (`A01` to `A04`), fixed demo date `2026-10-02`, demo week `2026-W40`, exact demo metrics (f1: 0.79, naive recovery: 71.9, mean correction: 69.7, CashReady recovery: 68.3, habit lost: 18.1%, CashReady lost: 1.4%, commission saved: 1,062,799 BDT).
+  - Created `web/lib/api.ts` with dual-mode switch (`NEXT_PUBLIC_API_URL`), handling network error states, loading, and graceful handling of feedback when backend lacks the POST endpoint.
+- **Files changed**:
+  - `web/lib/types.ts`
+  - `web/lib/strings.ts`
+  - `web/lib/mock-data.ts`
+  - `web/lib/api.ts`
+  - `web/DEVELOPMENT_LOG.md`
+- **Tests / checks performed**:
+  - `npm run typecheck` passed with 0 errors.
+  - `npm run build` succeeded cleanly with static compilation.
+- **Outcome**: Dual-mode typed data layer ready and tested.
 - **Commit hash**: Pending git commit.
 - **Blockers / dependencies**: None.
