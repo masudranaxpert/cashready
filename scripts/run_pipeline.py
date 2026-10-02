@@ -1,5 +1,7 @@
 """Make pipeline: simulate -> panel -> detect -> recover -> forecast -> plan -> export."""
 
+import pandas as pd
+
 from cashready import simulate
 from cashready.features import build_panel
 from cashready import detector, recovery, forecast, business_sim, export
@@ -21,7 +23,6 @@ def main():
     fc = forecast.rolling_forecast(panel)
     print(fc)
     print("== 6/7 business sim ==")
-    import pandas as pd
     fcdf = pd.read_parquet("data/processed/forecasts.parquet")
     bs = business_sim.simulate_business(panel, fcdf)
     print(bs)
