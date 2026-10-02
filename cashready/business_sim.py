@@ -43,13 +43,16 @@ def plan_opening(forecasts: pd.DataFrame, service_level=0.90) -> pd.DataFrame:
     return plan
 
 
-def stockout_prob(plan_row, habit_mean, habit_std):
-    """Normal approx: P(demand > opening) using habit distribution params."""
-    from math import erf, sqrt
-    if habit_std <= 0:
-        return 1.0 if plan_row > habit_mean else 0.0
-    z = (plan_row - habit_mean) / (habit_std * sqrt(2))
-    return 0.5 * (1 - erf(z))
+def compute_daily_habit(panel: pd.DataFrame) -> pd.DataFrame:
+    """Compute trailing 7-day mean and std of observed daily cash-out per agent."""
+    panel_sorted = panel.sort_values(["agent_id", "day_idx", "hour"])
+    daily = (panel_sorted.groupby(["agent_id", "day_idx"]).cash_out_amt.sum()
+             .rename("daily_out").reset_index())
+    daily["habit"] = daily.groupby("agent_id").daily_out.transform(
+        lambda s: s.shift(1).rolling(7, min_periods=3).mean())
+    daily["habit_std"] = daily.groupby("agent_id").daily_out.transform(
+        lambda s: s.shift(1).rolling(7, min_periods=3).std()).fillna(0)
+    return daily
 
 
 def simulate_business(panel: pd.DataFrame, forecasts: pd.DataFrame) -> dict:
@@ -61,13 +64,7 @@ def simulate_business(panel: pd.DataFrame, forecasts: pd.DataFrame) -> dict:
         columns={"true_cashout_demand_amount": "demand"})
 
     # agent habit policy: opening = trailing mean of observed out over 7d
-    panel = panel.sort_values(["agent_id", "day_idx", "hour"])
-    daily_obs = (panel.groupby(["agent_id", "day_idx"]).cash_out_amt.sum()
-                 .rename("daily_out").reset_index())
-    daily_obs["habit"] = daily_obs.groupby("agent_id").daily_out.transform(
-        lambda s: s.shift(1).rolling(7, min_periods=3).mean())
-    daily_obs["habit_std"] = daily_obs.groupby("agent_id").daily_out.transform(
-        lambda s: s.shift(1).rolling(7, min_periods=3).std()).fillna(0)
+    daily_obs = compute_daily_habit(panel)
 
     plan = plan_opening(forecasts, 0.90)
     plan = plan.merge(daily_obs[["agent_id", "day_idx", "habit", "habit_std"]],
