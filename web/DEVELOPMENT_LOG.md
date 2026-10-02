@@ -102,5 +102,23 @@
   - `npm run typecheck` passed with 0 errors.
   - `npm run build` succeeded with `/area` compiled.
 - **Outcome**: Area manager view complete and verified.
+- **Commit hash**: `3047137`
+- **Blockers / dependencies**: None.
+
+## Milestone 5 — Evidence Page
+- **Work performed**:
+  - Implemented 4 KPI cards bound directly to `getMetrics()`: Detector F1 (0.79), Forecast coverage (82.6%), Habit vs CashReady lost % (18.1% vs 1.4%), Commission saved (৳ 10.6 লক্ষ / 1,062,799 BDT).
+  - Implemented "Keno bishwas korben?" section with Chart A: horizontal bar chart comparing Censored Demand Recovery MAE (Naive 71.9%, Mean correction 69.7%, CashReady 68.3% in teal) with caption "কম = ভালো".
+  - Implemented Chart B: bar chart showing Forecast MAE across area types (urban_market, peri_urban, rural).
+  - Created textual accessibility summaries for both charts for screen readers.
+  - Built 4-step pipeline strip with Lucide icons (Scan, RotateCcw, TrendingUp, Banknote — no emoji): সনাক্ত, পুনরুদ্ধার, পূর্বাভাস, পরিকল্পনা.
+  - Added transparent footer with synthetic data disclaimer and explicit LLM non-generative disclosure.
+- **Files changed**:
+  - `web/app/evidence/page.tsx`
+  - `web/DEVELOPMENT_LOG.md`
+- **Tests / checks performed**:
+  - `npm run typecheck` passed with 0 errors.
+  - `npm run build` succeeded; `/evidence` route prerendered cleanly.
+- **Outcome**: Evidence view complete and verified.
 - **Commit hash**: Pending git commit.
 - **Blockers / dependencies**: None.
