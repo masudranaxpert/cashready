@@ -14,14 +14,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="bn">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
       <body className="min-h-screen bg-shell text-slate-900 flex flex-col antialiased selection:bg-teal-100 selection:text-teal-900">
         <Navigation />
         <main className="flex-1 pb-28 md:pb-12 pt-4 px-4 sm:px-6">

@@ -54,8 +54,10 @@ export default function AreaPage() {
       try {
         const areaList = await getAreas();
         setAreas(areaList);
-        if (areaList.length > 0 && !areaList.find((a) => a.area_id === selectedAreaId)) {
-          setSelectedAreaId(areaList[0].area_id);
+        if (areaList.length > 0) {
+          setSelectedAreaId((prev) =>
+            areaList.find((a) => a.area_id === prev) ? prev : areaList[0].area_id
+          );
         }
       } catch (err: unknown) {
         console.error("Failed to load areas", err);

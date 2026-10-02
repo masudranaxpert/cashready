@@ -45,8 +45,10 @@ export default function AgentPage() {
       try {
         const list = await getAgents();
         setAgents(list);
-        if (list.length > 0 && !list.find((a) => a.agent_id === selectedAgentId)) {
-          setSelectedAgentId(list[0].agent_id);
+        if (list.length > 0) {
+          setSelectedAgentId((prev) =>
+            list.find((a) => a.agent_id === prev) ? prev : list[0].agent_id
+          );
         }
       } catch (err: unknown) {
         console.error("Failed to load agents", err);

@@ -68,9 +68,37 @@ After step 6, `artifacts/serve/` contains the JSON contract the API serves
 - [x] P6 newsvendor plan + 30-day business simulation
 - [x] P7 SHAP explanations + Bangla messages + serving artifacts
 - [ ] P8 FastAPI serving layer *(in progress — separate branch/teammate)*
-- [ ] P9 Next.js UI *(in progress — separate branch/teammate)*
+- [x] P9 Next.js UI (Bangla-first soft-shell admin for Agent, Area, and Evidence views)
 - [ ] P10 deployment (Render + Vercel)
 - [ ] P11 full Rulebook 6.2 README (Environment variables, Testing, Deployment URL, Responsible AI...)
+
+## Frontend (Next.js 14 Web UI)
+
+The frontend is located in `web/` and built with Next.js 14 App Router, TypeScript (strict), Tailwind CSS, Hind Siliguri typography, and Recharts.
+
+### Setup and Running Locally
+
+```bash
+cd web
+npm install
+npm run dev        # Starts local development server at http://localhost:3000
+npm run build      # Produces optimized production build
+npm test           # Runs automated contract and mock verification tests
+npm run lint       # Runs ESLint checks
+npm run typecheck  # Verifies TypeScript types
+```
+
+### Mock Mode vs Real API
+
+- **Standalone Mock Mode (Default)**: When `NEXT_PUBLIC_API_URL` is unset, the UI runs offline using realistic mock fixtures (20 agents across 4 areas, fixed demo date `2026-10-02`, demo week `2026-W40`, and exact evaluation metrics).
+- **Real API Mode**: Set `NEXT_PUBLIC_API_URL` in `web/.env.local` to point to the FastAPI serving layer (e.g. `NEXT_PUBLIC_API_URL=http://localhost:8000`).
+- *Note on backend integration*: Real backend integration connects to the teammate-owned FastAPI service (`api/main.py`), which serves artifacts from `artifacts/serve/`. Note that the feedback POST endpoint was removed in backend commit `15ca5ad` ("not needed for demo") and is handled gracefully in the frontend adapter. Real backend integration must be verified separately when the service is active.
+
+### Available Routes
+
+- `/agent`: Hero demo — opening cash recommendation, 3-way risk control (80%/90%/95%), SHAP reasons, lost demand, and inline feedback.
+- `/area`: Area manager view — sortable risk table with red high-risk indicator (>= 0.3), weekly lost-demand bar chart, and digital migration warning badge.
+- `/evidence`: Model evaluation — 4 KPI cards, recovery comparison bar chart, forecast MAE by area type, 4-step ML pipeline strip, and synthetic data disclosures.
 
 ## Project structure
 

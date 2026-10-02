@@ -138,5 +138,36 @@
   - `npm run typecheck` passed with 0 errors.
   - `npm run build` succeeded for all 7 routes with 0 errors.
 - **Outcome**: Navigation, routes, and integration verified.
+- **Commit hash**: `612017d`
+- **Blockers / dependencies**: None.
+
+## Milestone 7 — QA, Judge Readiness, Documentation & Tests
+- **Work performed**:
+  - Configured ESLint with `.eslintrc.json` (`eslint-config-next@14.2.15` and `eslint@^8.57.0`) and fixed all react-hooks/exhaustive-deps warnings.
+  - Added comprehensive automated test suite `web/tests/verification.test.mjs` verifying agent counts, area counts, risk buffer scaling (80%/90%/95%), lost demand calculations, high-risk flags, digital shift flags, and exact demo metric values.
+  - Added `"test"` script to `web/package.json` (`npm test`).
+  - Created `web/.env.example` with clear comments for Vercel/local deployment.
+  - Updated `README.md` with Frontend setup, run instructions, routes, mock mode behavior, and integration notices without disturbing existing sections.
+  - Confirmed browser screenshot tooling restriction in headless container (`Failed to create headless user data directory container`) and prepared exact manual verification steps for 375px and 1280px viewports.
+- **Files changed**:
+  - `web/.eslintrc.json`
+  - `web/.env.example`
+  - `web/tests/verification.test.mjs`
+  - `web/package.json`
+  - `web/package-lock.json`
+  - `web/lib/api.ts`
+  - `web/lib/mock-data.ts`
+  - `web/app/agent/page.tsx`
+  - `web/app/area/page.tsx`
+  - `web/app/globals.css`
+  - `web/app/layout.tsx`
+  - `README.md`
+  - `web/DEVELOPMENT_LOG.md`
+- **Tests / checks performed**:
+  - `npm test`: 8/8 tests passed in 15ms.
+  - `npm run lint`: 0 errors, 0 warnings.
+  - `npm run typecheck`: 0 errors.
+  - `npm run build`: 7/7 static routes generated successfully.
+- **Outcome**: Production ready, fully tested and documented.
 - **Commit hash**: Pending git commit.
 - **Blockers / dependencies**: None.
