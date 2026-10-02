@@ -120,5 +120,23 @@
   - `npm run typecheck` passed with 0 errors.
   - `npm run build` succeeded; `/evidence` route prerendered cleanly.
 - **Outcome**: Evidence view complete and verified.
+- **Commit hash**: `d3578d3`
+- **Blockers / dependencies**: None.
+
+## Milestone 6 — Navigation and Full Integration
+- **Work performed**:
+  - Refined mobile navigation floating bar with 44px min-touch targets, `active:scale-[0.98]` press feedback, and elevated z-index.
+  - Verified clearance on mobile with `pb-28` container padding to prevent bottom bar from overlapping content or CTA buttons.
+  - Verified route transitions and active tab styling (black pill with icon and text) across all routes (`/agent`, `/area`, `/evidence`).
+  - Added build cache exclusions in `web/.gitignore`.
+  - Confirmed all protected paths (`cashready/`, `api/`, `artifacts/`) remain completely untouched.
+- **Files changed**:
+  - `web/app/layout.tsx`
+  - `web/.gitignore`
+  - `web/DEVELOPMENT_LOG.md`
+- **Tests / checks performed**:
+  - `npm run typecheck` passed with 0 errors.
+  - `npm run build` succeeded for all 7 routes with 0 errors.
+- **Outcome**: Navigation, routes, and integration verified.
 - **Commit hash**: Pending git commit.
 - **Blockers / dependencies**: None.

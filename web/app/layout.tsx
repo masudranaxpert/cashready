@@ -22,9 +22,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-shell text-slate-900 flex flex-col antialiased">
+      <body className="min-h-screen bg-shell text-slate-900 flex flex-col antialiased selection:bg-teal-100 selection:text-teal-900">
         <Navigation />
-        <main className="flex-1 pb-24 md:pb-12 pt-4 px-4 sm:px-6">
+        <main className="flex-1 pb-28 md:pb-12 pt-4 px-4 sm:px-6">
           {children}
         </main>
       </body>
