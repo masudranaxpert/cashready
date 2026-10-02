@@ -57,13 +57,6 @@ def test_area_risk_and_lost(client):
     assert r2.status_code == 200
 
 
-def test_feedback_post(client):
-    agents = client.get("/agents").json()
-    aid = agents[0]["agent_id"]
-    r = client.post(f"/agents/{aid}/feedback", json={"helpful": True, "comment": "ok"})
-    assert r.status_code == 200 and r.json()["ok"] is True
-
-
 def test_metrics(client):
     r = client.get("/metrics")
     assert r.status_code == 200

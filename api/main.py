@@ -10,18 +10,12 @@ from pathlib import Path
 
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
 ARTIFACTS = Path(os.environ.get("ARTIFACTS_DIR", "artifacts/serve"))
 API_KEY = os.environ.get("API_KEY")
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "*")
 
 app = FastAPI(title="CashReady API", version="1.0")
-
-
-class FeedbackIn(BaseModel):
-    helpful: bool
-    comment: str = ""
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_ORIGIN] if FRONTEND_ORIGIN != "*" else ["*"],
@@ -89,16 +83,6 @@ def agent_lost(agent_id: str, week: str = Query(..., pattern=r"^\d{4}-W\d{2}$"),
     a = doc["agents"].get(agent_id, {"lost_count": 0, "lost_amount": 0,
                                      "lost_commission": 0})
     return {"week": week, "agent_id": agent_id, **a}
-
-
-@app.post("/agents/{agent_id}/feedback")
-def agent_feedback(agent_id: str, body: FeedbackIn,
-                   x_api_key: str | None = Header(None)):
-    check_key(x_api_key)
-    log = ARTIFACTS / "feedback.jsonl"
-    with log.open("a") as f:
-        f.write(json.dumps({"agent_id": agent_id, **body.model_dump()}) + "\n")
-    return {"ok": True}
 
 
 @app.get("/areas/{area_id}/risk")
