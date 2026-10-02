@@ -127,7 +127,9 @@ def finalize(panel: pd.DataFrame, probs: pd.DataFrame) -> pd.DataFrame:
     out["p_closed"] = closed.astype(float)
     out["state"] = out[["p_normal", "p_cash_stockout",
                         "p_float_stockout", "p_closed"]].idxmax(axis=1).str[2:]
-    return out
+    keys = [k for k in ("agent_id", "area_id", "area_type", "day_idx", "hour")
+            if k in panel.columns]
+    return panel[keys].reset_index(drop=True).join(out.reset_index(drop=True))
 
 
 def evaluate(det_states: pd.Series, truth: pd.Series) -> dict:
