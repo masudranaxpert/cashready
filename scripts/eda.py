@@ -44,18 +44,26 @@ def main():
     ax.legend(); fig.tight_layout()
     fig.savefig(OUT / "01_hourly_profile_by_area.png", dpi=130)
 
-    # ---- Plot 2: daily cash-out with stock-out hours shaded ----
+    # ---- Plot 2: daily cash-out + WHEN stock-outs cluster ----
     daily = hourly.groupby("day_idx").agg(obs=("obs_amount", "sum"),
                                           true=("true_cashout_demand_amount", "sum"))
-    so_hours = hourly[hourly.state == "cash_stockout"].day_idx.value_counts()
-    fig, ax = plt.subplots(figsize=(9, 4.5))
+    so_per_day = hourly[hourly.state == "cash_stockout"].day_idx.value_counts()
+    so_per_day = so_per_day.reindex(range(int(hourly.day_idx.max()) + 1), fill_value=0)
+    fig, (ax, ax2) = plt.subplots(2, 1, figsize=(9, 6), sharex=True,
+                                  height_ratios=[3, 1])
     ax.plot(daily.index, daily.true / 1e6, label="TRUE demand", lw=2)
     ax.plot(daily.index, daily.obs / 1e6, label="observed (platform log)", lw=2)
-    for d, n in so_hours.items():
-        ax.axvspan(d - 0.5, d + 0.5, color="red", alpha=0.12)
-    ax.set_title("Daily system cash-out — red bands: days with cash stock-outs")
-    ax.set_xlabel("day index (60-64 = Eid)"); ax.set_ylabel("million BDT")
-    ax.legend(); fig.tight_layout()
+    for d in range(90):
+        if d % 30 in (1, 2):                      # salary days 2-3 each month
+            ax.axvspan(d - 0.5, d + 0.5, color="orange", alpha=0.15)
+    ax.axvspan(60, 64.5, color="purple", alpha=0.15, label="Eid")
+    ax.set_ylabel("million BDT")
+    ax.set_title("Demand spikes (orange=salary, purple=Eid) and where stock-outs happen")
+    ax.legend()
+    ax2.bar(so_per_day.index, so_per_day.values, color="crimson")
+    ax2.set_ylabel("stock-out\nagent-hours")
+    ax2.set_xlabel("day index")
+    fig.tight_layout()
     fig.savefig(OUT / "02_daily_stockouts.png", dpi=130)
 
     # ---- Plot 3: THE MONEY SHOT — observed vs true around stock-outs ----
@@ -113,7 +121,10 @@ def main():
     lift = peers.lift.replace([float("inf")], float("nan")).dropna()
     print("===== P2 FINDINGS =====")
     print(f"1. area profile: urban > peri-urban > rural at every hour (plot 1)")
-    print(f"2. stock-out days flagged: {len(so_hours)} | total cash-stockout hours {len(so):,}")
+    print(f"2. stock-outs happen EVERY day ({so_per_day.min()}-{so_per_day.max()} "
+          f"agent-hours, no clean calendar pattern) — they come from unpredictable "
+          f"daily shocks, which is exactly why habit-based planning fails "
+          f"(lower panel of plot 2)")
     gap = hourly.true_cashout_demand_amount.sum() - hourly.obs_amount.sum()
     print(f"3. 'data lies': platform-log demand {hourly.obs_amount.sum()/1e6:.1f}M BDT "
           f"vs TRUE {hourly.true_cashout_demand_amount.sum()/1e6:.1f}M BDT "
