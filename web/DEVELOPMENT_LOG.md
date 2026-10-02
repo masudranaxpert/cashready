@@ -83,5 +83,24 @@
   - `npm run typecheck` passed with 0 errors.
   - `npm run build` succeeded; `/agent` route prerendered cleanly.
 - **Outcome**: Agent view complete and verified.
+- **Commit hash**: `63f51d6`
+- **Blockers / dependencies**: None.
+
+## Milestone 4 — Area Manager Page
+- **Work performed**:
+  - Implemented `/area` layout (max-w-6xl) with Area Selector (`A01` to `A04`) and Date Selector.
+  - Built interactive risk table sorted by `stockout_prob_habit` descending by default, with toggleable sorting headers (agent_id, stockout_prob_habit, risk_hour) and visual sort indicators.
+  - Applied strict 2px red left border and Bangla label "ঝুঁকি" only to agents with probability >= 0.3.
+  - Formatted status pills with required pastel backgrounds (`amber-100` / `amber-900` for cash stockout, `slate-100` / `slate-700` for normal).
+  - Built weekly lost-demand bar chart with Recharts, highlighting selected area in `#0D9488` teal and other areas in `#CBD5E1` slate-300.
+  - Added "ডিজিটালে সরে যাচ্ছে" amber indicator badge for areas flagged with digital demand migration (`demand_shift = 1`).
+  - Added accessible table layout with overflow-x auto, clear aria-labels, and tooltip inspection.
+- **Files changed**:
+  - `web/app/area/page.tsx`
+  - `web/DEVELOPMENT_LOG.md`
+- **Tests / checks performed**:
+  - `npm run typecheck` passed with 0 errors.
+  - `npm run build` succeeded with `/area` compiled.
+- **Outcome**: Area manager view complete and verified.
 - **Commit hash**: Pending git commit.
 - **Blockers / dependencies**: None.
