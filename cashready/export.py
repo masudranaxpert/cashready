@@ -45,11 +45,6 @@ def export(target_date: str | None = None):
     day_list = [int(d) for d in dates if target_date is None
                 or day_label(d) == target_date]
 
-    # SHAP reasons from the P50 model — rebuild it quickly via pipeline's
-    # saved forecasts: we retrain is expensive, so reasons come from a light
-    # surrogate: use forecast importances approximated by row features.
-    from cashready.forecast import build_targets
-    truth = pd.read_parquet("data/ground_truth/hourly_truth.parquet")
     panel_cache = "data/processed/panel.parquet"
     if Path(panel_cache).exists():
         panel = pd.read_parquet(panel_cache)
@@ -57,34 +52,34 @@ def export(target_date: str | None = None):
         from cashready.features import build_panel
         panel = build_panel()
         panel.to_parquet(panel_cache, index=False)
-    df = build_targets(panel, truth)
-    feats = [c for c in df.columns if c in (
-        "hour", "weekday", "day_of_month", "salary_window", "eid_window",
-        "haat_day", "cash_in_amt", "send_money_amt", "payment_amt",
-        "fail_count", "out_mean_7d", "out_mean_28d", "nbr_out_amt",
-        "out_amt_lag1", "out_vel_3h", "net_vel_3h", "is_new")]
 
+    from cashready.business_sim import compute_daily_habit
+    from cashready.features import PANEL_FEATURES
+
+    # Load trained forecast booster (avoids retraining)
     import lightgbm as lgb
-    tr = df[(df.day_idx < config.TRAIN_DAYS[1]) & df.true_cashout_demand_amount.notna()]
-    m50 = lgb.LGBMRegressor(objective="quantile", alpha=0.5, n_estimators=400,
-                            learning_rate=0.06, num_leaves=31, min_child_samples=40,
-                            random_state=0, verbose=-1)
-    m50.fit(tr[feats], np.log1p(tr.true_cashout_demand_amount))
+    model_path = Path("artifacts/models/forecast_q50.txt")
+    if model_path.exists():
+        m50 = lgb.Booster(model_file=str(model_path))
+    else:
+        from cashready.forecast import build_targets
+        truth = pd.read_parquet("data/ground_truth/hourly_truth.parquet")
+        df_tr = build_targets(panel, truth)
+        tr = df_tr[(df_tr.day_idx < config.TRAIN_DAYS[1]) & df_tr.true_cashout_demand_amount.notna()]
+        m50 = lgb.LGBMRegressor(objective="quantile", alpha=0.5, n_estimators=400,
+                                learning_rate=0.06, num_leaves=31, min_child_samples=40,
+                                random_state=0, verbose=-1)
+        m50.fit(tr[PANEL_FEATURES], np.log1p(tr.true_cashout_demand_amount))
 
     # agent-day aggregates for the plan
     plan_src = (fc.groupby(["agent_id", "day_idx"])
                 .agg(opening_cash=("pred_q90", "last"), p50_day=("pred_q50", "sum"))
                 .reset_index())
     plan_src["stockout_prob_plan"] = 0.10
-    # habit opening = trailing 7d mean of observed daily out (same as simulator)
-    panel_daily = (panel.groupby(["agent_id", "day_idx"]).cash_out_amt.sum()
-                   .rename("daily_out").reset_index())
-    panel_daily = panel_daily.sort_values(["agent_id", "day_idx"])
-    panel_daily["habit7"] = panel_daily.groupby("agent_id").daily_out.transform(
-        lambda s: s.shift(1).rolling(7, min_periods=3).mean())
-    plan_src = plan_src.merge(panel_daily[["agent_id", "day_idx", "habit7"]],
+    panel_daily = compute_daily_habit(panel)
+    plan_src = plan_src.merge(panel_daily[["agent_id", "day_idx", "habit"]],
                               on=["agent_id", "day_idx"], how="left")
-    plan_src["opening_habit"] = (plan_src.habit7 * config.OPEN_BUFFER).fillna(0)
+    plan_src["opening_habit"] = (plan_src.habit * config.OPEN_BUFFER).fillna(0)
 
     # per-day export
     for d in day_list[-1:]:
@@ -93,8 +88,8 @@ def export(target_date: str | None = None):
         day_fc = fc[fc.day_idx == d]
         risk_by_agent = (day_fc.loc[day_fc.groupby("agent_id").pred_q90.idxmax()]
                          .set_index("agent_id")[["hour"]])
-        # SHAP reasons for a sample of agents (TreeExplainer on their features)
-        Xd = (df[df.day_idx == d].groupby("agent_id")[feats].mean())
+        # SHAP reasons from feature means for this day
+        Xd = panel[panel.day_idx == d].groupby("agent_id")[PANEL_FEATURES].mean()
         try:
             sv = explain_agents(m50, Xd)
             reasons_map = {a: top_reasons(sv.loc[a]) for a in Xd.index}
@@ -120,16 +115,17 @@ def export(target_date: str | None = None):
             {"date": date, "opening_cash_default": 60000,
              "agents": agents_json}, ensure_ascii=False))
 
-        # area risk: top risky agents per area (habit-based prob proxy)
+        # area risk: top 5 unique risky agents per area
         day_det = det[det.day_idx == d]
         ar = {}
         for area, g in day_det.groupby("area_id"):
-            rows = g.nlargest(5, "p_cash_stockout")
+            top_agents = (g.groupby("agent_id")["p_cash_stockout"].max()
+                          .nlargest(5).reset_index())
             ar[area] = [{"agent_id": r.agent_id,
                          "stockout_prob_habit": round(float(r.p_cash_stockout), 3),
                          "risk_hour": int(risk_by_agent.loc[r.agent_id, "hour"])
                          if r.agent_id in risk_by_agent.index else 8}
-                        for r in rows.itertuples()]
+                        for r in top_agents.itertuples()]
         (serve / "area_risk" / f"{date}.json").write_text(json.dumps(
             {"date": date, "areas": ar}, ensure_ascii=False))
 

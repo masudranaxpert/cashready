@@ -4,8 +4,9 @@ services:
     container_name: cashready-api
     restart: unless-stopped
     ports:
-      - "${PORT:-8000}:8000"
+      - "${HOST_PORT:-8100}:${PORT:-8100}"
     environment:
+      - PORT=${PORT:-8100}
       - ARTIFACTS_DIR=/app/artifacts/serve
       - FRONTEND_ORIGIN=${FRONTEND_ORIGIN:-*}
       - API_KEY=${API_KEY:-}
