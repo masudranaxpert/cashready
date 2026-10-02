@@ -1,0 +1,17 @@
+services:
+  api:
+    build: .
+    container_name: cashready-api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - ARTIFACTS_DIR=/app/artifacts/serve
+      - FRONTEND_ORIGIN=${FRONTEND_ORIGIN:-*}
+      - API_KEY=${API_KEY:-}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
