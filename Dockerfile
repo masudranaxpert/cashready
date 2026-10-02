@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # serving layer + committed artifacts only (data/, cashready/ ML code not needed)
 COPY api/ api/
 COPY artifacts/serve/ artifacts/serve/
+COPY healthcheck.py .
 
 # non-root user
 RUN useradd -m appuser && chown -R appuser:appuser /app
@@ -24,6 +25,4 @@ USER appuser
 EXPOSE 8100
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD ["python", "/app/healthcheck.py"]
-
-COPY healthcheck.py ./
 CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8100}"]
