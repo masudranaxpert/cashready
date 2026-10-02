@@ -199,5 +199,5 @@
   - `npm run typecheck`: 0 errors.
   - `npm run build`: 7/7 routes built cleanly.
 - **Outcome**: Restrained, credible, dark financial SaaS UI verified and production-ready.
-- **Commit hash**: Pending git commit.
+- **Commit hash**: `ba982be`
 - **Blockers / dependencies**: None.
