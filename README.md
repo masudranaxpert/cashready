@@ -117,4 +117,4 @@ artifacts/serve/    committed serving JSON (API contract)
 
 - Masud — ML lead (pipeline: simulate → detect → recover → forecast → plan → explain)
 - Teammate — Engineering (FastAPI serving, deployment)
-- Teammate — Frontend (Next.js UI)
+- Ajmine — Frontend Lead (Next.js UI, API Integration & Dashboard)
