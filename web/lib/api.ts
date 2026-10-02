@@ -23,6 +23,7 @@ import {
 } from "./mock-data";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 /**
  * Returns true if real API is configured; false for local mock mode
@@ -41,12 +42,18 @@ async function fetchFromApi<T>(endpoint: string, options?: RequestInit): Promise
 
   const url = `${API_BASE_URL}${endpoint}`;
   try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(options?.headers as Record<string, string>),
+    };
+
+    if (API_KEY) {
+      headers["x-api-key"] = API_KEY;
+    }
+
     const res = await fetch(url, {
       ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
+      headers,
     });
 
     if (!res.ok) {
@@ -154,9 +161,14 @@ export async function submitAgentFeedback(
   }
 
   try {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (API_KEY) {
+      headers["x-api-key"] = API_KEY;
+    }
+
     const res = await fetch(`${API_BASE_URL}/agents/${encodeURIComponent(agentId)}/feedback`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(payload),
     });
 

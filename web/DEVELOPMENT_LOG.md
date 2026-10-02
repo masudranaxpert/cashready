@@ -264,6 +264,38 @@
   - `npm run typecheck`: 0 errors.
   - `npm run build`: 7/7 routes generated successfully.
 - **Outcome**: Seamless mobile experience across 375px, 390px, 430px, and 1280px without modifying the design system, copy, mock data, or API contracts.
-- **Commit hash**: `7d529c0`
+- **Commit hash**: `7d529c0`, `e234c05`
 - **Blockers / dependencies**: None.
+
+## Milestone 11 — API Integration Readiness, Contract Testing & Visual Audit
+- **Work performed**:
+  - **API Client & Header Security**:
+    - Enhanced `web/lib/api.ts` to support optional `NEXT_PUBLIC_API_KEY` mapped to the `x-api-key` HTTP header, aligning with `api/main.py` (`check_key`).
+    - Added `NEXT_PUBLIC_API_KEY` documentation in `web/.env.example`.
+    - Maintained robust offline Mock Mode when `NEXT_PUBLIC_API_URL` is unset, with full demo fallback.
+  - **Backend Integration Specification**:
+    - Created `web/BACKEND_INTEGRATION.md` detailing all 9 endpoints, methods, query/path parameters, request payloads, response schemas, and backend teammate integration checklist.
+    - Noted graceful handling for optional `POST /agents/{agent_id}/feedback` endpoint.
+  - **Automated Verification Expansion**:
+    - Added API contract schemas & offline fallback payload validation test in `web/tests/verification.test.mjs`.
+    - Total unit test count expanded to 11/11 tests passing.
+  - **Visual Audit Across Target Viewports**:
+    - Successfully captured actual screenshot assets for `/agent`, `/area`, and `/evidence` at 375px, 390px, 430px, and 1280px using Chromium with dedicated local configuration into `web/screenshots/`.
+    - Verified proper contrast, responsive typography, table card layout, and clearance over floating bottom navigation.
+- **Files changed**:
+  - `web/lib/api.ts`
+  - `web/.env.example`
+  - `web/BACKEND_INTEGRATION.md`
+  - `web/tests/verification.test.mjs`
+  - `web/screenshots/*.png`
+  - `web/DEVELOPMENT_LOG.md`
+- **Tests / checks performed**:
+  - `npm test`: 11/11 tests passed in 17ms.
+  - `npm run lint`: 0 errors, 0 warnings.
+  - `npm run typecheck`: 0 errors.
+  - `npm run build`: 7/7 static routes compiled cleanly.
+- **Outcome**: Production ready, verified across all viewports with complete backend integration documentation.
+- **Commit hash**: Pending
+- **Blockers / dependencies**: None.
+
 

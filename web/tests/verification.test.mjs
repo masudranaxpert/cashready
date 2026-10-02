@@ -163,4 +163,53 @@ describe("CashReady Frontend Contract & Verification Tests", () => {
       }
     }
   });
+
+  test("API contract schemas & offline fallback payload validation", () => {
+    // 1. Agents list contract
+    assert.equal(MOCK_AGENTS.length, 20);
+    const sampleAgent = MOCK_AGENTS[0];
+    assert.ok("agent_id" in sampleAgent && "area_id" in sampleAgent && "area_type" in sampleAgent);
+    assert.ok("lat" in sampleAgent && "lon" in sampleAgent && "is_new" in sampleAgent);
+
+    // 2. Areas list contract
+    assert.equal(MOCK_AREAS.length, 4);
+    const sampleArea = MOCK_AREAS[0];
+    assert.ok("area_id" in sampleArea && "area_type" in sampleArea);
+
+    // 3. Agent plan contract
+    const plan = getMockAgentPlan("T0039", DEMO_DATE, "0.9");
+    assert.equal(plan.agent_id, "T0039");
+    assert.equal(plan.date, DEMO_DATE);
+    assert.equal(plan.opening_cash, 68500);
+    assert.ok("stockout_prob_plan" in plan && "stockout_prob_habit" in plan);
+    assert.ok("risk_hour" in plan && "reasons" in plan && "message_bn" in plan);
+    assert.equal(plan.reasons.length, 3);
+
+    // 4. Agent lost demand contract
+    const lost = getMockAgentLostDemand("T0039", DEMO_WEEK);
+    assert.equal(lost.agent_id, "T0039");
+    assert.equal(lost.week, DEMO_WEEK);
+    assert.ok("lost_count" in lost && "lost_amount" in lost && "lost_commission" in lost);
+
+    // 5. Area risk contract
+    const risk = getMockAreaRisk("A01", DEMO_DATE);
+    assert.equal(risk.area_id, "A01");
+    assert.equal(risk.date, DEMO_DATE);
+    assert.ok(Array.isArray(risk.agents) && risk.agents.length > 0);
+    assert.ok("stockout_prob_habit" in risk.agents[0] && "risk_hour" in risk.agents[0]);
+
+    // 6. Area lost demand contract
+    const areaLost = getMockAreaLostDemand(DEMO_WEEK);
+    assert.equal(areaLost.week, DEMO_WEEK);
+    assert.ok("A01" in areaLost.areas);
+    assert.ok("demand_shift" in areaLost.areas["A01"]);
+
+    // 7. Metrics contract
+    assert.ok("detector_metrics" in MOCK_METRICS);
+    assert.ok("recovery_metrics" in MOCK_METRICS);
+    assert.ok("forecast_metrics" in MOCK_METRICS);
+    assert.ok("business_sim_metrics" in MOCK_METRICS);
+  });
 });
+
+
