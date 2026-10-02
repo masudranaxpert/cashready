@@ -1,0 +1,25 @@
+{
+  "test_days": [
+    60,
+    90
+  ],
+  "total_true_demand_bdt": 352735370.0,
+  "habit_policy": {
+    "lost_bdt": 63830138.0,
+    "lost_pct": 18.1
+  },
+  "cashready_policy": {
+    "lost_bdt": 4785765.0,
+    "lost_pct": 1.36
+  },
+  "lost_commission_bdt": {
+    "habit": 1148942.0,
+    "cashready": 86144.0
+  },
+  "commission_saved_bdt": 1062799.0,
+  "opening_comparison": {
+    "habit_mean_opening": 40047.0,
+    "cashready_mean_opening": 62601.0,
+    "opening_ratio": 1.563
+  }
+}
