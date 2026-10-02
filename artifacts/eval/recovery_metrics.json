@@ -1,0 +1,15 @@
+{
+  "amount_mae_pct": {
+    "naive_observed": 71.87,
+    "mean_correction": 69.74,
+    "cashready_recovery": 68.29
+  },
+  "count_mae_pct": {
+    "naive_observed": 63.52,
+    "mean_correction": 61.75,
+    "cashready_recovery": 45.92
+  },
+  "censored_hours": 3463,
+  "total_estimated_lost_bdt": 22089334.15,
+  "demand_shift_area_weeks": 19
+}
