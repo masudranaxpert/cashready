@@ -1,0 +1,78 @@
+{
+ "forecast_metrics": {
+  "p50_mae_bdt": 2133.6,
+  "naive_mae_bdt": 1983.7,
+  "pinball_mean": 688.4,
+  "coverage_p10_p90": 0.8263,
+  "target_coverage": 0.8,
+  "mae_by_area_type": {
+   "peri_urban": 2377.9,
+   "rural": 1808.7,
+   "urban_market": 2892.1
+  }
+ },
+ "detector_metrics": {
+  "rule": {
+   "f1_macro": 0.3989,
+   "f1_cash_stockout": 0.1214,
+   "precision_cash_stockout": 0.073,
+   "recall_cash_stockout": 0.3601,
+   "n_evaluated": 114110
+  },
+  "hmm": {
+   "f1_macro": 0.6553,
+   "f1_cash_stockout": 0.0,
+   "precision_cash_stockout": 0.0,
+   "recall_cash_stockout": 0.0,
+   "n_evaluated": 114110
+  },
+  "lgbm": {
+   "f1_macro": 0.7852,
+   "f1_cash_stockout": 0.3793,
+   "precision_cash_stockout": 0.5493,
+   "recall_cash_stockout": 0.2896,
+   "n_evaluated": 114110
+  },
+  "best": "lgbm"
+ },
+ "recovery_metrics": {
+  "amount_mae_pct": {
+   "naive_observed": 71.87,
+   "mean_correction": 69.74,
+   "cashready_recovery": 68.29
+  },
+  "count_mae_pct": {
+   "naive_observed": 63.52,
+   "mean_correction": 61.75,
+   "cashready_recovery": 45.92
+  },
+  "censored_hours": 3463,
+  "total_estimated_lost_bdt": 22089334.15,
+  "demand_shift_area_weeks": 19
+ },
+ "business_sim_metrics": {
+  "test_days": [
+   60,
+   90
+  ],
+  "total_true_demand_bdt": 352735370.0,
+  "habit_policy": {
+   "lost_bdt": 63830138.0,
+   "lost_pct": 18.1
+  },
+  "cashready_policy": {
+   "lost_bdt": 4785765.0,
+   "lost_pct": 1.36
+  },
+  "lost_commission_bdt": {
+   "habit": 1148942.0,
+   "cashready": 86144.0
+  },
+  "commission_saved_bdt": 1062799.0,
+  "opening_comparison": {
+   "habit_mean_opening": 40047.0,
+   "cashready_mean_opening": 62601.0,
+   "opening_ratio": 1.563
+  }
+ }
+}
