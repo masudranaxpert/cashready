@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    --background: #F4F5F7;
-    --foreground: #0F172A;
+    --background: #0B1120;
+    --foreground: #F8FAFC;
   }
 
   body {
@@ -23,23 +23,24 @@
   /* Accessible focus ring */
   *:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px #F4F5F7, 0 0 0 4px #0D9488;
+    box-shadow: 0 0 0 2px #0B1120, 0 0 0 4px #14B8A6;
   }
 }
 
 @layer components {
-  /* Soft-shell card */
+  /* Subtle, restrained dark card */
   .card-soft {
-    @apply bg-white rounded-2xl shadow-soft p-5;
+    @apply bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5;
   }
 
-  /* Button styles */
+  /* Primary action button */
   .btn-primary {
-    @apply inline-flex items-center justify-center min-h-[44px] px-6 py-2.5 rounded-full bg-black text-white font-medium text-base transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+    @apply inline-flex items-center justify-center min-h-[44px] px-6 py-2.5 rounded-full bg-slate-100 hover:bg-white text-slate-950 font-semibold text-base transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
+  /* Secondary subtle button */
   .btn-secondary {
-    @apply inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-base transition-transform duration-100 active:scale-[0.98] hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+    @apply inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-full bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-medium text-base transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
   }
 }
 

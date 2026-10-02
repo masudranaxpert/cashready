@@ -1,5 +1,5 @@
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={`bg-slate-100 rounded-xl animate-pulse ${className ?? ""}`} />;
+  return <div className={`bg-slate-800/60 rounded-xl animate-pulse ${className ?? ""}`} />;
 }
 
 export function ErrorState({
@@ -11,7 +11,7 @@ export function ErrorState({
 }) {
   return (
     <div className="card-soft text-center py-8 px-4 my-4">
-      <p className="text-slate-700 font-medium mb-4 text-base">{message}</p>
+      <p className="text-slate-300 font-medium mb-4 text-base">{message}</p>
       {onRetry && (
         <button
           type="button"

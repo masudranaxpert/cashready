@@ -22,15 +22,13 @@ export function Navigation() {
   return (
     <>
       {/* Desktop Top Header Navigation */}
-      <header className="sticky top-0 z-30 w-full bg-shell/80 backdrop-blur-md border-b border-slate-200/60">
-        {/* Subtle teal atmosphere wash behind top header only */}
-        <div className="absolute inset-0 bg-teal-wash pointer-events-none" />
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between relative">
+      <header className="sticky top-0 z-30 w-full bg-navy-900/90 backdrop-blur-md border-b border-slate-800/80">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-xl tracking-tight text-slate-900">
+            <span className="font-bold text-xl tracking-tight text-slate-100">
               CashReady
             </span>
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80">
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700/60">
               উপায় AI লিকুইডিটি
             </span>
           </div>
@@ -45,12 +43,12 @@ export function Navigation() {
                   href={item.href}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-transform duration-100 active:scale-[0.98] ${
                     isActive
-                      ? "bg-black text-white shadow-soft"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
+                      ? "bg-slate-800 text-slate-100 border border-slate-700 shadow-soft"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
                   }`}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className={`w-4 h-4 ${isActive ? "text-teal-400" : "text-slate-400"}`} />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -61,7 +59,7 @@ export function Navigation() {
 
       {/* Mobile Floating Bottom Bar */}
       <nav
-        className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-md rounded-full px-3 py-1.5 shadow-soft-lg border border-slate-200/80 flex items-center gap-1"
+        className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 bg-navy-850/95 backdrop-blur-md rounded-full px-3 py-1.5 shadow-soft-lg border border-slate-800 flex items-center gap-1"
         aria-label="মোবাইল নেভিগেশন"
       >
         {navItems.map((item) => {
@@ -73,12 +71,12 @@ export function Navigation() {
               href={item.href}
               className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-1.5 rounded-full text-sm font-medium transition-transform duration-100 active:scale-[0.98] ${
                 isActive
-                  ? "bg-black text-white shadow-soft"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-slate-800 text-slate-100 border border-slate-700/80 shadow-soft"
+                  : "text-slate-400 hover:text-slate-200"
               }`}
               aria-current={isActive ? "page" : undefined}
             >
-              <Icon className="w-4 h-4 shrink-0" />
+              <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-teal-400" : "text-slate-400"}`} />
               <span>{item.label}</span>
             </Link>
           );

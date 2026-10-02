@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import {
+import type {
   Area,
   AreaRiskResponse,
   AreaLostDemandResponse,
@@ -147,26 +147,26 @@ export default function AreaPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Top Header Card */}
-      <section className="bg-white rounded-2xl shadow-soft p-5" aria-label="এরিয়া নির্বাচন ও সময়">
+      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5" aria-label="এরিয়া নির্বাচন ও সময়">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-2xl font-bold text-slate-100 tracking-tight">
                 {STRINGS.areaHeading}
               </h1>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
                 এরিয়া ম্যানেজার ভিউ
               </span>
             </div>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm text-slate-400 mt-1">
               আগামীকালের জন্য সম্ভাব্য ক্যাশ ঘাটতি এবং এরিয়াভিত্তিক চাহিদা শিফট বিশ্লেষণ
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             {/* Area Selector */}
-            <div className="flex items-center gap-2 bg-slate-100/90 rounded-full px-4 py-2">
-              <MapPin className="w-4 h-4 text-slate-500" />
+            <div className="flex items-center gap-2 bg-slate-900 rounded-full px-4 py-2 border border-slate-800">
+              <MapPin className="w-4 h-4 text-slate-400" />
               <label htmlFor="area-select" className="sr-only">
                 এরিয়া নির্বাচন
               </label>
@@ -174,10 +174,10 @@ export default function AreaPage() {
                 id="area-select"
                 value={selectedAreaId}
                 onChange={(e) => setSelectedAreaId(e.target.value)}
-                className="bg-transparent text-sm font-semibold text-slate-800 border-none focus:outline-none cursor-pointer"
+                className="bg-transparent text-sm font-semibold text-slate-200 border-none focus:outline-none cursor-pointer"
               >
                 {areas.map((a) => (
-                  <option key={a.area_id} value={a.area_id}>
+                  <option key={a.area_id} value={a.area_id} className="bg-navy-900 text-slate-200">
                     {a.area_id} ({a.area_type})
                   </option>
                 ))}
@@ -185,8 +185,8 @@ export default function AreaPage() {
             </div>
 
             {/* Date Selector */}
-            <div className="flex items-center gap-2 bg-slate-100/90 rounded-full px-4 py-2">
-              <Calendar className="w-4 h-4 text-slate-500" />
+            <div className="flex items-center gap-2 bg-slate-900 rounded-full px-4 py-2 border border-slate-800">
+              <Calendar className="w-4 h-4 text-slate-400" />
               <label htmlFor="date-select" className="sr-only">
                 তারিখ
               </label>
@@ -195,7 +195,7 @@ export default function AreaPage() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-transparent text-sm font-medium text-slate-800 border-none focus:outline-none cursor-pointer"
+                className="bg-transparent text-sm font-medium text-slate-200 border-none focus:outline-none cursor-pointer [color-scheme:dark]"
               />
             </div>
           </div>
@@ -218,19 +218,19 @@ export default function AreaPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
           {/* Column 1 & 2: Risk Table */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-soft p-5 space-y-4">
+          <div className="lg:col-span-2 bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                <h2 className="text-base font-bold text-slate-100 tracking-tight">
                   এজেন্ট ঘাটতি ঝুঁকির তালিকা
                 </h2>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-400 mt-0.5">
                   এরিয়া {selectedAreaId} • মোট {sortedAgents.length} জন এজেন্ট
                 </p>
               </div>
 
-              <div className="text-xs text-slate-500 flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm border-l-2 border-l-red-500 bg-red-50 inline-block" />
+              <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm border-l-2 border-l-red-500 bg-red-950/40 inline-block" />
                 <span>লাল সীমানা = উচ্চ ঝুঁকি (&ge; ৩০%)</span>
               </div>
             </div>
@@ -239,24 +239,24 @@ export default function AreaPage() {
             <div className="overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <tr className="border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     {/* Agent ID Column */}
                     <th className="pb-3 pr-4">
                       <button
                         type="button"
                         onClick={() => handleSort("agent_id")}
-                        className="flex items-center gap-1 font-semibold text-slate-700 hover:text-slate-900"
+                        className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
                         aria-label="এজেন্ট আইডি অনুযায়ী সাজান"
                       >
                         <span>{STRINGS.agentIdCol}</span>
                         {sortField === "agent_id" ? (
                           sortDirection === "asc" ? (
-                            <ArrowUp className="w-3.5 h-3.5 text-teal-600" />
+                            <ArrowUp className="w-3.5 h-3.5 text-teal-400" />
                           ) : (
-                            <ArrowDown className="w-3.5 h-3.5 text-teal-600" />
+                            <ArrowDown className="w-3.5 h-3.5 text-teal-400" />
                           )
                         ) : (
-                          <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                          <ArrowUpDown className="w-3 h-3 text-slate-500" />
                         )}
                       </button>
                     </th>
@@ -266,18 +266,18 @@ export default function AreaPage() {
                       <button
                         type="button"
                         onClick={() => handleSort("stockout_prob_habit")}
-                        className="flex items-center gap-1 font-semibold text-slate-700 hover:text-slate-900"
+                        className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
                         aria-label="ঝুঁকির মাত্রা অনুযায়ী সাজান"
                       >
                         <span>{STRINGS.riskProbCol}</span>
                         {sortField === "stockout_prob_habit" ? (
                           sortDirection === "asc" ? (
-                            <ArrowUp className="w-3.5 h-3.5 text-teal-600" />
+                            <ArrowUp className="w-3.5 h-3.5 text-teal-400" />
                           ) : (
-                            <ArrowDown className="w-3.5 h-3.5 text-teal-600" />
+                            <ArrowDown className="w-3.5 h-3.5 text-teal-400" />
                           )
                         ) : (
-                          <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                          <ArrowUpDown className="w-3 h-3 text-slate-500" />
                         )}
                       </button>
                     </th>
@@ -287,25 +287,25 @@ export default function AreaPage() {
                       <button
                         type="button"
                         onClick={() => handleSort("risk_hour")}
-                        className="flex items-center gap-1 font-semibold text-slate-700 hover:text-slate-900 ml-auto"
+                        className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100 ml-auto"
                         aria-label="ঝুঁকির সময় অনুযায়ী সাজান"
                       >
                         <span>{STRINGS.riskHourCol}</span>
                         {sortField === "risk_hour" ? (
                           sortDirection === "asc" ? (
-                            <ArrowUp className="w-3.5 h-3.5 text-teal-600" />
+                            <ArrowUp className="w-3.5 h-3.5 text-teal-400" />
                           ) : (
-                            <ArrowDown className="w-3.5 h-3.5 text-teal-600" />
+                            <ArrowDown className="w-3.5 h-3.5 text-teal-400" />
                           )
                         ) : (
-                          <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                          <ArrowUpDown className="w-3 h-3 text-slate-500" />
                         )}
                       </button>
                     </th>
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-800/80">
                   {sortedAgents.map((ag: AreaAgentRisk) => {
                     const isHighRisk = ag.stockout_prob_habit >= 0.3;
                     const percent = Math.round(ag.stockout_prob_habit * 100);
@@ -313,16 +313,16 @@ export default function AreaPage() {
                     return (
                       <tr
                         key={ag.agent_id}
-                        className={`transition-colors hover:bg-slate-50/80 ${
-                          isHighRisk ? "border-l-2 border-l-red-500 bg-red-50/20" : ""
+                        className={`transition-colors hover:bg-slate-800/40 ${
+                          isHighRisk ? "border-l-2 border-l-red-500 bg-red-950/20" : ""
                         }`}
                       >
                         {/* Agent ID */}
-                        <td className="py-3.5 pr-4 font-bold text-slate-900 whitespace-nowrap">
+                        <td className="py-3.5 pr-4 font-bold text-slate-100 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <span>{ag.agent_id}</span>
                             {isHighRisk && (
-                              <span className="text-[11px] font-semibold text-red-600">
+                              <span className="text-[11px] font-semibold text-red-400">
                                 {STRINGS.riskWord}
                               </span>
                             )}
@@ -332,19 +332,19 @@ export default function AreaPage() {
                         {/* Status / Risk Pill */}
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           {isHighRisk ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-950/40 text-amber-300 border border-amber-800/50">
+                              <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                               <span>নগদ ঘাটতি ঝুঁকি ({percent}%)</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700/60">
                               স্বাভাবিক অবস্থা ({percent}%)
                             </span>
                           )}
                         </td>
 
                         {/* Risk Hour */}
-                        <td className="py-3.5 pl-4 text-right font-medium text-slate-700 tabular-nums whitespace-nowrap">
+                        <td className="py-3.5 pl-4 text-right font-medium text-slate-300 tabular-nums whitespace-nowrap">
                           বিকেল {ag.risk_hour}:00
                         </td>
                       </tr>
@@ -357,19 +357,19 @@ export default function AreaPage() {
 
           {/* Column 3: Lost Demand Side Card */}
           <div className="lg:col-span-1 space-y-4">
-            <div className="bg-white rounded-2xl shadow-soft p-5 space-y-4">
+            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 tracking-tight">
+                  <h3 className="text-base font-bold text-slate-100 tracking-tight">
                     {STRINGS.areaLostDemandHeading}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">সপ্তাহ {DEMO_WEEK}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">সপ্তাহ {DEMO_WEEK}</p>
                 </div>
 
                 {/* Digital shift badge if present in selected area */}
                 {hasDigitalShift && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
-                    <TrendingDown className="w-3.5 h-3.5 text-amber-700" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-950/40 text-amber-300 border border-amber-800/50 shrink-0">
+                    <TrendingDown className="w-3.5 h-3.5 text-amber-400" />
                     <span>{STRINGS.digitalShiftBadge}</span>
                   </span>
                 )}
@@ -377,45 +377,45 @@ export default function AreaPage() {
 
               {/* Selected Area Summary Metrics */}
               {selectedAreaLostInfo && (
-                <div className="p-3.5 bg-slate-50 rounded-xl space-y-2 text-xs">
+                <div className="p-3.5 bg-navy-900/90 rounded-xl space-y-2 text-xs border border-slate-800">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-600">নির্বাচিত এরিয়া:</span>
-                    <strong className="text-slate-900 font-bold">{selectedAreaId} ({currentArea?.area_type})</strong>
+                    <span className="text-slate-400">নির্বাচিত এরিয়া:</span>
+                    <strong className="text-slate-200 font-bold">{selectedAreaId} ({currentArea?.area_type})</strong>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-600">হারানো লেনদেন সংখ্যা:</span>
-                    <strong className="text-slate-900 tabular-nums font-bold">
+                    <span className="text-slate-400">হারানো লেনদেন সংখ্যা:</span>
+                    <strong className="text-slate-100 tabular-nums font-bold">
                       {Math.round(selectedAreaLostInfo.lost_count)} বার
                     </strong>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-600">হারানো চাহিদা পরিমাণ:</span>
-                    <strong className="text-teal-700 tabular-nums font-bold text-sm">
+                    <span className="text-slate-400">হারানো চাহিদা পরিমাণ:</span>
+                    <strong className="text-teal-400 tabular-nums font-bold text-sm">
                       ৳ {formatBDT(selectedAreaLostInfo.lost_amount)}
                     </strong>
                   </div>
                 </div>
               )}
 
-              {/* Bar Chart: All bars slate-300 except selected area bar teal */}
+              {/* Bar Chart: All bars slate-700 except selected area bar teal */}
               <div
                 className="h-64 w-full pt-2"
                 role="region"
                 aria-label="বিভিন্ন এরিয়ার সাপ্তাহিক হারানো চাহিদা চার্ট"
               >
-                <div className="text-[11px] font-semibold text-slate-500 mb-1 text-right">
+                <div className="text-[11px] font-semibold text-slate-400 mb-1 text-right">
                   চাহিদা (BDT)
                 </div>
                 <ResponsiveContainer width="100%" height="90%">
                   <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 20 }}>
                     <XAxis
                       dataKey="areaId"
-                      tick={{ fill: "#64748B", fontSize: 12 }}
-                      axisLine={{ stroke: "#E2E8F0" }}
+                      tick={{ fill: "#94A3B8", fontSize: 12 }}
+                      axisLine={{ stroke: "#334155" }}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fill: "#64748B", fontSize: 11 }}
+                      tick={{ fill: "#94A3B8", fontSize: 11 }}
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
@@ -424,10 +424,10 @@ export default function AreaPage() {
                       formatter={(val: number) => [`৳ ${formatBDT(val)}`, "হারানো চাহিদা"]}
                       labelFormatter={(label) => `এরিয়া: ${label}`}
                       contentStyle={{
-                        backgroundColor: "#FFFFFF",
+                        backgroundColor: "#0B1120",
                         borderRadius: "12px",
-                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-                        border: "1px solid #E2E8F0",
+                        border: "1px solid #334155",
+                        color: "#F8FAFC",
                         fontSize: "12px",
                       }}
                     />
@@ -435,7 +435,7 @@ export default function AreaPage() {
                       {chartData.map((entry) => (
                         <Cell
                           key={entry.areaId}
-                          fill={entry.areaId === selectedAreaId ? "#0D9488" : "#CBD5E1"}
+                          fill={entry.areaId === selectedAreaId ? "#14B8A6" : "#334155"}
                           className="cursor-pointer transition-colors"
                           onClick={() => setSelectedAreaId(entry.areaId)}
                         />
@@ -445,7 +445,7 @@ export default function AreaPage() {
                 </ResponsiveContainer>
               </div>
 
-              <p className="text-[11px] text-slate-400 text-center">
+              <p className="text-[11px] text-slate-500 text-center">
                 চার্টের বারে ক্লিক করে নির্দিষ্ট এরিয়া নির্বাচন করা যাবে।
               </p>
             </div>

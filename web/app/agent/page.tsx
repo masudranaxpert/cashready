@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import {
+import type {
   Agent,
   AgentPlan,
   AgentLostDemand,
@@ -132,25 +132,25 @@ export default function AgentPage() {
   return (
     <div className="max-w-md mx-auto space-y-4">
       {/* Top Bar: Title, Date Picker, and Searchable Agent Selector */}
-      <section className="bg-white rounded-2xl shadow-soft p-4 space-y-3" aria-label="এজেন্ট ও তারিখ নির্বাচন">
+      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 space-y-3" aria-label="এজেন্ট ও তারিখ নির্বাচন">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-lg text-slate-900 tracking-tight">
+            <span className="font-bold text-lg text-slate-100 tracking-tight">
               CashReady
             </span>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
               এজেন্ট ভিউ
             </span>
           </div>
 
           {/* Date Picker */}
-          <div className="flex items-center gap-1.5 bg-slate-100/90 rounded-full px-3 py-1.5 text-xs font-medium text-slate-700">
-            <Calendar className="w-3.5 h-3.5 text-slate-500" />
+          <div className="flex items-center gap-1.5 bg-slate-900 rounded-full px-3 py-1.5 text-xs font-medium text-slate-300 border border-slate-800">
+            <Calendar className="w-3.5 h-3.5 text-slate-400" />
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="bg-transparent border-none text-xs text-slate-800 focus:outline-none cursor-pointer"
+              className="bg-transparent border-none text-xs text-slate-200 focus:outline-none cursor-pointer [color-scheme:dark]"
               aria-label="তারিখ নির্বাচন"
             />
           </div>
@@ -158,7 +158,7 @@ export default function AgentPage() {
 
         {/* Searchable Agent Selector */}
         <div className="relative">
-          <label htmlFor="agent-search" className="block text-xs font-medium text-slate-500 mb-1">
+          <label htmlFor="agent-search" className="block text-xs font-medium text-slate-400 mb-1">
             এজেন্ট নির্বাচন ({agents.length} জন এজেন্ট)
           </label>
           <div className="relative">
@@ -166,13 +166,13 @@ export default function AgentPage() {
               type="button"
               id="agent-search"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full min-h-[44px] px-3.5 py-2 text-left bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200/80 flex items-center justify-between text-sm transition-colors"
+              className="w-full min-h-[44px] px-3.5 py-2 text-left bg-slate-900/90 hover:bg-slate-900 rounded-xl border border-slate-700/70 flex items-center justify-between text-sm transition-colors text-slate-200"
               aria-haspopup="listbox"
               aria-expanded={isDropdownOpen}
             >
               <div className="flex items-center gap-2 truncate">
-                <span className="font-bold text-slate-900">{currentAgent?.agent_id ?? selectedAgentId}</span>
-                <span className="text-xs text-slate-500">
+                <span className="font-bold text-slate-100">{currentAgent?.agent_id ?? selectedAgentId}</span>
+                <span className="text-xs text-slate-400">
                   {currentAgent ? `• ${currentAgent.area_id} (${currentAgent.area_type})` : ""}
                 </span>
               </div>
@@ -180,14 +180,14 @@ export default function AgentPage() {
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-soft-lg border border-slate-200 z-50 p-2 max-h-64 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 mt-1.5 bg-navy-850 rounded-2xl shadow-soft-lg border border-slate-700 z-50 p-2 max-h-64 overflow-y-auto">
                 <div className="p-1 mb-1">
                   <input
                     type="text"
                     placeholder="এজেন্ট আইডি বা এরিয়া সার্চ..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-3 py-1.5 text-xs bg-slate-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-600"
+                    className="w-full px-3 py-1.5 text-xs bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                     autoFocus
                   />
                 </div>
@@ -201,16 +201,16 @@ export default function AgentPage() {
                           setIsDropdownOpen(false);
                           setSearchQuery("");
                         }}
-                        className={`w-full min-h-[38px] px-3 py-1.5 text-left text-xs rounded-lg flex items-center justify-between ${
+                        className={`w-full min-h-[38px] px-3 py-1.5 text-left text-xs rounded-lg flex items-center justify-between transition-colors ${
                           ag.agent_id === selectedAgentId
-                            ? "bg-slate-900 text-white font-medium"
-                            : "hover:bg-slate-100 text-slate-800"
+                            ? "bg-slate-800 text-slate-100 font-semibold border border-slate-700"
+                            : "hover:bg-slate-900/80 text-slate-300"
                         }`}
                         role="option"
                         aria-selected={ag.agent_id === selectedAgentId}
                       >
-                        <span className="font-semibold">{ag.agent_id}</span>
-                        <span className={ag.agent_id === selectedAgentId ? "text-slate-300" : "text-slate-500"}>
+                        <span className="font-semibold text-slate-100">{ag.agent_id}</span>
+                        <span className="text-slate-400">
                           {ag.area_id} ({ag.area_type})
                         </span>
                       </button>
@@ -239,42 +239,42 @@ export default function AgentPage() {
       ) : (
         <div className="space-y-4 animate-fade-in">
           {/* HERO CARD: Opening Cash & Segmented Risk Control */}
-          <div className="bg-white rounded-2xl shadow-soft p-5 text-center space-y-4">
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 text-center space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                 {STRINGS.heroPlanHeading}
               </h2>
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-teal-50 text-teal-700">
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-teal-950/60 text-teal-300 border border-teal-800/50">
                 {riskLevel === "0.8" ? "নিরাপদ প্ল্যান" : riskLevel === "0.9" ? "ভারসাম্য প্ল্যান" : "সতর্ক প্ল্যান"}
               </span>
             </div>
 
             {/* Giant Opening Cash Number (40px, Teal) */}
             <div className="py-1">
-              <div className="text-[40px] leading-tight font-extrabold text-teal-600 tracking-tight tabular-nums">
+              <div className="text-[40px] leading-tight font-extrabold text-teal-400 tracking-tight tabular-nums">
                 ৳ {formatBDT(plan.opening_cash)}
               </div>
-              <p className="text-xs font-medium text-slate-500 mt-1">প্রস্তাবিত উদ্বোধনী নগদ (Opening Cash)</p>
+              <p className="text-xs font-medium text-slate-400 mt-1">প্রস্তাবিত উদ্বোধনী নগদ (Opening Cash)</p>
             </div>
 
             {/* Full Bangla Message (18px, Hind Siliguri) */}
-            <div className="p-3.5 bg-slate-50 rounded-xl text-left border border-slate-100">
-              <p className="text-[17px] sm:text-[18px] text-slate-800 leading-relaxed font-normal">
+            <div className="p-3.5 bg-navy-900/90 rounded-xl text-left border border-slate-800">
+              <p className="text-[17px] sm:text-[18px] text-slate-200 leading-relaxed font-normal">
                 {plan.message_bn}
               </p>
             </div>
 
             {/* 3-Way Segmented Control */}
             <div className="pt-2">
-              <div className="text-xs font-medium text-slate-500 mb-2 flex items-center justify-between">
+              <div className="text-xs font-medium text-slate-400 mb-2 flex items-center justify-between">
                 <span>ঝুঁকির স্তর নির্ধারণ করুন:</span>
-                <span className="font-semibold text-slate-800">
+                <span className="font-semibold text-slate-200">
                   {riskLevel === "0.8" ? "৮০% নিরাপদ" : riskLevel === "0.9" ? "৯০% ভারসাম্য" : "৯৫% সতর্ক"}
                 </span>
               </div>
 
               <div
-                className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-full"
+                className="grid grid-cols-3 gap-1.5 p-1 bg-navy-900/90 border border-slate-800 rounded-full"
                 role="radiogroup"
                 aria-label="ঝুঁকি স্তর নিয়ন্ত্রণ"
               >
@@ -295,8 +295,8 @@ export default function AgentPage() {
                       onClick={() => handleRiskChange(tier.key)}
                       className={`min-h-[44px] py-2 px-1 text-xs sm:text-sm font-semibold rounded-full transition-transform duration-100 active:scale-[0.98] ${
                         isSelected
-                          ? "bg-black text-white shadow-soft"
-                          : "text-slate-600 hover:text-slate-900"
+                          ? "bg-slate-800 text-slate-100 border border-slate-700 shadow-soft"
+                          : "text-slate-400 hover:text-slate-200"
                       }`}
                     >
                       {tier.label}
@@ -306,16 +306,16 @@ export default function AgentPage() {
               </div>
 
               {/* Stockout Probability Info */}
-              <div className="mt-3 flex items-center justify-between text-xs text-slate-500 px-1">
+              <div className="mt-3 flex items-center justify-between text-xs text-slate-400 px-1">
                 <span>
                   প্ল্যানে ঘাটতি সম্ভাবনা:{" "}
-                  <strong className="text-slate-800">
+                  <strong className="text-slate-200">
                     {Math.round((plan.stockout_prob_plan[riskLevel] ?? 0.1) * 100)}%
                   </strong>
                 </span>
                 <span>
                   পূর্বের অভ্যাসে:{" "}
-                  <strong className="text-slate-800">
+                  <strong className="text-slate-200">
                     {Math.round((plan.stockout_prob_habit[riskLevel] ?? 0.28) * 100)}%
                   </strong>
                 </span>
@@ -324,9 +324,9 @@ export default function AgentPage() {
           </div>
 
           {/* REASONS CARD: Top 3 Reasons with Horizontal Bars */}
-          <div className="bg-white rounded-2xl shadow-soft p-5 space-y-4">
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+              <h3 className="text-sm font-bold text-slate-100 tracking-tight">
                 {STRINGS.reasonsHeading}
               </h3>
               <span className="text-xs text-slate-500 italic">
@@ -338,15 +338,15 @@ export default function AgentPage() {
               <div className="space-y-3.5">
                 {plan.reasons.slice(0, 3).map((r: Reason, idx: number) => {
                   const isPositive = r.impact >= 0;
-                  const absVal = Math.min(Math.abs(r.impact) * 180, 100); // normalized bar width percentage
+                  const absVal = Math.min(Math.abs(r.impact) * 180, 100);
 
                   return (
                     <div key={r.key || idx} className="space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-slate-800">{r.label_bn}</span>
+                        <span className="font-medium text-slate-200">{r.label_bn}</span>
                         <span
                           className={`font-semibold tabular-nums ${
-                            isPositive ? "text-amber-800" : "text-teal-700"
+                            isPositive ? "text-amber-400" : "text-teal-400"
                           }`}
                         >
                           {isPositive ? "+" : ""}
@@ -355,15 +355,15 @@ export default function AgentPage() {
                       </div>
 
                       {/* Bi-directional impact bar */}
-                      <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden flex items-center relative">
+                      <div className="h-2.5 w-full bg-slate-900 rounded-full overflow-hidden flex items-center relative border border-slate-800">
                         {/* Center reference mark */}
-                        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-300 z-10" />
+                        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-700 z-10" />
 
                         {isPositive ? (
                           // Positive risk impact extends right in amber
                           <div className="w-1/2 flex justify-start ml-auto">
                             <div
-                              className="h-full bg-amber-400 rounded-r-full transition-all duration-300"
+                              className="h-full bg-amber-500/80 rounded-r-full transition-all duration-300"
                               style={{ width: `${absVal}%` }}
                               title={`ঝুঁকি বৃদ্ধি: +${r.impact.toFixed(2)}`}
                             />
@@ -372,7 +372,7 @@ export default function AgentPage() {
                           // Negative risk impact extends left in teal
                           <div className="w-1/2 flex justify-end">
                             <div
-                              className="h-full bg-teal-600 rounded-l-full transition-all duration-300"
+                              className="h-full bg-teal-500/90 rounded-l-full transition-all duration-300"
                               style={{ width: `${absVal}%` }}
                               title={`ঝুঁকি হ্রাস: ${r.impact.toFixed(2)}`}
                             />
@@ -384,33 +384,33 @@ export default function AgentPage() {
                 })}
               </div>
             ) : (
-              <p className="text-xs text-slate-500 py-2">{STRINGS.reasonsEmpty}</p>
+              <p className="text-xs text-slate-400 py-2">{STRINGS.reasonsEmpty}</p>
             )}
           </div>
 
           {/* LOST DEMAND CARD */}
           {lostDemand && (
-            <div className="bg-white rounded-2xl shadow-soft p-5 space-y-3">
-              <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-3">
+              <h3 className="text-sm font-bold text-slate-100 tracking-tight">
                 {STRINGS.lostDemandHeading} ({lostDemand.week})
               </h3>
 
-              <div className="divide-y divide-slate-100 text-xs sm:text-sm">
-                <div className="py-2 flex items-center justify-between">
-                  <span className="text-slate-600">{STRINGS.lostCountLabel}</span>
-                  <span className="font-bold text-slate-900 tabular-nums">
+              <div className="divide-y divide-slate-800/80 text-xs sm:text-sm">
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-slate-400">{STRINGS.lostCountLabel}</span>
+                  <span className="font-bold text-slate-100 tabular-nums">
                     {lostDemand.lost_count} জন
                   </span>
                 </div>
-                <div className="py-2 flex items-center justify-between">
-                  <span className="text-slate-600">{STRINGS.lostAmountLabel}</span>
-                  <span className="font-bold text-slate-900 tabular-nums">
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-slate-400">{STRINGS.lostAmountLabel}</span>
+                  <span className="font-bold text-slate-100 tabular-nums">
                     ৳ {formatBDT(lostDemand.lost_amount)}
                   </span>
                 </div>
-                <div className="py-2 flex items-center justify-between">
-                  <span className="text-slate-600">{STRINGS.lostCommissionLabel}</span>
-                  <span className="font-bold text-teal-700 tabular-nums">
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-slate-400">{STRINGS.lostCommissionLabel}</span>
+                  <span className="font-bold text-teal-400 tabular-nums">
                     ৳ {formatBDT(lostDemand.lost_commission)}
                   </span>
                 </div>
@@ -419,16 +419,16 @@ export default function AgentPage() {
           )}
 
           {/* FEEDBACK CARD */}
-          <div className="bg-white rounded-2xl shadow-soft p-5 space-y-3">
-            <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-3">
+            <h3 className="text-sm font-bold text-slate-100 tracking-tight">
               {STRINGS.feedbackHeading}
             </h3>
 
             {feedbackStatus === "success" ? (
-              <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl text-slate-900">
-                <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0" />
-                <span className="text-sm font-bold">{STRINGS.feedbackSuccess}</span>
-                <span className="text-xs text-slate-500">আপনার মতামত রেকর্ড করা হয়েছে।</span>
+              <div className="flex items-center gap-2 p-3 bg-navy-900 rounded-xl border border-slate-800 text-slate-100">
+                <CheckCircle2 className="w-5 h-5 text-teal-400 shrink-0" />
+                <span className="text-sm font-bold text-teal-400">{STRINGS.feedbackSuccess}</span>
+                <span className="text-xs text-slate-400">আপনার মতামত রেকর্ড করা হয়েছে।</span>
               </div>
             ) : (
               <div className="space-y-2">
@@ -437,10 +437,10 @@ export default function AgentPage() {
                     type="button"
                     onClick={() => handleFeedback(true)}
                     disabled={feedbackStatus === "submitting"}
-                    className={`flex-1 min-h-[44px] rounded-full text-sm font-semibold transition-transform duration-100 active:scale-[0.98] ${
+                    className={`flex-1 min-h-[44px] rounded-full text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border ${
                       feedbackAnswer === true
-                        ? "bg-black text-white"
-                        : "bg-slate-100 text-slate-800 hover:bg-slate-200/80"
+                        ? "bg-slate-700 text-white border-slate-600"
+                        : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
                     } disabled:opacity-50`}
                   >
                     {STRINGS.feedbackYes}
@@ -449,10 +449,10 @@ export default function AgentPage() {
                     type="button"
                     onClick={() => handleFeedback(false)}
                     disabled={feedbackStatus === "submitting"}
-                    className={`flex-1 min-h-[44px] rounded-full text-sm font-semibold transition-transform duration-100 active:scale-[0.98] ${
+                    className={`flex-1 min-h-[44px] rounded-full text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border ${
                       feedbackAnswer === false
-                        ? "bg-black text-white"
-                        : "bg-slate-100 text-slate-800 hover:bg-slate-200/80"
+                        ? "bg-slate-700 text-white border-slate-600"
+                        : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
                     } disabled:opacity-50`}
                   >
                     {STRINGS.feedbackNo}
@@ -460,15 +460,15 @@ export default function AgentPage() {
                 </div>
 
                 {feedbackStatus === "submitting" && (
-                  <p className="text-xs text-slate-500 text-center py-1">
+                  <p className="text-xs text-slate-400 text-center py-1">
                     {STRINGS.feedbackSubmitting}
                   </p>
                 )}
 
                 {feedbackStatus === "error" && (
-                  <div className="flex items-center justify-between text-xs text-amber-900 bg-amber-50 p-2.5 rounded-xl">
+                  <div className="flex items-center justify-between text-xs text-amber-300 bg-amber-950/40 border border-amber-800/50 p-2.5 rounded-xl">
                     <div className="flex items-center gap-1.5">
-                      <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                      <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
                       <span>{STRINGS.feedbackFailed}</span>
                     </div>
                     <button

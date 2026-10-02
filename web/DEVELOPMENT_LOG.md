@@ -18,7 +18,7 @@
 ## Milestone 1 — Frontend Foundation
 - **Work performed**:
   - Created Next.js 14 App Router project in `web/` with strict TypeScript, Tailwind CSS, Lucide React, and Recharts.
-  - Configured design system tokens in `tailwind.config.ts` (soft-shell admin, `#F4F5F7` background, `#0D9488` teal accent, soft shadows, Hind Siliguri font).
+  - Configured design system tokens in `tailwind.config.ts` (soft-shell admin, Hind Siliguri font).
   - Built root layout (`app/layout.tsx`) and global styles (`app/globals.css`) with accessible focus rings, button active press scaling, and prefers-reduced-motion.
   - Created responsive `Navigation.tsx` component with top desktop tab bar and mobile floating bottom pill bar.
   - Set up route placeholders: `/` (redirects to `/agent`), `/agent`, `/area`, `/evidence`, and `not-found`.
@@ -169,5 +169,35 @@
   - `npm run typecheck`: 0 errors.
   - `npm run build`: 7/7 static routes generated successfully.
 - **Outcome**: Production ready, fully tested and documented.
-- **Commit hash**: `6258948`
+- **Commit hash**: `6258948`, `948a600`
+- **Blockers / dependencies**: None.
+
+## Milestone 8 — Minimal Dark SaaS Design Refinement
+- **Work performed**:
+  - Re-themed application into a restrained, premium financial SaaS dark theme:
+    - Deep navy background (`#0B1120`) and slightly lighter navy cards (`#111827`).
+    - Neutral slate borders (`border-slate-800` / `#1E293B`) and secondary text (`slate-400` / `slate-500`).
+    - Off-white primary text (`slate-100` / `#F8FAFC`).
+    - Teal (`#14B8A6` / `#0D9488`) as single main accent for key recommendations, selected states, and CashReady chart highlights.
+    - Amber strictly reserved for caution/risk indicators (`bg-amber-950/40 text-amber-300 border-amber-800/50`).
+    - Red strictly reserved for high-risk rows (2px left border & word "ঝুঁকি").
+  - Updated charts with muted neutral slate bars (`#334155`) and teal highlights (`#14B8A6`), dark tooltips, and neutral axis lines.
+  - Cleaned up navigation, cards, dropdowns, segmented controls, and skeletons to avoid colorful blocks, glow effects, or crypto-terminal aesthetics.
+- **Files changed**:
+  - `web/tailwind.config.ts`
+  - `web/app/globals.css`
+  - `web/components/Navigation.tsx`
+  - `web/components/Skeleton.tsx`
+  - `web/app/agent/page.tsx`
+  - `web/app/area/page.tsx`
+  - `web/app/evidence/page.tsx`
+  - `web/app/not-found.tsx`
+  - `web/DEVELOPMENT_LOG.md`
+- **Tests / checks performed**:
+  - `npm test`: 8/8 tests passed in 15ms.
+  - `npm run lint`: 0 errors, 0 warnings.
+  - `npm run typecheck`: 0 errors.
+  - `npm run build`: 7/7 routes built cleanly.
+- **Outcome**: Restrained, credible, dark financial SaaS UI verified and production-ready.
+- **Commit hash**: Pending git commit.
 - **Blockers / dependencies**: None.

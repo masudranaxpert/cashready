@@ -10,19 +10,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        shell: "#F4F5F7",
+        navy: {
+          950: "#080C16", // deepest navy
+          900: "#0B1120", // page shell background
+          850: "#111827", // card surface
+          800: "#162035", // elevated surfaces / secondary controls
+          700: "#1E293B", // borders
+        },
         teal: {
+          400: "#2DD4BF",
+          500: "#14B8A6",
           600: "#0D9488",
           DEFAULT: "#0D9488",
-          wash: "rgba(13, 148, 136, 0.05)",
         },
       },
       fontFamily: {
         sans: ["'Hind Siliguri'", "system-ui", "-apple-system", "sans-serif"],
       },
       boxShadow: {
-        soft: "0 2px 10px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 0 rgba(0, 0, 0, 0.02)",
-        "soft-lg": "0 10px 25px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02)",
+        soft: "0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3)",
+        "soft-lg": "0 10px 25px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3)",
       },
       borderRadius: {
         "2xl": "1rem",
