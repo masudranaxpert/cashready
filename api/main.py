@@ -35,8 +35,8 @@ def check_key(x_api_key: str | None):
 
 
 def load(rel: str) -> dict:
-    p = ARTIFACTS / rel
-    if not p.exists():
+    p = (ARTIFACTS / rel).resolve()
+    if not p.is_relative_to(ARTIFACTS.resolve()) or not p.exists():
         raise HTTPException(404, f"artifact not found: {rel}")
     return json.loads(p.read_text())
 
@@ -71,7 +71,7 @@ def metrics(x_api_key: str | None = Header(None)):
 
 
 @app.get("/agents/{agent_id}/plan")
-def agent_plan(agent_id: str, date: str = Query(...),
+def agent_plan(agent_id: str, date: str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2}$"),
                risk: str = Query("0.9"), x_api_key: str | None = Header(None)):
     check_key(x_api_key)
     doc = load(f"plans/{date}.json")
@@ -102,7 +102,7 @@ def agent_feedback(agent_id: str, body: FeedbackIn,
 
 
 @app.get("/areas/{area_id}/risk")
-def area_risk(area_id: str, date: str = Query(...),
+def area_risk(area_id: str, date: str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2}$"),
               x_api_key: str | None = Header(None)):
     check_key(x_api_key)
     doc = load(f"area_risk/{date}.json")
