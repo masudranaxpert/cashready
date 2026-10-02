@@ -63,5 +63,25 @@
   - `npm run typecheck` passed with 0 errors.
   - `npm run build` succeeded cleanly with static compilation.
 - **Outcome**: Dual-mode typed data layer ready and tested.
+- **Commit hash**: `c4bd4c9`
+- **Blockers / dependencies**: None.
+
+## Milestone 3 — Agent Page (Hero Demo)
+- **Work performed**:
+  - Created `web/components/Skeleton.tsx` for loading state skeletons and Bangla error recovery component.
+  - Implemented `/agent` hero layout: phone-sized max-w-md centered layout with date selector and searchable agent dropdown displaying agent ID and area.
+  - Implemented Hero Plan card with 40px bold teal opening cash recommendation and 18px Bangla narrative message.
+  - Implemented 3-way segmented risk control ("নিরাপদ ৮০% / ভারসাম্য ৯০% / সতর্ক ৯৫%") that updates opening cash dynamically according to the service level buffer formula.
+  - Implemented SHAP reasons card with bi-directional impact bars (amber for positive risk, teal for risk reduction).
+  - Implemented lost demand summary card with lost customer count, lost amount, and lost commission.
+  - Implemented inline feedback card with "হ্যাঁ" / "না" buttons, submitting state, inline "ধন্যবাদ!" acknowledgment, and error retry without `alert()`.
+- **Files changed**:
+  - `web/components/Skeleton.tsx`
+  - `web/app/agent/page.tsx`
+  - `web/DEVELOPMENT_LOG.md`
+- **Tests / checks performed**:
+  - `npm run typecheck` passed with 0 errors.
+  - `npm run build` succeeded; `/agent` route prerendered cleanly.
+- **Outcome**: Agent view complete and verified.
 - **Commit hash**: Pending git commit.
 - **Blockers / dependencies**: None.
