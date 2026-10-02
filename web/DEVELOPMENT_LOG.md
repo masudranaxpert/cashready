@@ -221,5 +221,5 @@
   - `npm run typecheck`: 0 errors.
   - `npm run build`: 7/7 routes compiled cleanly.
 - **Outcome**: SHAP bars fully visible, bi-directional, proportional, and accessible.
-- **Commit hash**: Pending git commit.
+- **Commit hash**: `c71d138`
 - **Blockers / dependencies**: None.
