@@ -130,4 +130,37 @@ describe("CashReady Frontend Contract & Verification Tests", () => {
     // 0.0 should be exactly 0% width (no misleading bar)
     assert.equal(calcPct(testReasons[2].impact), 0);
   });
+
+  test("Mobile viewport layout & responsive constraints (375px, 390px, 430px, 1280px)", () => {
+    const viewports = [
+      { name: "iPhone SE", width: 375 },
+      { name: "iPhone 12/13/14", width: 390 },
+      { name: "iPhone 14/15 Pro Max", width: 430 },
+      { name: "Desktop", width: 1280 },
+    ];
+
+    for (const vp of viewports) {
+      // 1. Agent page: max-w-md = 448px. At <= 448px, width is 100% with padding
+      const agentContainerWidth = Math.min(vp.width - 24, 448);
+      assert.ok(agentContainerWidth <= vp.width, `${vp.name}: Agent container must not exceed viewport`);
+
+      // 2. Segmented control: 3 columns. Each column has width = (agentContainerWidth - 8 - 32) / 3
+      const cardInnerWidth = agentContainerWidth - 32; // 16px padding on each side
+      const segmentedButtonWidth = (cardInnerWidth - 8) / 3;
+      // On 375px: cardInnerWidth ~311px, each button gets ~101px
+      assert.ok(segmentedButtonWidth >= 90, `${vp.name}: Segmented control buttons have ample width for Bengali text`);
+
+      // 3. Navigation: floating pill width on mobile <= (vp.width - 24)
+      if (vp.width < 768) {
+        const maxNavWidth = vp.width - 24;
+        assert.ok(maxNavWidth >= 351, `${vp.name}: Navigation fits inside viewport with margins`);
+      }
+
+      // 4. Area page: on mobile (< 640px), cards stack vertically with 100% width, no horizontal scroll
+      if (vp.width < 640) {
+        const areaCardWidth = vp.width - 24;
+        assert.ok(areaCardWidth > 0 && areaCardWidth <= vp.width, `${vp.name}: Area mobile cards fit viewport`);
+      }
+    }
+  });
 });

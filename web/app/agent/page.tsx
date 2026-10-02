@@ -130,27 +130,27 @@ export default function AgentPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto space-y-4">
+    <div className="max-w-md mx-auto space-y-3.5 sm:space-y-4 w-full">
       {/* Top Bar: Title, Date Picker, and Searchable Agent Selector */}
-      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 space-y-3" aria-label="এজেন্ট ও তারিখ নির্বাচন">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-lg text-slate-100 tracking-tight">
+      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-3.5 sm:p-4 space-y-3" aria-label="এজেন্ট ও তারিখ নির্বাচন">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span className="font-bold text-base sm:text-lg text-slate-100 tracking-tight shrink-0">
               CashReady
             </span>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 truncate">
               এজেন্ট ভিউ
             </span>
           </div>
 
           {/* Date Picker */}
-          <div className="flex items-center gap-1.5 bg-slate-900 rounded-full px-3 py-1.5 text-xs font-medium text-slate-300 border border-slate-800">
-            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex items-center gap-1 bg-slate-900 rounded-full px-2.5 py-1 text-xs font-medium text-slate-300 border border-slate-800 shrink-0">
+            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="bg-transparent border-none text-xs text-slate-200 focus:outline-none cursor-pointer [color-scheme:dark]"
+              className="bg-transparent border-none text-[11px] sm:text-xs text-slate-200 focus:outline-none cursor-pointer [color-scheme:dark]"
               aria-label="তারিখ নির্বাচন"
             />
           </div>
@@ -159,7 +159,7 @@ export default function AgentPage() {
         {/* Searchable Agent Selector */}
         <div className="relative">
           <label htmlFor="agent-search" className="block text-xs font-medium text-slate-400 mb-1">
-            এজেন্ট নির্বাচন ({agents.length} জন এজেন্ট)
+            এজেন্ট নির্বাচন ({agents.length} জন)
           </label>
           <div className="relative">
             <button
@@ -170,13 +170,13 @@ export default function AgentPage() {
               aria-haspopup="listbox"
               aria-expanded={isDropdownOpen}
             >
-              <div className="flex items-center gap-2 truncate">
-                <span className="font-bold text-slate-100">{currentAgent?.agent_id ?? selectedAgentId}</span>
-                <span className="text-xs text-slate-400">
+              <div className="flex items-center gap-2 truncate min-w-0">
+                <span className="font-bold text-slate-100 shrink-0">{currentAgent?.agent_id ?? selectedAgentId}</span>
+                <span className="text-xs text-slate-400 truncate">
                   {currentAgent ? `• ${currentAgent.area_id} (${currentAgent.area_type})` : ""}
                 </span>
               </div>
-              <Search className="w-4 h-4 text-slate-400 shrink-0" />
+              <Search className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
             </button>
 
             {isDropdownOpen && (
@@ -230,16 +230,16 @@ export default function AgentPage() {
       {error ? (
         <ErrorState message={error} onRetry={() => setSelectedAgentId(selectedAgentId)} />
       ) : loading || !plan ? (
-        <div className="space-y-4">
+        <div className="space-y-3.5 sm:space-y-4">
           <Skeleton className="h-64 w-full" />
           <Skeleton className="h-44 w-full" />
           <Skeleton className="h-32 w-full" />
           <Skeleton className="h-28 w-full" />
         </div>
       ) : (
-        <div className="space-y-4 animate-fade-in">
+        <div className="space-y-3.5 sm:space-y-4 animate-fade-in">
           {/* HERO CARD: Opening Cash & Segmented Risk Control */}
-          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 text-center space-y-4">
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 text-center space-y-3.5 sm:space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                 {STRINGS.heroPlanHeading}
@@ -249,32 +249,32 @@ export default function AgentPage() {
               </span>
             </div>
 
-            {/* Giant Opening Cash Number (40px, Teal) */}
+            {/* Responsive Opening Cash Number (34px mobile, 40px tablet/desktop) */}
             <div className="py-1">
-              <div className="text-[40px] leading-tight font-extrabold text-teal-400 tracking-tight tabular-nums">
+              <div className="text-[34px] min-[390px]:text-[40px] leading-tight font-extrabold text-teal-400 tracking-tight tabular-nums">
                 ৳ {formatBDT(plan.opening_cash)}
               </div>
               <p className="text-xs font-medium text-slate-400 mt-1">প্রস্তাবিত উদ্বোধনী নগদ (Opening Cash)</p>
             </div>
 
-            {/* Full Bangla Message (18px, Hind Siliguri) */}
-            <div className="p-3.5 bg-navy-900/90 rounded-xl text-left border border-slate-800">
-              <p className="text-[17px] sm:text-[18px] text-slate-200 leading-relaxed font-normal">
+            {/* Full Bangla Message */}
+            <div className="p-3 sm:p-3.5 bg-navy-900/90 rounded-xl text-left border border-slate-800">
+              <p className="text-[16px] min-[390px]:text-[17px] sm:text-[18px] text-slate-200 leading-relaxed font-normal">
                 {plan.message_bn}
               </p>
             </div>
 
             {/* 3-Way Segmented Control */}
-            <div className="pt-2">
+            <div className="pt-1">
               <div className="text-xs font-medium text-slate-400 mb-2 flex items-center justify-between">
-                <span>ঝুঁকির স্তর নির্ধারণ করুন:</span>
+                <span>ঝুঁকির স্তর নির্ধারণ:</span>
                 <span className="font-semibold text-slate-200">
                   {riskLevel === "0.8" ? "৮০% নিরাপদ" : riskLevel === "0.9" ? "৯০% ভারসাম্য" : "৯৫% সতর্ক"}
                 </span>
               </div>
 
               <div
-                className="grid grid-cols-3 gap-1.5 p-1 bg-navy-900/90 border border-slate-800 rounded-full"
+                className="grid grid-cols-3 gap-1 p-1 bg-navy-900/90 border border-slate-800 rounded-full w-full"
                 role="radiogroup"
                 aria-label="ঝুঁকি স্তর নিয়ন্ত্রণ"
               >
@@ -293,7 +293,7 @@ export default function AgentPage() {
                       role="radio"
                       aria-checked={isSelected}
                       onClick={() => handleRiskChange(tier.key)}
-                      className={`min-h-[44px] py-2 px-1 text-xs sm:text-sm font-semibold rounded-full transition-transform duration-100 active:scale-[0.98] ${
+                      className={`min-h-[44px] py-1.5 px-0.5 min-[380px]:px-1 text-[11px] min-[390px]:text-xs sm:text-sm font-semibold rounded-full transition-transform duration-100 active:scale-[0.98] text-center truncate ${
                         isSelected
                           ? "bg-slate-800 text-slate-100 border border-slate-700 shadow-soft"
                           : "text-slate-400 hover:text-slate-200"
@@ -306,9 +306,9 @@ export default function AgentPage() {
               </div>
 
               {/* Stockout Probability Info */}
-              <div className="mt-3 flex items-center justify-between text-xs text-slate-400 px-1">
+              <div className="mt-2.5 flex items-center justify-between text-[11px] sm:text-xs text-slate-400 px-1">
                 <span>
-                  প্ল্যানে ঘাটতি সম্ভাবনা:{" "}
+                  প্ল্যানে ঘাটতি:{" "}
                   <strong className="text-slate-200">
                     {Math.round((plan.stockout_prob_plan[riskLevel] ?? 0.1) * 100)}%
                   </strong>
@@ -324,7 +324,7 @@ export default function AgentPage() {
           </div>
 
           {/* REASONS CARD: Top 3 Reasons with Horizontal Bars */}
-          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-4">
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3.5 sm:space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-100 tracking-tight">
                 {STRINGS.reasonsHeading}
@@ -334,15 +334,15 @@ export default function AgentPage() {
               </span>
             </div>
 
-            {/* Scale reference bar */}
-            <div className="flex items-center justify-between text-[11px] text-slate-500 px-0.5 border-b border-slate-800/60 pb-1.5">
-              <span>← ঝুঁকি হ্রাস (Teal)</span>
-              <span className="font-semibold text-slate-400">০ (ভিত্তিরেখা)</span>
-              <span>ঝুঁকি বৃদ্ধি (Amber) →</span>
+            {/* Responsive scale reference bar */}
+            <div className="flex items-center justify-between text-[10px] min-[390px]:text-[11px] text-slate-500 px-0.5 border-b border-slate-800/60 pb-1.5">
+              <span>← হ্রাস (Teal)</span>
+              <span className="font-semibold text-slate-400">০ (ভিত্তি)</span>
+              <span>বৃদ্ধি (Amber) →</span>
             </div>
 
             {plan.reasons && plan.reasons.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 {(() => {
                   const topReasons = plan.reasons.slice(0, 3);
                   const maxImpact = Math.max(
@@ -360,15 +360,17 @@ export default function AgentPage() {
                       : Math.min(100, Math.round((Math.abs(impact) / maxImpact) * 100));
 
                     return (
-                      <div key={r.key || idx} className="space-y-1.5">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-medium text-slate-200">{r.label_bn}</span>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] text-slate-400">
+                      <div key={r.key || idx} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs gap-2">
+                          <span className="font-medium text-slate-200 truncate flex-1 min-w-0 pr-1">
+                            {r.label_bn}
+                          </span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <span className="text-[10px] text-slate-400">
                               {isPositive ? "বৃদ্ধি" : isNegative ? "হ্রাস" : "নিরপেক্ষ"}
                             </span>
                             <span
-                              className={`font-semibold tabular-nums ${
+                              className={`font-semibold tabular-nums text-xs ${
                                 isPositive
                                   ? "text-amber-400"
                                   : isNegative
@@ -425,25 +427,25 @@ export default function AgentPage() {
 
           {/* LOST DEMAND CARD */}
           {lostDemand && (
-            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-3">
+            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3">
               <h3 className="text-sm font-bold text-slate-100 tracking-tight">
                 {STRINGS.lostDemandHeading} ({lostDemand.week})
               </h3>
 
               <div className="divide-y divide-slate-800/80 text-xs sm:text-sm">
-                <div className="py-2.5 flex items-center justify-between">
+                <div className="py-2 flex items-center justify-between gap-2">
                   <span className="text-slate-400">{STRINGS.lostCountLabel}</span>
                   <span className="font-bold text-slate-100 tabular-nums">
                     {lostDemand.lost_count} জন
                   </span>
                 </div>
-                <div className="py-2.5 flex items-center justify-between">
+                <div className="py-2 flex items-center justify-between gap-2">
                   <span className="text-slate-400">{STRINGS.lostAmountLabel}</span>
                   <span className="font-bold text-slate-100 tabular-nums">
                     ৳ {formatBDT(lostDemand.lost_amount)}
                   </span>
                 </div>
-                <div className="py-2.5 flex items-center justify-between">
+                <div className="py-2 flex items-center justify-between gap-2">
                   <span className="text-slate-400">{STRINGS.lostCommissionLabel}</span>
                   <span className="font-bold text-teal-400 tabular-nums">
                     ৳ {formatBDT(lostDemand.lost_commission)}
@@ -454,7 +456,7 @@ export default function AgentPage() {
           )}
 
           {/* FEEDBACK CARD */}
-          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-3">
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3">
             <h3 className="text-sm font-bold text-slate-100 tracking-tight">
               {STRINGS.feedbackHeading}
             </h3>
@@ -472,7 +474,7 @@ export default function AgentPage() {
                     type="button"
                     onClick={() => handleFeedback(true)}
                     disabled={feedbackStatus === "submitting"}
-                    className={`flex-1 min-h-[44px] rounded-full text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border ${
+                    className={`flex-1 min-h-[44px] rounded-full text-xs sm:text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border ${
                       feedbackAnswer === true
                         ? "bg-slate-700 text-white border-slate-600"
                         : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
@@ -484,7 +486,7 @@ export default function AgentPage() {
                     type="button"
                     onClick={() => handleFeedback(false)}
                     disabled={feedbackStatus === "submitting"}
-                    className={`flex-1 min-h-[44px] rounded-full text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border ${
+                    className={`flex-1 min-h-[44px] rounded-full text-xs sm:text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border ${
                       feedbackAnswer === false
                         ? "bg-slate-700 text-white border-slate-600"
                         : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"

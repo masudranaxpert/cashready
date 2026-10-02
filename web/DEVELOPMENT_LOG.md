@@ -221,5 +221,49 @@
   - `npm run typecheck`: 0 errors.
   - `npm run build`: 7/7 routes compiled cleanly.
 - **Outcome**: SHAP bars fully visible, bi-directional, proportional, and accessible.
-- **Commit hash**: `c71d138`
+- **Commit hash**: `c71d138`, `2770d2c`
 - **Blockers / dependencies**: None.
+
+## Milestone 10 — Mobile Responsiveness, Safe-Area Insets & Narrow Viewport Enhancements
+- **Work performed**:
+  - **Fixed Bottom Navigation**:
+    - Wrapped fixed bottom navigation pill with safe-area insets using `.safe-nav-bottom` (`bottom: max(1rem, env(safe-area-inset-bottom, 1rem))`).
+    - Added `max-w-[calc(100vw-1.5rem)]`, dynamic responsive item padding (`px-2.5 min-[380px]:px-3 py-1.5`), and text sizing (`text-xs min-[390px]:text-sm`).
+    - Configured layout `<main>` padding `.safe-page-pad` (`pb-36 sm:pb-32 md:pb-12`) plus a bottom clearing spacer (`<div className="h-6 md:hidden w-full pointer-events-none" />`) so the floating pill bar never overlaps interactive content, cards, or buttons on any page.
+  - **Area Page Mobile Card Layout**:
+    - Replaced the wide table on screens `< 640px` (`sm:hidden`) with a dedicated mobile card list.
+    - Each card displays Agent ID, Status badge (`পর্যাপ্ত` / `ঝুঁকি`), Estimated Risk Hour (`আনুমানিক ঝুঁকি`), Stockout Probability bar, and Recommended Extra Buffer in BDT.
+    - High-risk agents ($\ge 30\%$ stockout probability) feature a 2px red left accent border and an amber `"ঝুঁকি"` indicator.
+    - Added a mobile quick-sort bar (`ঝুঁকি`, `আইডি`, `সময়`) allowing seamless mobile sorting.
+    - Preserved the full multi-column sortable table for `sm:` screens and up (`hidden sm:block`).
+    - Responsive bar chart margins and tick padding preventing Y-axis label clipping.
+  - **Agent Page Responsive Fit**:
+    - Replaced fixed widths with fluid flex layouts, `truncate`, and `min-w-0` to eliminate horizontal scroll.
+    - Responsive typography and padding for segmented risk tolerance controls (`text-[11px] min-[390px]:text-xs sm:text-sm`).
+    - Scaled the opening cash figure smoothly (`text-[34px] min-[390px]:text-[40px]`).
+    - Made SHAP visual reference labels responsive (`text-[10px] min-[380px]:text-xs`).
+  - **Evidence Page Mobile Spacing & Charts**:
+    - Responsive metric KPI typography (`text-2xl min-[390px]:text-3xl sm:text-4xl`) preventing card overflow.
+    - Optimized horizontal Recovery Comparison bar chart margins (`left: 0, right: 35`) and concise Y-axis labels (`width={95}` with `"Naive (সরল)"`, `"Mean (গড়)"`, `"CashReady"`) so bars remain clearly visible on narrow viewports.
+  - **Quality & Viewport Verification**:
+    - Verified strict container max-width constraints and layout boundaries across target viewports: 375px (iPhone SE), 390px (iPhone 12/13/14), 430px (iPhone 14/15 Pro Max), and 1280px (Desktop).
+    - Added unit test in `web/tests/verification.test.mjs` validating all viewport constraints.
+    - Verified that no unintended horizontal scroll, clipped text, overlapping navigation, or broken controls exist across all three routes (`/agent`, `/area`, `/evidence`).
+- **Files changed**:
+  - `web/app/globals.css`
+  - `web/app/layout.tsx`
+  - `web/components/Navigation.tsx`
+  - `web/app/area/page.tsx`
+  - `web/app/agent/page.tsx`
+  - `web/app/evidence/page.tsx`
+  - `web/tests/verification.test.mjs`
+  - `web/DEVELOPMENT_LOG.md`
+- **Tests / checks performed**:
+  - `npm test`: 10/10 tests passed (including mobile viewport constraints).
+  - `npm run lint`: 0 errors, 0 warnings.
+  - `npm run typecheck`: 0 errors.
+  - `npm run build`: 7/7 routes generated successfully.
+- **Outcome**: Seamless mobile experience across 375px, 390px, 430px, and 1280px without modifying the design system, copy, mock data, or API contracts.
+- **Commit hash**: Pending
+- **Blockers / dependencies**: None.
+

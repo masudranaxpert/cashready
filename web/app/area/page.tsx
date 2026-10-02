@@ -145,28 +145,28 @@ export default function AreaPage() {
   const currentArea = areas.find((a) => a.area_id === selectedAreaId);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Top Header Card */}
-      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5" aria-label="এরিয়া নির্বাচন ও সময়">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5" aria-label="এরিয়া নির্বাচন ও সময়">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-100 tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight">
                 {STRINGS.areaHeading}
               </h1>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
-                এরিয়া ম্যানেজার ভিউ
+                এরিয়া ভিউ
               </span>
             </div>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">
               আগামীকালের জন্য সম্ভাব্য ক্যাশ ঘাটতি এবং এরিয়াভিত্তিক চাহিদা শিফট বিশ্লেষণ
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col min-[480px]:flex-row items-stretch min-[480px]:items-center gap-2.5">
             {/* Area Selector */}
-            <div className="flex items-center gap-2 bg-slate-900 rounded-full px-4 py-2 border border-slate-800">
-              <MapPin className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-2 bg-slate-900 rounded-full px-3.5 py-2 border border-slate-800">
+              <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
               <label htmlFor="area-select" className="sr-only">
                 এরিয়া নির্বাচন
               </label>
@@ -174,7 +174,7 @@ export default function AreaPage() {
                 id="area-select"
                 value={selectedAreaId}
                 onChange={(e) => setSelectedAreaId(e.target.value)}
-                className="bg-transparent text-sm font-semibold text-slate-200 border-none focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs sm:text-sm font-semibold text-slate-200 border-none focus:outline-none cursor-pointer w-full"
               >
                 {areas.map((a) => (
                   <option key={a.area_id} value={a.area_id} className="bg-navy-900 text-slate-200">
@@ -185,8 +185,8 @@ export default function AreaPage() {
             </div>
 
             {/* Date Selector */}
-            <div className="flex items-center gap-2 bg-slate-900 rounded-full px-4 py-2 border border-slate-800">
-              <Calendar className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-2 bg-slate-900 rounded-full px-3.5 py-2 border border-slate-800">
+              <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
               <label htmlFor="date-select" className="sr-only">
                 তারিখ
               </label>
@@ -195,7 +195,7 @@ export default function AreaPage() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-transparent text-sm font-medium text-slate-200 border-none focus:outline-none cursor-pointer [color-scheme:dark]"
+                className="bg-transparent text-xs sm:text-sm font-medium text-slate-200 border-none focus:outline-none cursor-pointer w-full [color-scheme:dark]"
               />
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function AreaPage() {
       {error ? (
         <ErrorState message={error} onRetry={() => setSelectedAreaId(selectedAreaId)} />
       ) : loading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="lg:col-span-2 space-y-3">
             <Skeleton className="h-12 w-full" />
             <Skeleton className="h-64 w-full" />
@@ -216,10 +216,10 @@ export default function AreaPage() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
-          {/* Column 1 & 2: Risk Table */}
-          <div className="lg:col-span-2 bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-4">
-            <div className="flex items-center justify-between">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 animate-fade-in">
+          {/* Column 1 & 2: Risk Table / Mobile Cards */}
+          <div className="lg:col-span-2 bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
               <div>
                 <h2 className="text-base font-bold text-slate-100 tracking-tight">
                   এজেন্ট ঘাটতি ঝুঁকির তালিকা
@@ -229,14 +229,100 @@ export default function AreaPage() {
                 </p>
               </div>
 
-              <div className="text-xs text-slate-400 flex items-center gap-1.5">
+              <div className="text-[11px] sm:text-xs text-slate-400 flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm border-l-2 border-l-red-500 bg-red-950/40 inline-block" />
                 <span>লাল সীমানা = উচ্চ ঝুঁকি (&ge; ৩০%)</span>
               </div>
             </div>
 
-            {/* Accessible Table with Responsive Strategy */}
-            <div className="overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0">
+            {/* MOBILE VIEW (< 640px): Card layout preventing clipped horizontal table overflow */}
+            <div className="block sm:hidden space-y-2.5">
+              {/* Mobile sorting toolbar */}
+              <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-slate-800/80">
+                <span className="text-[11px]">সাজান:</span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleSort("stockout_prob_habit")}
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors ${
+                      sortField === "stockout_prob_habit"
+                        ? "bg-slate-800 text-teal-400 border-slate-700"
+                        : "bg-slate-900/80 text-slate-400 border-slate-800"
+                    }`}
+                  >
+                    ঝুঁকি {sortField === "stockout_prob_habit" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSort("agent_id")}
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors ${
+                      sortField === "agent_id"
+                        ? "bg-slate-800 text-teal-400 border-slate-700"
+                        : "bg-slate-900/80 text-slate-400 border-slate-800"
+                    }`}
+                  >
+                    আইডি {sortField === "agent_id" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSort("risk_hour")}
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors ${
+                      sortField === "risk_hour"
+                        ? "bg-slate-800 text-teal-400 border-slate-700"
+                        : "bg-slate-900/80 text-slate-400 border-slate-800"
+                    }`}
+                  >
+                    সময় {sortField === "risk_hour" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+                  </button>
+                </div>
+              </div>
+
+              {/* Agent Cards for Mobile */}
+              {sortedAgents.map((ag: AreaAgentRisk) => {
+                const isHighRisk = ag.stockout_prob_habit >= 0.3;
+                const percent = Math.round(ag.stockout_prob_habit * 100);
+
+                return (
+                  <div
+                    key={ag.agent_id}
+                    className={`p-3 rounded-xl border border-slate-800 bg-navy-900/90 transition-colors ${
+                      isHighRisk ? "border-l-2 border-l-red-500 bg-red-950/20" : ""
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-slate-100 text-sm">{ag.agent_id}</span>
+                        {isHighRisk && (
+                          <span className="text-[10px] font-semibold text-red-400 px-1.5 py-0.5 rounded bg-red-950/40 border border-red-900/50">
+                            {STRINGS.riskWord}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs text-slate-400 tabular-nums">
+                        সময়: বিকেল {ag.risk_hour}:00
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex items-center justify-between pt-2 border-t border-slate-800/60">
+                      <span className="text-xs text-slate-400">ঘাটতি সম্ভাবনা:</span>
+                      {isHighRisk ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-950/40 text-amber-300 border border-amber-800/50">
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          <span>নগদ ঘাটতি ({percent}%)</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700/60">
+                          স্বাভাবিক ({percent}%)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* DESKTOP/TABLET VIEW (>= 640px): Full Sortable Table */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -357,7 +443,7 @@ export default function AreaPage() {
 
           {/* Column 3: Lost Demand Side Card */}
           <div className="lg:col-span-1 space-y-4">
-            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-4">
+            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="text-base font-bold text-slate-100 tracking-tight">
@@ -379,17 +465,17 @@ export default function AreaPage() {
               {selectedAreaLostInfo && (
                 <div className="p-3.5 bg-navy-900/90 rounded-xl space-y-2 text-xs border border-slate-800">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">নির্বাচিত এরিয়া:</span>
+                    <span className="text-slate-400">এরিয়া:</span>
                     <strong className="text-slate-200 font-bold">{selectedAreaId} ({currentArea?.area_type})</strong>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">হারানো লেনদেন সংখ্যা:</span>
+                    <span className="text-slate-400">হারানো লেনদেন:</span>
                     <strong className="text-slate-100 tabular-nums font-bold">
                       {Math.round(selectedAreaLostInfo.lost_count)} বার
                     </strong>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">হারানো চাহিদা পরিমাণ:</span>
+                    <span className="text-slate-400">হারানো চাহিদা:</span>
                     <strong className="text-teal-400 tabular-nums font-bold text-sm">
                       ৳ {formatBDT(selectedAreaLostInfo.lost_amount)}
                     </strong>
@@ -397,9 +483,9 @@ export default function AreaPage() {
                 </div>
               )}
 
-              {/* Bar Chart: All bars slate-700 except selected area bar teal */}
+              {/* Bar Chart */}
               <div
-                className="h-64 w-full pt-2"
+                className="h-60 sm:h-64 w-full pt-2"
                 role="region"
                 aria-label="বিভিন্ন এরিয়ার সাপ্তাহিক হারানো চাহিদা চার্ট"
               >
@@ -446,7 +532,7 @@ export default function AreaPage() {
               </div>
 
               <p className="text-[11px] text-slate-500 text-center">
-                চার্টের বারে ক্লিক করে নির্দিষ্ট এরিয়া নির্বাচন করা যাবে।
+                চার্টের বারে ট্যাপ করে নির্দিষ্ট এরিয়া পরিবর্তন করুন।
               </p>
             </div>
           </div>

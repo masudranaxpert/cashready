@@ -57,9 +57,9 @@ export function Navigation() {
         </div>
       </header>
 
-      {/* Mobile Floating Bottom Bar */}
+      {/* Mobile Floating Bottom Bar with Safe-Area Clearance */}
       <nav
-        className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 bg-navy-850/95 backdrop-blur-md rounded-full px-3 py-1.5 shadow-soft-lg border border-slate-800 flex items-center gap-1"
+        className="md:hidden fixed bottom-5 safe-nav-bottom left-1/2 -translate-x-1/2 z-40 bg-navy-850/95 backdrop-blur-md rounded-full px-2 py-1 shadow-soft-lg border border-slate-800 flex items-center gap-1 max-w-[calc(100vw-1.5rem)]"
         aria-label="মোবাইল নেভিগেশন"
       >
         {navItems.map((item) => {
@@ -69,7 +69,7 @@ export function Navigation() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-1.5 rounded-full text-sm font-medium transition-transform duration-100 active:scale-[0.98] ${
+              className={`flex items-center gap-1.5 min-h-[44px] px-2.5 min-[380px]:px-3 py-1.5 rounded-full text-xs min-[390px]:text-sm font-medium transition-transform duration-100 active:scale-[0.98] ${
                 isActive
                   ? "bg-slate-800 text-slate-100 border border-slate-700/80 shadow-soft"
                   : "text-slate-400 hover:text-slate-200"
@@ -77,7 +77,7 @@ export function Navigation() {
               aria-current={isActive ? "page" : undefined}
             >
               <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-teal-400" : "text-slate-400"}`} />
-              <span>{item.label}</span>
+              <span className="whitespace-nowrap">{item.label}</span>
             </Link>
           );
         })}
