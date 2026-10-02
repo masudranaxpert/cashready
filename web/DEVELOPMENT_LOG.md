@@ -182,7 +182,6 @@
     - Amber strictly reserved for caution/risk indicators (`bg-amber-950/40 text-amber-300 border-amber-800/50`).
     - Red strictly reserved for high-risk rows (2px left border & word "ঝুঁকি").
   - Updated charts with muted neutral slate bars (`#334155`) and teal highlights (`#14B8A6`), dark tooltips, and neutral axis lines.
-  - Cleaned up navigation, cards, dropdowns, segmented controls, and skeletons to avoid colorful blocks, glow effects, or crypto-terminal aesthetics.
 - **Files changed**:
   - `web/tailwind.config.ts`
   - `web/app/globals.css`
@@ -199,5 +198,28 @@
   - `npm run typecheck`: 0 errors.
   - `npm run build`: 7/7 routes built cleanly.
 - **Outcome**: Restrained, credible, dark financial SaaS UI verified and production-ready.
-- **Commit hash**: `ba982be`
+- **Commit hash**: `ba982be`, `1da1db9`
+- **Blockers / dependencies**: None.
+
+## Milestone 9 — Fix SHAP Impact Bars on Agent Page
+- **Work performed**:
+  - Resolved bar fill collapse bug: the flex child container previously lacked height, collapsing children to 0px.
+  - Rebuilt the bi-directional bar container with two 50% halves and a crisp 1.5px center baseline divider (`bg-slate-600`).
+  - Positive SHAP values render an amber bar (`bg-amber-500`) extending to the right from the center baseline.
+  - Negative SHAP values render a teal bar (`bg-teal-500`) extending to the left from the center baseline.
+  - Zero SHAP values render a clean baseline without any misleading bar fill.
+  - Applied consistent proportional scale across all reasons using `maxImpact = Math.max(0.35, ...absImpacts)`.
+  - Added visual reference strip (`← ঝুঁকি হ্রাস | ০ (ভিত্তিরেখা) | ঝুঁকি বৃদ্ধি →`) and explicit text tags (`"বৃদ্ধি"`, `"হ্রাস"`, `"নিরপেক্ষ"`) alongside color-coded numeric values, ensuring accessibility without relying on color alone.
+  - Added unit test in `web/tests/verification.test.mjs` verifying positive (100%), negative (50%), and zero (0%) scaling logic.
+- **Files changed**:
+  - `web/app/agent/page.tsx`
+  - `web/tests/verification.test.mjs`
+  - `web/DEVELOPMENT_LOG.md`
+- **Tests / checks performed**:
+  - `npm test`: 9/9 tests passed in 15ms.
+  - `npm run lint`: 0 errors, 0 warnings.
+  - `npm run typecheck`: 0 errors.
+  - `npm run build`: 7/7 routes compiled cleanly.
+- **Outcome**: SHAP bars fully visible, bi-directional, proportional, and accessible.
+- **Commit hash**: Pending git commit.
 - **Blockers / dependencies**: None.

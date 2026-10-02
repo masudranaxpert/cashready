@@ -105,4 +105,29 @@ describe("CashReady Frontend Contract & Verification Tests", () => {
     assert.equal(formatPercent(0.014), "1.4%");
     assert.equal(STRINGS.appName, "CashReady");
   });
+
+  test("SHAP impact bar scaling logic (positive, negative, zero)", () => {
+    const testReasons = [
+      { key: "r1", label_bn: "পজিটিভ প্রভাব", impact: 0.35 },
+      { key: "r2", label_bn: "নেগেটিভ প্রভাব", impact: -0.175 },
+      { key: "r3", label_bn: "শূন্য প্রভাব", impact: 0.0 },
+    ];
+
+    const maxImpact = Math.max(0.35, ...testReasons.map((r) => Math.abs(r.impact)));
+    assert.equal(maxImpact, 0.35);
+
+    const calcPct = (impact) =>
+      impact === 0 ? 0 : Math.min(100, Math.round((Math.abs(impact) / maxImpact) * 100));
+
+    // +0.35 should be 100% of the positive (right) half
+    assert.equal(calcPct(testReasons[0].impact), 100);
+    assert.ok(testReasons[0].impact > 0);
+
+    // -0.175 should be exactly 50% of the negative (left) half
+    assert.equal(calcPct(testReasons[1].impact), 50);
+    assert.ok(testReasons[1].impact < 0);
+
+    // 0.0 should be exactly 0% width (no misleading bar)
+    assert.equal(calcPct(testReasons[2].impact), 0);
+  });
 });

@@ -334,54 +334,89 @@ export default function AgentPage() {
               </span>
             </div>
 
+            {/* Scale reference bar */}
+            <div className="flex items-center justify-between text-[11px] text-slate-500 px-0.5 border-b border-slate-800/60 pb-1.5">
+              <span>← ঝুঁকি হ্রাস (Teal)</span>
+              <span className="font-semibold text-slate-400">০ (ভিত্তিরেখা)</span>
+              <span>ঝুঁকি বৃদ্ধি (Amber) →</span>
+            </div>
+
             {plan.reasons && plan.reasons.length > 0 ? (
-              <div className="space-y-3.5">
-                {plan.reasons.slice(0, 3).map((r: Reason, idx: number) => {
-                  const isPositive = r.impact >= 0;
-                  const absVal = Math.min(Math.abs(r.impact) * 180, 100);
-
-                  return (
-                    <div key={r.key || idx} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-slate-200">{r.label_bn}</span>
-                        <span
-                          className={`font-semibold tabular-nums ${
-                            isPositive ? "text-amber-400" : "text-teal-400"
-                          }`}
-                        >
-                          {isPositive ? "+" : ""}
-                          {r.impact.toFixed(2)}
-                        </span>
-                      </div>
-
-                      {/* Bi-directional impact bar */}
-                      <div className="h-2.5 w-full bg-slate-900 rounded-full overflow-hidden flex items-center relative border border-slate-800">
-                        {/* Center reference mark */}
-                        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-700 z-10" />
-
-                        {isPositive ? (
-                          // Positive risk impact extends right in amber
-                          <div className="w-1/2 flex justify-start ml-auto">
-                            <div
-                              className="h-full bg-amber-500/80 rounded-r-full transition-all duration-300"
-                              style={{ width: `${absVal}%` }}
-                              title={`ঝুঁকি বৃদ্ধি: +${r.impact.toFixed(2)}`}
-                            />
-                          </div>
-                        ) : (
-                          // Negative risk impact extends left in teal
-                          <div className="w-1/2 flex justify-end">
-                            <div
-                              className="h-full bg-teal-500/90 rounded-l-full transition-all duration-300"
-                              style={{ width: `${absVal}%` }}
-                              title={`ঝুঁকি হ্রাস: ${r.impact.toFixed(2)}`}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
+              <div className="space-y-4">
+                {(() => {
+                  const topReasons = plan.reasons.slice(0, 3);
+                  const maxImpact = Math.max(
+                    0.35,
+                    ...topReasons.map((r) => Math.abs(r.impact || 0))
                   );
-                })}
+
+                  return topReasons.map((r: Reason, idx: number) => {
+                    const impact = r.impact ?? 0;
+                    const isPositive = impact > 0;
+                    const isNegative = impact < 0;
+                    const isZero = impact === 0;
+                    const pct = isZero
+                      ? 0
+                      : Math.min(100, Math.round((Math.abs(impact) / maxImpact) * 100));
+
+                    return (
+                      <div key={r.key || idx} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-slate-200">{r.label_bn}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] text-slate-400">
+                              {isPositive ? "বৃদ্ধি" : isNegative ? "হ্রাস" : "নিরপেক্ষ"}
+                            </span>
+                            <span
+                              className={`font-semibold tabular-nums ${
+                                isPositive
+                                  ? "text-amber-400"
+                                  : isNegative
+                                  ? "text-teal-400"
+                                  : "text-slate-400"
+                              }`}
+                            >
+                              {isPositive ? `+${impact.toFixed(2)}` : impact.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Bi-directional impact bar with clear center baseline */}
+                        <div
+                          className="h-3 w-full bg-slate-900 rounded-full flex items-center relative border border-slate-800 overflow-hidden"
+                          role="meter"
+                          aria-label={`${r.label_bn}: ${isPositive ? "ঝুঁকি বৃদ্ধি" : isNegative ? "ঝুঁকি হ্রাস" : "নিরপেক্ষ"} ${impact.toFixed(2)}`}
+                          aria-valuenow={Number(impact.toFixed(2))}
+                          aria-valuemin={-1}
+                          aria-valuemax={1}
+                        >
+                          {/* Left Half: Negative impact extending left from center baseline */}
+                          <div className="w-1/2 h-full flex justify-end">
+                            {isNegative && (
+                              <div
+                                className="h-full bg-teal-500 rounded-l-full transition-all duration-300"
+                                style={{ width: `${pct}%` }}
+                              />
+                            )}
+                          </div>
+
+                          {/* Center Baseline Divider */}
+                          <div className="w-[1.5px] h-full bg-slate-600 shrink-0 z-10" />
+
+                          {/* Right Half: Positive impact extending right from center baseline */}
+                          <div className="w-1/2 h-full flex justify-start">
+                            {isPositive && (
+                              <div
+                                className="h-full bg-amber-500 rounded-r-full transition-all duration-300"
+                                style={{ width: `${pct}%` }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             ) : (
               <p className="text-xs text-slate-400 py-2">{STRINGS.reasonsEmpty}</p>
