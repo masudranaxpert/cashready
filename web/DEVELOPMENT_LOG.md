@@ -295,7 +295,7 @@
   - `npm run typecheck`: 0 errors.
   - `npm run build`: 7/7 static routes compiled cleanly.
 - **Outcome**: Production ready, verified across all viewports with complete backend integration documentation.
-- **Commit hash**: Pending
+- **Commit hash**: `01ed45e`
 - **Blockers / dependencies**: None.
 
 
