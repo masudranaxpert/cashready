@@ -65,6 +65,8 @@ def rolling_forecast(panel: pd.DataFrame, seed=0) -> dict:
     out = te[cols].copy()
     Path("data/processed").mkdir(parents=True, exist_ok=True)
     out.to_parquet("data/processed/forecasts.parquet", index=False)
+    Path("artifacts/models").mkdir(parents=True, exist_ok=True)
+    models[0.5].booster_.save_model("artifacts/models/forecast_q50.txt")
 
     # ---- metrics ----
     def pinball(y, p, q):
