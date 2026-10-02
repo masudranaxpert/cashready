@@ -264,6 +264,6 @@
   - `npm run typecheck`: 0 errors.
   - `npm run build`: 7/7 routes generated successfully.
 - **Outcome**: Seamless mobile experience across 375px, 390px, 430px, and 1280px without modifying the design system, copy, mock data, or API contracts.
-- **Commit hash**: Pending
+- **Commit hash**: `7d529c0`
 - **Blockers / dependencies**: None.
 
