@@ -159,6 +159,9 @@ def rolling_forecast(panel: pd.DataFrame, seed=0) -> dict:
         "observed_target_mae_bdt": round(float(np.abs(
             yte - out.pred_obs_q50.to_numpy()).mean()), 1),
         "p50_pinball": round(float(pinball(yte, p50, 0.5)), 1),
+        "naive_pinball_p50": round(float(pinball(yte, naive_pred, 0.5)), 1),
+        "observed_target_pinball_p50": round(float(pinball(
+            yte, out.pred_obs_q50.to_numpy(), 0.5)), 1),
         "pinball_mean": round(float(np.mean([
             pinball(yte, out.pred_q10, 0.1),
             pinball(yte, p50, 0.5),

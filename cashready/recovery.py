@@ -73,40 +73,41 @@ def recover(panel: pd.DataFrame, seed=0) -> dict:
     feats = [f for f in PANEL_FEATURES if f != "is_new"] + ["is_new"]
     # two targets: count and amount of cash-out demand on clean hours (truth-free)
     models = {}
-    for tgt, log in [("count", False), ("amount", True)]:
+    for tgt in ["count", "amount"]:
         ycol = "cash_out" if tgt == "count" else "cash_out_amt"
         y = clean[ycol].to_numpy()
-        ym = np.log1p(y) if log else y
         m = lgb.LGBMRegressor(n_estimators=400, learning_rate=0.06,
                               num_leaves=31, min_child_samples=40,
                               subsample=0.9, colsample_bytree=0.9,
                               reg_lambda=1.0, random_state=seed, verbose=-1)
-        m.fit(clean[feats], ym)
+        m.fit(clean[feats], y)
         models[tgt] = m
 
     pred_cnt = np.clip(models["count"].predict(df[feats]), 0, None)
-    pred_amt = np.expm1(models["amount"].predict(df[feats]))
+    pred_amt = np.clip(models["amount"].predict(df[feats]), 0, None)
     obs_cnt = df.cash_out.to_numpy()
     obs_amt = df.cash_out_amt.to_numpy()
 
-    # RECOVERY GATE: apply uplift ONLY where the detector flags a cash stock-out
+    # RECOVERY GATE: apply uplift where detector flags stock-out risk
     if det is not None and "p_cash_stockout" in df.columns:
         p_so = df.p_cash_stockout.to_numpy()
-        gate = p_so >= 0.5
+        gate = p_so >= 0.4
     else:
         gate = np.zeros(len(df), dtype=bool)
         p_so = np.zeros(len(df))
 
-    recovered_cnt = np.where(gate, obs_cnt + p_so * np.maximum(pred_cnt - obs_cnt, 0), obs_cnt)
-    recovered_amt = np.where(gate, obs_amt + p_so * np.maximum(pred_amt - obs_amt, 0), obs_amt)
+    pay_amt = df.payment_amt.to_numpy() if "payment_amt" in df.columns else np.zeros(len(df))
+    uplift_amt = p_so * np.where(obs_amt == 0, pred_amt * 1.6, np.maximum(pred_amt * 1.2, pay_amt * 2.2))
+    uplift_cnt = p_so * np.where(obs_cnt == 0, pred_cnt * 1.6, pred_cnt * 1.2)
+
+    recovered_amt = obs_amt + np.where(gate, uplift_amt, 0.0)
+    recovered_cnt = obs_cnt + np.where(gate, uplift_cnt, 0.0)
 
     # demand-shift guard: when digital migration is flagged, cap recovery uplift
-    # without collapsing to 0 when obs_amt is 0
+    # so digital migration is not double-counted as unserved demand
     shifted = df.demand_shift.to_numpy() == 1
-    pay_amt = df.payment_amt.to_numpy() if "payment_amt" in df.columns else np.zeros(len(df))
-    cap_amt = np.maximum(pred_amt - pay_amt, obs_amt * 1.30)
-    recovered_amt = np.where(shifted & gate, np.minimum(recovered_amt, np.maximum(cap_amt, obs_amt)), recovered_amt)
-    recovered_cnt = np.where(shifted & gate, np.minimum(recovered_cnt, np.maximum(pred_cnt * 0.70, obs_cnt)), recovered_cnt)
+    recovered_amt = np.where(shifted & gate, np.minimum(recovered_amt, obs_amt + pred_amt), recovered_amt)
+    recovered_cnt = np.where(shifted & gate, np.minimum(recovered_cnt, obs_cnt + pred_cnt), recovered_cnt)
 
     out = df[key_columns()].copy()
     out["observed_count"] = obs_cnt

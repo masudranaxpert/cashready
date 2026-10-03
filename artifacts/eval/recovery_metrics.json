@@ -2,17 +2,17 @@
   "amount_mae_pct": {
     "naive_observed": 71.87,
     "mean_correction": 69.74,
-    "cashready_recovery": 70.27
+    "cashready_recovery": 61.84
   },
   "count_mae_pct": {
     "naive_observed": 63.52,
     "mean_correction": 61.75,
-    "cashready_recovery": 55.25
+    "cashready_recovery": 48.63
   },
   "censored_hours": 3463,
-  "total_estimated_lost_bdt": 507488.33,
+  "total_estimated_lost_bdt": 8472199.78,
   "total_true_lost_bdt": 17098350.0,
   "demand_shift_area_weeks": 6,
-  "recovery_gated_hours": 1824,
-  "estimated_loss_in_normal_hours_pct": 19.22
+  "recovery_gated_hours": 3336,
+  "estimated_loss_in_normal_hours_pct": 41.31
 }

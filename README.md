@@ -155,7 +155,7 @@ Because actual MFS client records are protected by strict financial privacy regu
 - **Topology:** 300 agents distributed across 12 geographic clusters (urban markets, peri-urban centers, and rural haats) operating 14 hours daily (8:00 to 22:00).
 - **Calendar Shocks:** Monthly salary windows (1st and 2nd of each month, 1.4x cash-out surge), weekly remittance cycles, and festival demand multipliers.
 - **Economics:** 1.8% cash-out commission, 0.25% cash-in commission, and 15% spillover to neighboring agents during local cash depletion.
-- **Evaluation:** Evaluated on a held-out 30-day partition (days 60 to 89). The model reduces unserved demand from 18.10% down to 0.48%, saving an estimated 1,118,330 BDT in agent commissions.
+- **Evaluation:** Evaluated on a held-out 30-day partition (days 60 to 89). The model reduces unserved demand from 18.10% down to 0.20%, saving an estimated 1,136,363 BDT in agent commissions (under identical opening capital, stock-out rate drops from 1.57% to 0.20%).
 
 ---
 
