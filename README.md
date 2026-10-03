@@ -1,190 +1,161 @@
 # CashReady: AI Liquidity Planner for MFS Agents
 
-> **AI DEV FEST 2026 — Track 05 (DIU CPC × upay):** Automated Liquidity Management for Mobile Financial Services Agents.
-
-CashReady solves the unobserved demand dilemma in mobile money: when agents run out of cash or electronic float, frustrated customers turn away without a digital record. CashReady detects hidden stock-outs from transaction rhythms, reconstructs unserved demand, generates day-ahead quantile forecasts (P10, P50, P90), and optimizes calibrated morning opening balances with deterministic SHAP explanations.
+AI DEV FEST 2026 — Track 05: Merchant & Agent Intelligence (DIU CPC × upay)
 
 ---
 
-## Live Deployments & Documentation
+## 1. Project Overview
 
-| Service | Target | URL |
-|---|---|---|
-| **Web Dashboard** | Next.js 14 Responsive UI (Bilingual) | [http://204.136.10.31:8200/agent](http://204.136.10.31:8200/agent) |
-| **Interactive API Docs** | FastAPI Swagger UI | [http://204.136.10.31:8100/docs](http://204.136.10.31:8100/docs) |
-| **API Reference** | ReDoc OpenAPI Documentation | [http://204.136.10.31:8100/redoc](http://204.136.10.31:8100/redoc) |
-| **OpenAPI Schema** | Raw JSON Specification | [http://204.136.10.31:8100/openapi.json](http://204.136.10.31:8100/openapi.json) |
+CashReady addresses the hidden liquidity crisis in Mobile Financial Services (MFS). When an agent runs out of physical cash or e-float, transactions halt and customers leave without leaving an entry in the ledger. Because standard forecasting models train only on completed transactions, they miss this unobserved demand and consistently under-predict cash requirements during peak periods such as salary disbursements, weekly haat days, and festivals.
 
----
-
-## The Core Challenge: "Data Lies"
-
-In traditional time-series forecasting, models train exclusively on observed transaction logs. During stock-outs, demand drops to zero in the database, falsely signaling low customer interest. Naive models repeat this cycle, leaving agents chronically underfunded during peak periods (e.g., salary disbursements, weekly Haat days, and Eid festivals).
-
-```
-   Actual Walk-in Demand:  ████████████████████ (High Peak)
-   Logged Transactions:    ██████░░░░░░░░░░░░░░ (Drops to 0 due to Stockout)
-                                 ▲
-                                 └── CashReady reconstructs this lost demand!
-```
-
-> [!IMPORTANT]
-> **Deterministic Math Over Generative Hallucinations:**
-> All liquidity recommendations, quantile intervals, and SHAP feature attributions are calculated using algorithmic newsvendor models and TreeExplainer mathematics. Generative LLMs are never permitted to generate or hallucinate financial quantities.
+CashReady solves this by:
+1. Detecting unrecorded stock-out periods from sudden volume drops using transaction rhythm analysis.
+2. Reconstructing censored customer demand through regression over clean operational hours.
+3. Forecasting day-ahead quantile demand (P10, P50, P90) using strictly causal lag features.
+4. Calculating calibrated morning opening balances via newsvendor loss-ratio optimization.
+5. Providing deterministic SHAP explanations in Bengali and English without generative hallucinations.
 
 ---
 
-## Architecture & Machine Learning Pipeline
+## 2. Features and AI Component Usage
 
-CashReady implements a 5-stage causal pipeline strictly utilizing data available prior to the forecast day:
-
-```mermaid
-flowchart LR
-    A["Raw Transactions & Logs"] --> B["Causal Feature Panel"]
-    B --> C["1. Stock-Out Detector<br/>(LightGBM Classifier)"]
-    C --> D["2. Demand Recovery<br/>(Censored-Hour Imputation)"]
-    D --> E["3. Day-Ahead Forecast<br/>(LightGBM Quantile P10/P50/P90)"]
-    E --> F["4. Newsvendor Plan<br/>(Calibrated Risk Tiers)"]
-    F --> G["5. SHAP Explainer<br/>(Deterministic Top Drivers)"]
-    G --> H["FastAPI & Next.js Web UI"]
-```
-
-1. **Stock-Out Detector:** Identifies true cash stock-outs, float stock-outs, and closures without requiring hardware sensors ($F_1 = 0.7852$, a $+96\%$ improvement over heuristics).
-2. **Censored Demand Recovery:** Reconstructs true walk-in demand using clean-hour regression gated at $P(\text{stockout}) \ge 0.5$ with digital payment substitution guard.
-3. **Day-Ahead Quantile Forecasting:** Predicts P10, P50, and P90 cash needs using strictly causal lag features (lag 1d, lag 7d, rolling 7d/28d averages, and haat/calendar indicators).
-4. **Calibrated Morning Cash Allocation:** Applies continuous newsvendor optimization balancing lost commission cost against overnight capital holding costs across 3 risk tiers (80% Higher Risk, 90% Balanced, 95% Safest).
-5. **Deterministic SHAP Explanations:** Explains recommendations using top-3 feature attributions mapped into natural language advisory messages in both Bengali and English.
+- **Stock-Out Detection (LightGBM Classifier):** Identifies normal operation, cash stock-outs, float stock-outs, and closures without requiring hardware IoT sensors ($F_1 = 0.7852$, a 96% improvement over baseline rule heuristics).
+- **Censored Demand Reconstruction:** Restores unserved walk-in transaction volume during confirmed stock-out hours ($P \ge 0.5$) using non-depleted hour regressions and digital payment substitution adjustments.
+- **Day-Ahead Quantile Forecasts:** Generates P10, P50, and P90 cash demand curves for the next business day using historical lags, moving averages, and local market calendars.
+- **Newsvendor Cash Calibration:** Calculates the recommended morning cash balance across three operational risk preferences: 80% (Higher Risk), 90% (Balanced), and 95% (Conservative).
+- **Transparent SHAP Drivers:** Uses TreeExplainer to compute exact feature attributions for each recommendation, translated into clear technical guidance. Financial amounts are never delegated to LLMs.
+- **Bilingual Operator Dashboard:** Next.js mobile-first interface featuring agent-level advisory, area-wide shortfall monitoring, and evaluation charts with instant English and Bengali language switching.
 
 ---
 
-## Evaluation & Measured Results (30-Day Out-of-Sample Test)
+## 3. Technology Stack
 
-Evaluated on days 60–89 across 300 agents and 12 distinct geographic areas under realistic Bangladesh retail stress conditions:
-
-| Metric | CashReady | Baseline | Improvement / Significance |
-|---|---|---|---|
-| **Detector $F_1$ Score** | **0.7852** (all-hours: 0.6786) | Rule: 0.3989, HMM: 0.6553 | **+96.8%** over static heuristics |
-| **Recovery MAE** | **67.76%** | Naive: 71.87%, Mean: 69.74% | **-4.11%** absolute error reduction |
-| **Forecast Calibration** | **84.74%** in P10–P90 | Target: 80.00% | Well-calibrated coverage |
-| **Unserved Lost Demand** | **0.48%** | Habit Policy: 18.10% | **97.3%** demand saved from stock-out |
-| **Agent Commission Saved** | **1,118,330 BDT** | Habit Policy | Direct agent income enhancement |
+- **Machine Learning & Pipeline:** Python 3.11, LightGBM, SHAP, Scikit-learn, PyArrow, NumPy, Pandas, SciPy.
+- **Backend API:** FastAPI, Uvicorn, Pydantic v2.
+- **Frontend Dashboard:** Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Recharts, Lucide Icons.
+- **Containerization & Deployment:** Docker, Docker Compose, NextDeploy.
 
 ---
 
-## API Surface
+## 4. Requirements
 
-The FastAPI backend provides typed OpenAPI 3.1 endpoints secured with constant-time API key verification:
-
-| Endpoint | Method | Key Parameters | Description |
-|---|---|---|---|
-| `/health` | `GET` | — | Health check and artifact readiness probe |
-| `/agents` | `GET` | `area_id` (optional) | Agent roster filtered by area |
-| `/areas` | `GET` | — | Distinct geographic areas and classifications |
-| `/metrics` | `GET` | — | Pipeline evaluation metrics and baseline comparisons |
-| `/agents/{id}/plan` | `GET` | `date`, `risk` (`0.8`\|`0.9`\|`0.95`) | Morning cash recommendation with SHAP drivers |
-| `/agents/{id}/lost-demand` | `GET` | `week` (`YYYY-Www`) | Weekly unserved customer demand and lost revenue |
-| `/agents/{id}/feedback` | `POST` | `{helpful, comment}` | Agent feedback audit trail (JSONL logging) |
-| `/areas/{id}/risk` | `GET` | `date` | Area-wide agent stock-out risk distributions |
-| `/areas/lost-demand` | `GET` | `week` (`YYYY-Www`) | Area-level aggregated weekly unserved demand |
-
-> [!TIP]
-> Visit the interactive [Swagger Documentation](http://204.136.10.31:8100/docs) to execute queries directly against the live test API.
+- Python 3.11+
+- Node.js 20+ and npm 10+ (for local frontend development)
+- Docker Engine 24+ and Docker Compose v2 (for production deployment)
+- Minimum 2 GB RAM and 2 vCPUs
 
 ---
 
-## Tech Stack & Project Structure
+## 5. Installation and Setup
 
-- **Backend:** Python 3.11, FastAPI, Uvicorn, Pydantic v2, LightGBM, SHAP, Scikit-learn, PyArrow, NumPy, Pandas.
-- **Frontend:** Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Recharts, Lucide Icons.
-- **Infrastructure:** Docker, Docker Compose, NextDeploy CLI.
-
-```
-cashready/
-├── api/                        # FastAPI application
-│   ├── main.py                 # Route definitions & mtime-cached artifact loader
-│   └── schemas/                # Modular Pydantic response models
-├── artifacts/
-│   ├── eval/                   # Model performance JSONs and diagnostic plots
-│   └── serve/                  # Serving artifacts (agents, plans, area risk, metrics)
-├── cashready/                  # Core ML pipeline modules
-│   ├── config.py               # Central configuration, seeds, and retail assumptions
-│   ├── simulate.py             # Realistic retail transaction & stockout simulation
-│   ├── features.py             # Causal feature panel engineering
-│   ├── detector.py             # LightGBM multiclass stock-out classification
-│   ├── recovery.py             # Censored demand estimation
-│   ├── forecast.py             # Day-ahead quantile regression
-│   ├── business_sim.py         # Newsvendor optimization and policy simulation
-│   ├── explain.py              # SHAP TreeExplainer & advisory generation
-│   └── export.py               # Serving artifact compiler
-├── tests/                      # Automated test suite (Pytest & TestClient)
-├── web/                        # Next.js 14 frontend web application
-│   ├── app/                    # App Router pages (/agent, /area, /evidence)
-│   ├── components/             # Reusable UI components & navigation
-│   └── lib/                    # API client, types, mock fallbacks, and i18n
-├── docker-compose.yml          # Production multi-container orchestration
-├── Dockerfile                  # Slim production API container image
-└── Makefile                    # Developer workflow automation
-```
-
----
-
-## Quickstart & Local Setup
-
-### Option 1: Docker Compose (Production Setup)
-
+### 5.1 Clone the Repository
 ```bash
-# Clone the repository
 git clone https://github.com/masudranaxpert/cashready.git
 cd cashready
-
-# Launch API (:8100) and Web UI (:8200) containers
-docker compose up --build -d
 ```
 
-### Option 2: Local Python & Node.js Development
-
+### 5.2 Python Environment Setup
 ```bash
-# 1. Setup Python virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
 
-# 2. Run simulation and ML pipeline
-make data && make pipeline
-
-# 3. Start Backend API server (runs on :8100)
-PORT=8100 make api
-
-# 4. Start Frontend development server (in a separate terminal)
+### 5.3 Web Dashboard Setup
+```bash
 cd web
 npm install
-NEXT_PUBLIC_API_URL=http://localhost:8100 npm run dev
+cd ..
 ```
 
 ---
 
-## Verification & Testing
+## 6. Environment Variables
 
-The repository maintains automated test suites across both backend and frontend layers:
+Create `.env` files using the examples below. No secrets or production keys are required for evaluation.
+
+### Backend (`.env` or process environment)
+| Variable | Default Value | Description |
+|---|---|---|
+| `PORT` | `8100` | Port for the FastAPI server |
+| `ARTIFACTS_DIR` | `artifacts/serve` | Directory storing precomputed plans and metrics |
+| `FRONTEND_ORIGIN` | `*` | Allowed CORS origins (comma-separated or `*`) |
+| `API_KEY` | *(empty)* | Optional API token for header verification (`x-api-key`) |
+
+### Frontend (`web/.env.local`)
+| Variable | Default Value | Description |
+|---|---|---|
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8100` | URL of the CashReady backend API |
+| `NEXT_PUBLIC_API_KEY` | *(empty)* | Optional API key matching the backend |
+
+---
+
+## 7. Run and Build Commands
+
+### Option A: Docker Compose (Single-Command Production Run)
+```bash
+docker compose up --build -d
+```
+- Web Dashboard: `http://localhost:8200`
+- API & Docs: `http://localhost:8100/docs`
+
+### Option B: Local Development Workflow
+```bash
+# 1. Run simulation and ML pipeline to generate artifacts
+make data && make pipeline
+
+# 2. Start FastAPI Backend Server (:8100)
+PORT=8100 make api
+
+# 3. Start Next.js Frontend Server (:3000)
+cd web && NEXT_PUBLIC_API_URL=http://localhost:8100 npm run dev
+```
+
+---
+
+## 8. Live Deployment URLs
+
+The project is hosted and accessible at the following live endpoints:
+
+| Service | Address | Notes |
+|---|---|---|
+| **Production Domain** | [https://cashready.masud-rana.me](https://cashready.masud-rana.me) | Primary custom domain |
+| **Web Dashboard (Direct)** | [http://204.136.10.31:8200/agent](http://204.136.10.31:8200/agent) | Next.js interactive web app |
+| **API Documentation (Swagger)** | [http://204.136.10.31:8100/docs](http://204.136.10.31:8100/docs) | Interactive OpenAPI testing |
+| **API Reference (ReDoc)** | [http://204.136.10.31:8100/redoc](http://204.136.10.31:8100/redoc) | Detailed schema reference |
+| **OpenAPI Schema (JSON)** | [http://204.136.10.31:8100/openapi.json](http://204.136.10.31:8100/openapi.json) | Raw OpenAPI v3.1 specification |
+
+---
+
+## 9. Testing Instructions
+
+All functional layers include automated test verification suites:
 
 ```bash
-# Run backend test suite (8/8 tests passing, including security input validation)
+# Run backend API and security validation tests (8/8 tests)
 make test
 
-# Run frontend contract & verification tests (11/11 tests passing)
+# Run frontend verification and contract tests (11/11 tests)
 npm --prefix web test
 
-# Run frontend TypeScript type checking (0 errors)
+# Run frontend TypeScript type safety verification (0 errors)
 npm --prefix web run typecheck
 ```
 
+### Manual UI Verification Steps
+1. Navigate to `/agent`: select an agent (e.g., `A001`), toggle risk levels between 80%, 90%, and 95%, and observe the dynamic balance adjustment and top-3 SHAP driver tags.
+2. Navigate to `/area`: inspect area-level stock-out risk distributions and the high-risk threshold flag ($\ge 30\%$).
+3. Navigate to `/evidence`: review the four model evaluation cards and the recovered versus observed demand chart.
+
 ---
 
-## Synthetic Data & Ethical AI Constraints
+## 10. Synthetic Data & Operational Assumptions
 
-1. **Privacy Preservation:** Due to strict customer privacy regulations governing Bangladesh MFS records, all experimental datasets are generated via `cashready/simulate.py` using empirical parameters derived from retail studies (salary dates, weekly remittances, Haat days, Eid surges, and neighbor rerouting).
-2. **Demographic Equity:** Liquidity buffers and service levels are validated across urban, peri-urban, and rural areas to prevent systemic under-allocation to remote or lower-volume agents.
-3. **Decoupled Advisory:** Recommendations are produced via reproducible mathematical optimization; language strings are generated from deterministic rules rather than black-box text generators.
+Because actual MFS client records are protected by strict financial privacy regulations, all training and evaluation datasets are generated by `cashready/simulate.py` using empirical parameters from Bangladesh retail banking:
+- **Topology:** 300 agents distributed across 12 geographic clusters (urban markets, peri-urban centers, and rural haats) operating 14 hours daily (8:00 to 22:00).
+- **Calendar Shocks:** Monthly salary windows (1st and 2nd of each month, 1.4x cash-out surge), weekly remittance cycles, and festival demand multipliers.
+- **Economics:** 1.8% cash-out commission, 0.25% cash-in commission, and 15% spillover to neighboring agents during local cash depletion.
+- **Evaluation:** Evaluated on a held-out 30-day partition (days 60 to 89). The model reduces unserved demand from 18.10% down to 0.48%, saving an estimated 1,118,330 BDT in agent commissions.
 
 ---
 
