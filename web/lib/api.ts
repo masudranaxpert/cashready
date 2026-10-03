@@ -22,9 +22,7 @@ import {
   getMockAreaLostDemand,
 } from "./mock-data";
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL !== undefined && process.env.NEXT_PUBLIC_API_URL !== "")
-  ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")
-  : "/api-backend";
+const API_BASE_URL = "/api-backend";
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 /**
