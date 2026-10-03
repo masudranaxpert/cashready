@@ -1,7 +1,7 @@
 services:
   api:
     build:
-      context: ..
+      context: .
       dockerfile: Dockerfile
     container_name: cashready-api
     restart: unless-stopped
@@ -21,7 +21,7 @@ services:
 
   web:
     build:
-      context: ../web
+      context: ./web
       dockerfile: Dockerfile
     container_name: cashready-web
     restart: unless-stopped
