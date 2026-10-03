@@ -473,9 +473,9 @@ export default function AreaPage() {
                     <strong className="text-slate-200 font-bold">{selectedAreaId} ({currentArea?.area_type})</strong>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">হারানো লেনদেন:</span>
+                    <span className="text-slate-400">{t.lostTransactionsLabel}:</span>
                     <strong className="text-slate-100 tabular-nums font-bold">
-                      {Math.round(selectedAreaLostInfo.lost_count)} বার
+                      {t.lostCountUnit(Math.round(selectedAreaLostInfo.lost_count))}
                     </strong>
                   </div>
                   <div className="flex items-center justify-between">

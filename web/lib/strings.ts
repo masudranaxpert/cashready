@@ -75,6 +75,7 @@ type Dict = {
   normalState: string;
   week: string;
   demandBdt: string;
+  lostTransactionsLabel: string;
   chartTapHint: string;
   evidenceBadge: string;
   evidenceSubheading2: string;
@@ -201,6 +202,7 @@ const BN: Dict = {
   normalState: "স্বাভাবিক অবস্থা",
   week: "সপ্তাহ",
   demandBdt: "চাহিদা (BDT)",
+  lostTransactionsLabel: "হারানো লেনদেন",
   chartTapHint: "চার্টের বারে ট্যাপ করে নির্দিষ্ট এরিয়া পরিবর্তন করুন।",
   evidenceBadge: "মূল্যায়ন-ভিত্তিক প্রমাণ",
   evidenceSubheading2: "কোনো অনুমিত বা কাল্পনিক সংখ্যা নয় — সমস্ত ফলাফল লুকানো গ্রাউন্ড ট্রুথের সাথে পরিমাপযোগ্য।",
@@ -327,6 +329,7 @@ const EN: Dict = {
   normalState: "Normal state",
   week: "Week",
   demandBdt: "Demand (BDT)",
+  lostTransactionsLabel: "Lost transactions",
   chartTapHint: "Tap a bar in the chart to switch to that area.",
   evidenceBadge: "Evaluation-based evidence",
   evidenceSubheading2: "No made-up numbers — every result is measured against hidden ground truth.",
