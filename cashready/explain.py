@@ -31,13 +31,35 @@ LABELS_BN = {
 }
 
 
+LABELS_EN = {
+    "salary_window": ("Salary window", "Cash-out pressure rises at this time"),
+    "eid_window": ("Eid rush", "Cash withdrawals spike during the Eid holidays"),
+    "haat_day": ("Haat day", "Market day brings more transactions in the area"),
+    "weekday": ("Weekly pattern", "Demand differs on this weekday"),
+    "hour": ("Time of day", "Transactions cluster at this hour"),
+    "out_mean_7d": ("Last week's pattern", "Your transactions were higher last week"),
+    "out_mean_28d": ("Last month's pattern", "Average demand this month is higher"),
+    "nbr_out_amt": ("Neighbouring area pressure", "Nearby agents are seeing higher demand"),
+    "nbr_z_out": ("Area pressure high", "Demand in your area is above normal"),
+    "fail_count": ("Recent failures", "Some transactions failed recently"),
+    "payment": ("Shift to digital", "Some customers are moving to digital payments"),
+    "out_amt_lag1": ("Yesterday's demand", "High withdrawals happened yesterday"),
+    "out_vel_3h": ("Recent velocity", "Demand is rising fast in the last few hours"),
+    "is_new": ("New agent", "New agent — little history, needs a cautious plan"),
+    "day_of_month": ("Day of month", "Demand changes around this time of month"),
+    "cash_in_amt": ("Cash-in trend", "Cash-in pattern influences the plan"),
+}
+
+
 def top_reasons(shap_row: pd.Series, k=3):
     idx = shap_row.abs().sort_values(ascending=False).head(k).index
     out = []
     for f in idx:
         key = f.split("_mean")[0].split("_lag")[0].split("_z")[0]
         label, why = LABELS_BN.get(f, LABELS_BN.get(key, ("অন্যান্য", "অবদান রয়েছে")))
-        out.append({"key": f, "label_bn": label, "impact": float(shap_row[f])})
+        label_en, _ = LABELS_EN.get(f, LABELS_EN.get(key, ("Other", "Contributes to the plan")))
+        out.append({"key": f, "label_bn": label, "label_en": label_en,
+                    "impact": float(shap_row[f])})
     return out
 
 
@@ -47,6 +69,17 @@ def message_bn(opening_cash: int, risk_hour: int, reasons) -> str:
     base = (f"আজ সকালে {opening_cash:,} টাকা নগদ রাখুন। "
             f"সবচেয়ে ঝুঁকির সময় বিকেল {risk_hour}টা-এর পর। "
             f"কারণ: {r1}")
+    if r2:
+        base += f", {r2}"
+    return base
+
+
+def message_en(opening_cash: int, risk_hour: int, reasons) -> str:
+    r1 = reasons[0]["label_en"] if reasons else "normal demand"
+    r2 = reasons[1]["label_en"] if len(reasons) > 1 else ""
+    base = (f"Keep {opening_cash:,} BDT cash this morning. "
+            f"Highest risk after {risk_hour}:00. "
+            f"Because: {r1}")
     if r2:
         base += f", {r2}"
     return base

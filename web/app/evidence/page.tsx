@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import type { MetricsResponse } from "@/lib/types";
 import { getMetrics } from "@/lib/api";
 import { STRINGS, formatBDT } from "@/lib/strings";
+import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
 import {
   ShieldAlert,
@@ -25,6 +26,7 @@ import {
 } from "recharts";
 
 export default function EvidencePage() {
+  const { t } = useLang();
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export default function EvidencePage() {
         }
       } catch (err: unknown) {
         if (!isCancelled) {
-          setError(STRINGS.loadError);
+          setError(t.loadError);
           setLoading(false);
         }
       }
@@ -89,14 +91,14 @@ export default function EvidencePage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-100 tracking-tight">
-                {STRINGS.evidenceHeading}
+                {t.evidenceHeading}
               </h1>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 shrink-0">
                 মূল্যায়ন-ভিত্তিক প্রমাণ
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-3xl">
-              {STRINGS.evidenceSubheading} কোনো অনুমিত বা কাল্পনিক সংখ্যা নয় — সমস্ত ফলাফল লুকানো গ্রাউন্ড ট্রুথের সাথে পরিমাপযোগ্য।
+              {t.evidenceSubheading} কোনো অনুমিত বা কাল্পনিক সংখ্যা নয় — সমস্ত ফলাফল লুকানো গ্রাউন্ড ট্রুথের সাথে পরিমাপযোগ্য।
             </p>
           </div>
 
@@ -201,7 +203,7 @@ export default function EvidencePage() {
           <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6 space-y-4 sm:space-y-6" aria-label="কেন বিশ্বাস করবেন">
             <div className="border-b border-slate-800 pb-3 sm:pb-4">
               <h2 className="text-lg sm:text-xl font-bold text-slate-100 tracking-tight flex items-center gap-2">
-                <span>{STRINGS.whyTrustHeading}</span>
+                <span>{t.whyTrustHeading}</span>
                 <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
                   মূল্যায়ন প্রমাণ
                 </span>
@@ -216,10 +218,10 @@ export default function EvidencePage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs sm:text-sm font-bold text-slate-200">
-                    {STRINGS.recoveryChartTitle}
+                    {t.recoveryChartTitle}
                   </h3>
                   <span className="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
-                    {STRINGS.recoveryCaption}
+                    {t.recoveryCaption}
                   </span>
                 </div>
 
@@ -282,7 +284,7 @@ export default function EvidencePage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs sm:text-sm font-bold text-slate-200">
-                    {STRINGS.forecastChartTitle}
+                    {t.forecastChartTitle}
                   </h3>
                   <span className="text-[11px] sm:text-xs text-slate-400">গড় বিচ্যুতি (BDT)</span>
                 </div>
@@ -347,8 +349,8 @@ export default function EvidencePage() {
                 </div>
                 <div>
                   <div className="text-[11px] sm:text-xs font-semibold text-slate-500">ধাপ ১</div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{STRINGS.pipelineStep1Title}</h4>
-                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{STRINGS.pipelineStep1Desc}</p>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep1Title}</h4>
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep1Desc}</p>
                 </div>
               </div>
 
@@ -359,8 +361,8 @@ export default function EvidencePage() {
                 </div>
                 <div>
                   <div className="text-[11px] sm:text-xs font-semibold text-slate-500">ধাপ ২</div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{STRINGS.pipelineStep2Title}</h4>
-                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{STRINGS.pipelineStep2Desc}</p>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep2Title}</h4>
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep2Desc}</p>
                 </div>
               </div>
 
@@ -371,8 +373,8 @@ export default function EvidencePage() {
                 </div>
                 <div>
                   <div className="text-[11px] sm:text-xs font-semibold text-slate-500">ধাপ ৩</div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{STRINGS.pipelineStep3Title}</h4>
-                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{STRINGS.pipelineStep3Desc}</p>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep3Title}</h4>
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep3Desc}</p>
                 </div>
               </div>
 
@@ -383,8 +385,8 @@ export default function EvidencePage() {
                 </div>
                 <div>
                   <div className="text-[11px] sm:text-xs font-semibold text-slate-500">ধাপ ৪</div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{STRINGS.pipelineStep4Title}</h4>
-                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{STRINGS.pipelineStep4Desc}</p>
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep4Title}</h4>
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep4Desc}</p>
                 </div>
               </div>
             </div>
@@ -393,11 +395,11 @@ export default function EvidencePage() {
           {/* FOOTER & DISCLOSURES */}
           <footer className="card-soft text-center space-y-2 py-5 sm:py-6 border border-slate-800">
             <p className="text-xs text-slate-400 font-medium">
-              {STRINGS.footerSynthetic}
+              {t.footerSynthetic}
             </p>
             <p className="text-[11px] text-slate-500 max-w-2xl mx-auto leading-relaxed">
               <Info className="w-3.5 h-3.5 inline mr-1 text-slate-500" />
-              {STRINGS.footerLlmDisclosure}
+              {t.footerLlmDisclosure}
             </p>
           </footer>
         </div>

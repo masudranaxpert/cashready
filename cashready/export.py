@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from cashready import config
-from cashready.explain import explain_agents, message_bn, top_reasons, day_label
+from cashready.explain import day_label, explain_agents, message_bn, message_en, top_reasons
 
 
 def iso_week(day_idx: int) -> str:
@@ -107,6 +107,10 @@ def export(target_date: str | None = None):
                 if r.agent_id in risk_by_agent.index else 8,
                 "reasons": reasons,
                 "message_bn": message_bn(int(round(r.opening_cash)),
+                                         int(risk_by_agent.loc[r.agent_id, "hour"])
+                                         if r.agent_id in risk_by_agent.index else 8,
+                                         reasons),
+                "message_en": message_en(int(round(r.opening_cash)),
                                          int(risk_by_agent.loc[r.agent_id, "hour"])
                                          if r.agent_id in risk_by_agent.index else 8,
                                          reasons),

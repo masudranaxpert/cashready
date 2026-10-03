@@ -3,21 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserCheck, MapPin, BarChart3 } from "lucide-react";
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-const navItems: NavItem[] = [
-  { href: "/agent", label: "এজেন্ট", icon: UserCheck },
-  { href: "/area", label: "এরিয়া", icon: MapPin },
-  { href: "/evidence", label: "প্রমাণ", icon: BarChart3 },
-];
+import { useLang, LangToggle } from "@/lib/lang";
 
 export function Navigation() {
   const pathname = usePathname();
+  const { t } = useLang();
+
+  const navItems = [
+    { href: "/agent", label: t.navAgent, icon: UserCheck },
+    { href: "/area", label: t.navArea, icon: MapPin },
+    { href: "/evidence", label: t.navEvidence, icon: BarChart3 },
+  ];
 
   return (
     <>
@@ -30,34 +26,37 @@ export function Navigation() {
             </span>
           </div>
 
-          <nav className="hidden md:flex items-center gap-1.5" aria-label="প্রধান নেভিগেশন">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href || (item.href === "/agent" && pathname === "/");
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-transform duration-100 active:scale-[0.98] ${
-                    isActive
-                      ? "bg-slate-800 text-slate-100 border border-slate-700 shadow-soft"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
-                  }`}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  <Icon className={`w-4 h-4 ${isActive ? "text-teal-400" : "text-slate-400"}`} />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
+          <div className="flex items-center gap-2">
+            <nav className="hidden md:flex items-center gap-1.5" aria-label="Main navigation">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href || (item.href === "/agent" && pathname === "/");
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-transform duration-100 active:scale-[0.98] ${
+                      isActive
+                        ? "bg-slate-800 text-slate-100 border border-slate-700 shadow-soft"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+                    }`}
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    <Icon className={`w-4 h-4 ${isActive ? "text-teal-400" : "text-slate-400"}`} />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+            <LangToggle />
+          </div>
         </div>
       </header>
 
       {/* Mobile Floating Bottom Bar with Safe-Area Clearance */}
       <nav
         className="md:hidden fixed bottom-5 safe-nav-bottom left-1/2 -translate-x-1/2 z-40 bg-navy-850/95 backdrop-blur-md rounded-full px-2 py-1 shadow-soft-lg border border-slate-800 flex items-center gap-1 max-w-[calc(100vw-1.5rem)]"
-        aria-label="মোবাইল নেভিগেশন"
+        aria-label="Mobile navigation"
       >
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href === "/agent" && pathname === "/");

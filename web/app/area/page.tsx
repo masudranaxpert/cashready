@@ -10,6 +10,7 @@ import type {
 import { getAreas, getAreaRisk, getAreaLostDemand } from "@/lib/api";
 import { DEMO_DATE, DEMO_WEEK } from "@/lib/mock-data";
 import { STRINGS, formatBDT } from "@/lib/strings";
+import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
 import {
   Calendar,
@@ -34,6 +35,7 @@ type SortField = "agent_id" | "stockout_prob_habit" | "risk_hour";
 type SortDirection = "asc" | "desc";
 
 export default function AreaPage() {
+  const { t } = useLang();
   const [areas, setAreas] = useState<Area[]>([]);
   const [selectedAreaId, setSelectedAreaId] = useState<string>("A01");
   const [selectedDate, setSelectedDate] = useState<string>(DEMO_DATE);
@@ -87,7 +89,7 @@ export default function AreaPage() {
         }
       } catch (err: unknown) {
         if (!isCancelled) {
-          setError(STRINGS.loadError);
+          setError(t.loadError);
           setLoading(false);
         }
       }
@@ -152,7 +154,7 @@ export default function AreaPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight">
-                {STRINGS.areaHeading}
+                {t.areaHeading}
               </h1>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
                 এরিয়া ভিউ
@@ -296,7 +298,7 @@ export default function AreaPage() {
                         <span className="font-bold text-slate-100 text-sm">{ag.agent_id}</span>
                         {isHighRisk && (
                           <span className="text-[10px] font-semibold text-red-400 px-1.5 py-0.5 rounded bg-red-950/40 border border-red-900/50">
-                            {STRINGS.riskWord}
+                            {t.riskWord}
                           </span>
                         )}
                       </div>
@@ -336,7 +338,7 @@ export default function AreaPage() {
                         className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
                         aria-label="এজেন্ট আইডি অনুযায়ী সাজান"
                       >
-                        <span>{STRINGS.agentIdCol}</span>
+                        <span>{t.agentIdCol}</span>
                         {sortField === "agent_id" ? (
                           sortDirection === "asc" ? (
                             <ArrowUp className="w-3.5 h-3.5 text-teal-400" />
@@ -357,7 +359,7 @@ export default function AreaPage() {
                         className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
                         aria-label="ঝুঁকির মাত্রা অনুযায়ী সাজান"
                       >
-                        <span>{STRINGS.riskProbCol}</span>
+                        <span>{t.riskProbCol}</span>
                         {sortField === "stockout_prob_habit" ? (
                           sortDirection === "asc" ? (
                             <ArrowUp className="w-3.5 h-3.5 text-teal-400" />
@@ -378,7 +380,7 @@ export default function AreaPage() {
                         className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100 ml-auto"
                         aria-label="ঝুঁকির সময় অনুযায়ী সাজান"
                       >
-                        <span>{STRINGS.riskHourCol}</span>
+                        <span>{t.riskHourCol}</span>
                         {sortField === "risk_hour" ? (
                           sortDirection === "asc" ? (
                             <ArrowUp className="w-3.5 h-3.5 text-teal-400" />
@@ -411,7 +413,7 @@ export default function AreaPage() {
                             <span>{ag.agent_id}</span>
                             {isHighRisk && (
                               <span className="text-[11px] font-semibold text-red-400">
-                                {STRINGS.riskWord}
+                                {t.riskWord}
                               </span>
                             )}
                           </div>
@@ -449,7 +451,7 @@ export default function AreaPage() {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="text-base font-bold text-slate-100 tracking-tight">
-                    {STRINGS.areaLostDemandHeading}
+                    {t.areaLostDemandHeading}
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">সপ্তাহ {DEMO_WEEK}</p>
                 </div>
@@ -458,7 +460,7 @@ export default function AreaPage() {
                 {hasDigitalShift && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-950/40 text-amber-300 border border-amber-800/50 shrink-0">
                     <TrendingDown className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{STRINGS.digitalShiftBadge}</span>
+                    <span>{t.digitalShiftBadge}</span>
                   </span>
                 )}
               </div>

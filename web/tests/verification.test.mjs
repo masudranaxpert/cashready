@@ -103,7 +103,8 @@ describe("CashReady Frontend Contract & Verification Tests", () => {
     assert.equal(formatBDT(6154.2), "6,154");
     assert.equal(formatPercent(0.8263), "82.6%");
     assert.equal(formatPercent(0.014), "1.4%");
-    assert.equal(STRINGS.appName, "CashReady");
+    assert.equal(STRINGS.bn.appName, "CashReady");
+    assert.equal(STRINGS.en.appName, "CashReady");
   });
 
   test("SHAP impact bar scaling logic (positive, negative, zero)", () => {

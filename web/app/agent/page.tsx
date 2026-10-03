@@ -16,10 +16,12 @@ import {
 } from "@/lib/api";
 import { DEMO_DATE, DEMO_WEEK } from "@/lib/mock-data";
 import { STRINGS, formatBDT } from "@/lib/strings";
+import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
 import { Search, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function AgentPage() {
+  const { t } = useLang();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("T0039");
   const [selectedDate, setSelectedDate] = useState<string>(DEMO_DATE);
@@ -81,7 +83,7 @@ export default function AgentPage() {
         }
       } catch (err: unknown) {
         if (!isCancelled) {
-          setError(STRINGS.loadError);
+          setError(t.loadError);
           setLoading(false);
         }
       }
@@ -244,7 +246,7 @@ export default function AgentPage() {
           <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 text-center space-y-3.5 sm:space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                {STRINGS.heroPlanHeading}
+                {t.heroPlanHeading}
               </h2>
               <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-teal-950/60 text-teal-300 border border-teal-800/50">
                 {riskLevel === "0.8" ? "নিরাপদ প্ল্যান" : riskLevel === "0.9" ? "ভারসাম্য প্ল্যান" : "সতর্ক প্ল্যান"}
@@ -282,9 +284,9 @@ export default function AgentPage() {
               >
                 {(
                   [
-                    { key: "0.8", label: STRINGS.riskTiers.safe },
-                    { key: "0.9", label: STRINGS.riskTiers.balanced },
-                    { key: "0.95", label: STRINGS.riskTiers.cautious },
+                    { key: "0.8", label: t.riskTiers.safe },
+                    { key: "0.9", label: t.riskTiers.balanced },
+                    { key: "0.95", label: t.riskTiers.cautious },
                   ] as const
                 ).map((tier) => {
                   const isSelected = riskLevel === tier.key;
@@ -329,10 +331,10 @@ export default function AgentPage() {
           <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3.5 sm:space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-100 tracking-tight">
-                {STRINGS.reasonsHeading}
+                {t.reasonsHeading}
               </h3>
               <span className="text-xs text-slate-500 italic">
-                {STRINGS.shapCaption}
+                {t.shapCaption}
               </span>
             </div>
 
@@ -423,7 +425,7 @@ export default function AgentPage() {
                 })()}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 py-2">{STRINGS.reasonsEmpty}</p>
+              <p className="text-xs text-slate-400 py-2">{t.reasonsEmpty}</p>
             )}
           </div>
 
@@ -431,24 +433,24 @@ export default function AgentPage() {
           {lostDemand && (
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3">
               <h3 className="text-sm font-bold text-slate-100 tracking-tight">
-                {STRINGS.lostDemandHeading} ({lostDemand.week})
+                {t.lostDemandHeading} ({lostDemand.week})
               </h3>
 
               <div className="divide-y divide-slate-800/80 text-xs sm:text-sm">
                 <div className="py-2 flex items-center justify-between gap-2">
-                  <span className="text-slate-400">{STRINGS.lostCountLabel}</span>
+                  <span className="text-slate-400">{t.lostCountLabel}</span>
                   <span className="font-bold text-slate-100 tabular-nums">
                     {lostDemand.lost_count} জন
                   </span>
                 </div>
                 <div className="py-2 flex items-center justify-between gap-2">
-                  <span className="text-slate-400">{STRINGS.lostAmountLabel}</span>
+                  <span className="text-slate-400">{t.lostAmountLabel}</span>
                   <span className="font-bold text-slate-100 tabular-nums">
                     ৳ {formatBDT(lostDemand.lost_amount)}
                   </span>
                 </div>
                 <div className="py-2 flex items-center justify-between gap-2">
-                  <span className="text-slate-400">{STRINGS.lostCommissionLabel}</span>
+                  <span className="text-slate-400">{t.lostCommissionLabel}</span>
                   <span className="font-bold text-teal-400 tabular-nums">
                     ৳ {formatBDT(lostDemand.lost_commission)}
                   </span>
@@ -460,13 +462,13 @@ export default function AgentPage() {
           {/* FEEDBACK CARD */}
           <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3">
             <h3 className="text-sm font-bold text-slate-100 tracking-tight">
-              {STRINGS.feedbackHeading}
+              {t.feedbackHeading}
             </h3>
 
             {feedbackStatus === "success" ? (
               <div className="flex items-center gap-2 p-3 bg-navy-900 rounded-xl border border-slate-800 text-slate-100">
                 <CheckCircle2 className="w-5 h-5 text-teal-400 shrink-0" />
-                <span className="text-sm font-bold text-teal-400">{STRINGS.feedbackSuccess}</span>
+                <span className="text-sm font-bold text-teal-400">{t.feedbackSuccess}</span>
                 <span className="text-xs text-slate-400">আপনার মতামত রেকর্ড করা হয়েছে।</span>
               </div>
             ) : (
@@ -482,7 +484,7 @@ export default function AgentPage() {
                         : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
                     } disabled:opacity-50`}
                   >
-                    {STRINGS.feedbackYes}
+                    {t.feedbackYes}
                   </button>
                   <button
                     type="button"
@@ -494,13 +496,13 @@ export default function AgentPage() {
                         : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
                     } disabled:opacity-50`}
                   >
-                    {STRINGS.feedbackNo}
+                    {t.feedbackNo}
                   </button>
                 </div>
 
                 {feedbackStatus === "submitting" && (
                   <p className="text-xs text-slate-400 text-center py-1">
-                    {STRINGS.feedbackSubmitting}
+                    {t.feedbackSubmitting}
                   </p>
                 )}
 
@@ -508,14 +510,14 @@ export default function AgentPage() {
                   <div className="flex items-center justify-between text-xs text-amber-300 bg-amber-950/40 border border-amber-800/50 p-2.5 rounded-xl">
                     <div className="flex items-center gap-1.5">
                       <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span>{STRINGS.feedbackFailed}</span>
+                      <span>{t.feedbackFailed}</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleFeedback(feedbackAnswer ?? true)}
                       className="underline font-semibold"
                     >
-                      {STRINGS.retry}
+                      {t.retry}
                     </button>
                   </div>
                 )}
