@@ -24,7 +24,7 @@ export default function AgentPage() {
   const { t, lang } = useLang();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("T0039");
-  const [selectedDate, setSelectedDate] = useState<string>(DEMO_DATE);
+  const [selectedDate, setSelectedDate] = useState<string>("2026-10-04");
   const [riskLevel, setRiskLevel] = useState<RiskLevel>("0.9");
 
   const [plan, setPlan] = useState<AgentPlan | null>(null);
@@ -149,8 +149,8 @@ export default function AgentPage() {
             <input
               type="date"
               value={selectedDate}
-              min="2026-09-03"
-              max="2026-10-02"
+              min="2026-07-05"
+              max="2026-12-31"
               onChange={(e) => setSelectedDate(e.target.value)}
               className="bg-transparent border-none text-[11px] sm:text-xs text-slate-200 focus:outline-none cursor-pointer [color-scheme:dark]"
               aria-label={t.dateSelectorLabel}
