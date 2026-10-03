@@ -11,7 +11,7 @@ class HealthResponse(BaseModel):
 
 class FeedbackRequest(BaseModel):
     helpful: bool = Field(..., description="Whether the recommendation was helpful")
-    comment: Optional[str] = Field(None, description="Optional user comment", examples=["Useful advice"])
+    comment: Optional[str] = Field(None, max_length=500, description="Optional user comment", examples=["Useful advice"])
 
 
 class FeedbackResponse(BaseModel):

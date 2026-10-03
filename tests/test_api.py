@@ -82,3 +82,17 @@ def test_feedback_endpoint(client):
     r = client.post("/agents/T0000/feedback", json={"helpful": True, "comment": "test feedback"})
     assert r.status_code == 200
     assert r.json() == {"ok": True}
+
+
+def test_security_input_validation(client):
+    # Reject path traversal / invalid agent_id format
+    r_bad_id = client.get("/agents/../plan", params={"date": "2026-10-02"})
+    assert r_bad_id.status_code in (404, 422)
+
+    # Reject malformed date parameter
+    r_bad_date = client.get("/agents/T0000/plan", params={"date": "not-a-date"})
+    assert r_bad_date.status_code == 422
+
+    # Reject oversized comment payload (> 500 chars)
+    r_bad_comment = client.post("/agents/T0000/feedback", json={"helpful": True, "comment": "x" * 501})
+    assert r_bad_comment.status_code == 422
