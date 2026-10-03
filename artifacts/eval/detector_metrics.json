@@ -4,21 +4,47 @@
     "f1_cash_stockout": 0.1214,
     "precision_cash_stockout": 0.073,
     "recall_cash_stockout": 0.3601,
-    "n_evaluated": 114110
+    "n_evaluated": 114110,
+    "f1_macro_all": 0.3969,
+    "f1_cash_stockout_all": 0.1186,
+    "recall_cash_stockout_all": 0.1186,
+    "n_all": 126000
   },
   "hmm": {
     "f1_macro": 0.6553,
     "f1_cash_stockout": 0.0,
     "precision_cash_stockout": 0.0,
     "recall_cash_stockout": 0.0,
-    "n_evaluated": 114110
+    "n_evaluated": 114110,
+    "f1_macro_all": 0.5893,
+    "f1_cash_stockout_all": 0.0,
+    "recall_cash_stockout_all": 0.0,
+    "n_all": 126000
   },
   "lgbm": {
     "f1_macro": 0.7852,
     "f1_cash_stockout": 0.3793,
     "precision_cash_stockout": 0.5493,
     "recall_cash_stockout": 0.2896,
-    "n_evaluated": 114110
+    "n_evaluated": 114110,
+    "f1_macro_all": 0.6786,
+    "f1_cash_stockout_all": 0.347,
+    "recall_cash_stockout_all": 0.347,
+    "n_all": 126000
   },
-  "best": "lgbm"
+  "lgbm_10pct_feedback": {
+    "f1_macro": 0.7535,
+    "f1_cash_stockout": 0.2859,
+    "precision_cash_stockout": 0.7696,
+    "recall_cash_stockout": 0.1756,
+    "n_evaluated": 114110,
+    "train_days_used": 6
+  },
+  "best": "lgbm",
+  "best_by": "validation_f1_macro",
+  "validation_f1_macro": {
+    "rule": 0.3997,
+    "hmm": 0.6548,
+    "lgbm": 0.878
+  }
 }

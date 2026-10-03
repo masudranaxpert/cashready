@@ -238,7 +238,7 @@ export default function EvidencePage() {
                     >
                       <XAxis
                         type="number"
-                        domain={[60, 75]}
+                        domain={[0, 80]}
                         tick={{ fill: "#94A3B8", fontSize: 11 }}
                         unit="%"
                       />

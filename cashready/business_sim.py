@@ -93,6 +93,34 @@ def simulate_business(panel: pd.DataFrame, forecasts: pd.DataFrame) -> dict:
     lost_cashready = replay("opening_cash")
     total_demand = float(merged.demand.fillna(0).sum())
 
+    # AUDIT FIX: same-capital fairness baseline — scale habit openings so their
+    # MEAN equals CashReady's mean opening, then replay.
+    cr_mean = float(plan.opening_cash.mean())
+    hb_mean = float(plan.opening_cash_habit.replace(0, np.nan).mean())
+    scale = cr_mean / max(hb_mean, 1.0)
+    plan["opening_cash_habit_scaled"] = plan.opening_cash_habit * scale
+    merged = merged.merge(
+        plan[["agent_id", "day_idx", "opening_cash_habit_scaled"]],
+        on=["agent_id", "day_idx"], how="left")
+    merged["opening_cash_habit_scaled"] = merged.opening_cash_habit_scaled.fillna(0)
+    lost_habit_scaled = replay("opening_cash_habit_scaled")
+
+    # idle cash at close (leftover the agent carried all day) per policy
+    def idle_cash(opening_col):
+        tmp = merged[["agent_id", "day_idx", "hour", "demand", opening_col]].copy()
+        tmp = tmp.rename(columns={opening_col: "cash"})
+        leftovers = []
+        for _, gday in tmp.groupby(["agent_id", "day_idx"], sort=False):
+            c = gday.cash.iloc[0]
+            for d in gday.demand.fillna(0):
+                c -= min(c, d)
+            leftovers.append(max(c, 0.0))
+        return float(np.mean(leftovers)), float(np.sum(leftovers))
+
+    idle_habit_mean, idle_habit_total = idle_cash("opening_cash_habit")
+    idle_cr_mean, idle_cr_total = idle_cash("opening_cash")
+    idle_scaled_mean, idle_scaled_total = idle_cash("opening_cash_habit_scaled")
+
     # stock-out probability comparison (normal approx on plan vs habit)
     from scipy.stats import norm
     plan_rows = plan[plan.habit > 0]
@@ -117,6 +145,17 @@ def simulate_business(panel: pd.DataFrame, forecasts: pd.DataFrame) -> dict:
             "cashready": round(lost_cashready * COMMISSION_RATE, 0)},
         "commission_saved_bdt": round((lost_habit - lost_cashready) * COMMISSION_RATE, 0),
         "opening_comparison": so_prob,
+        # AUDIT FIX: fair same-capital comparison + idle-cash cost
+        "same_capital_comparison": {
+            "habit_lost_pct": round(100 * lost_habit_scaled / total_demand, 2),
+            "cashready_lost_pct": round(100 * lost_cashready / total_demand, 2),
+            "habit_mean_opening_scaled": round(cr_mean, 0),
+        },
+        "idle_cash_at_close_bdt": {
+            "habit_mean": round(idle_habit_mean, 0),
+            "habit_scaled_mean": round(idle_scaled_mean, 0),
+            "cashready_mean": round(idle_cr_mean, 0),
+        },
     }
     Path("artifacts/eval").mkdir(parents=True, exist_ok=True)
     with open("artifacts/eval/business_sim_metrics.json", "w") as f:

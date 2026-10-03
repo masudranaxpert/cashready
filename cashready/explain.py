@@ -63,11 +63,36 @@ def top_reasons(shap_row: pd.Series, k=3):
     return out
 
 
+def time_word_bn(hour: int) -> str:
+    if hour < 12:
+        return "সকাল"
+    if hour < 15:
+        return "দুপুর"
+    if hour < 18:
+        return "বিকেল"
+    if hour < 20:
+        return "সন্ধ্যা"
+    return "রাত"
+
+
+def time_word_en(hour: int) -> str:
+    if hour < 12:
+        return "morning"
+    if hour < 15:
+        return "midday"
+    if hour < 18:
+        return "afternoon"
+    if hour < 20:
+        return "evening"
+    return "night"
+
+
 def message_bn(opening_cash: int, risk_hour: int, reasons) -> str:
     r1 = reasons[0]["label_bn"] if reasons else "স্বাভাবিক চাহিদা"
     r2 = reasons[1]["label_bn"] if len(reasons) > 1 else ""
+    tw = time_word_bn(risk_hour)
     base = (f"আজ সকালে {opening_cash:,} টাকা নগদ রাখুন। "
-            f"সবচেয়ে ঝুঁকির সময় বিকেল {risk_hour}টা-এর পর। "
+            f"সবচেয়ে ঝুঁকির সময় {tw} {risk_hour}টা-এর পর। "
             f"কারণ: {r1}")
     if r2:
         base += f", {r2}"
@@ -77,8 +102,9 @@ def message_bn(opening_cash: int, risk_hour: int, reasons) -> str:
 def message_en(opening_cash: int, risk_hour: int, reasons) -> str:
     r1 = reasons[0]["label_en"] if reasons else "normal demand"
     r2 = reasons[1]["label_en"] if len(reasons) > 1 else ""
+    twe = time_word_en(risk_hour)
     base = (f"Keep {opening_cash:,} BDT cash this morning. "
-            f"Highest risk after {risk_hour}:00. "
+            f"Highest risk {twe} after {risk_hour}:00. "
             f"Because: {r1}")
     if r2:
         base += f", {r2}"

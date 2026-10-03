@@ -71,15 +71,51 @@ def export(target_date: str | None = None):
                                 random_state=0, verbose=-1)
         m50.fit(tr[PANEL_FEATURES], np.log1p(tr.true_cashout_demand_amount))
 
-    # agent-day aggregates for the plan
-    plan_src = (fc.groupby(["agent_id", "day_idx"])
-                .agg(opening_cash=("pred_q90", "last"), p50_day=("pred_q50", "sum"))
-                .reset_index())
-    plan_src["stockout_prob_plan"] = 0.10
+    # agent-day aggregates for the plan — AUDIT FIX (paste #3):
+    # opening_cash MUST come from business_sim.plan_opening (cumulative day need),
+    # per service level {0.8, 0.9, 0.95}, rounded to 1000 BDT.
+    from cashready.business_sim import plan_opening, compute_daily_habit
+    plans_all = []
+    for sl in (0.8, 0.9, 0.95):
+        p = plan_opening(fc, sl)
+        p["service_level"] = str(sl)
+        plans_all.append(p)
+    plan_all = pd.concat(plans_all, ignore_index=True)
+    plan_all["opening_cash"] = (plan_all.opening_cash / 1000).round() * 1000
+    plan_all["opening_cash"] = plan_all.opening_cash.astype(int)
+
     panel_daily = compute_daily_habit(panel)
-    plan_src = plan_src.merge(panel_daily[["agent_id", "day_idx", "habit"]],
-                              on=["agent_id", "day_idx"], how="left")
-    plan_src["opening_habit"] = (plan_src.habit * config.OPEN_BUFFER).fillna(0)
+
+    # per-agent stockout probabilities: REPLAY last 14 test days (audit fix #2):
+    # share of days each policy (habit / each service level) stocks out.
+    truth = pd.read_parquet("data/ground_truth/hourly_truth.parquet")
+    replay_days = sorted(plan_all.day_idx.unique())[-14:]
+    tru_r = truth[truth.day_idx.isin(replay_days)]
+    daily_need = (tru_r.groupby(["agent_id", "day_idx"])
+                  .true_cashout_demand_amount.sum().rename("need").reset_index())
+    daily_need = daily_need.merge(panel_daily[["agent_id", "day_idx", "habit"]],
+                                  on=["agent_id", "day_idx"], how="left")
+    daily_need["opening_habit"] = daily_need.habit * config.OPEN_BUFFER
+    keyed = plan_all[plan_all.day_idx.isin(replay_days)][
+        ["agent_id", "day_idx", "service_level", "opening_cash"]]
+    daily_need = daily_need.merge(keyed, on=["agent_id", "day_idx"], how="left")
+
+    def _so(df, col):
+        return df.groupby("agent_id").apply(
+            lambda g: (g[col] < g.need).mean(), include_groups=False)
+
+    so_habit = _so(daily_need, "opening_habit")
+    so_plan = {sl: _so(daily_need[daily_need.service_level == str(sl)], "opening_cash")
+               for sl in ("0.8", "0.9", "0.95")}
+
+    def probs_for(agent_id: str) -> dict:
+        h = float(so_habit.get(agent_id, 0.3))
+        p = {sl: float(so_plan[sl].get(agent_id, 0.1)) for sl in ("0.8", "0.9", "0.95")}
+        return {"plan": p, "habit": h}
+
+    plan_src = plan_all[plan_all.service_level == "0.9"].merge(
+        panel_daily[["agent_id", "day_idx", "habit"]], on=["agent_id", "day_idx"],
+        how="left")
 
     # per-day export (all forecast days; day_list already sorted)
     for d in day_list:
@@ -99,21 +135,27 @@ def export(target_date: str | None = None):
         agents_json = {}
         for r in day_plan.itertuples():
             reasons = reasons_map.get(r.agent_id, [])
+            pr = probs_for(r.agent_id)
+            rh = int(risk_by_agent.loc[r.agent_id, "hour"]) \
+                if r.agent_id in risk_by_agent.index else 8
+            # per-level opening from plan_opening (audit fix #1/#3)
+            day_all_levels = plan_all[(plan_all.day_idx == d) &
+                                      (plan_all.agent_id == r.agent_id)]
+            oc_by_level = {str(sl): int(day_all_levels[
+                day_all_levels.service_level == str(sl)].opening_cash.iloc[0])
+                for sl in ("0.8", "0.9", "0.95")} if len(day_all_levels) else {
+                "0.8": int(r.opening_cash), "0.9": int(r.opening_cash),
+                "0.95": int(r.opening_cash)}
+            oc = oc_by_level["0.9"]
             agents_json[r.agent_id] = {
-                "opening_cash": int(round(r.opening_cash)),
-                "stockout_prob_plan": {"0.8": 0.15, "0.9": 0.10, "0.95": 0.05},
-                "stockout_prob_habit": {"0.8": 0.35, "0.9": 0.28, "0.95": 0.18},
-                "risk_hour": int(risk_by_agent.loc[r.agent_id, "hour"])
-                if r.agent_id in risk_by_agent.index else 8,
+                "opening_cash": oc,
+                "opening_cash_by_level": oc_by_level,
+                "stockout_prob_plan": pr["plan"],
+                "stockout_prob_habit": pr["habit"],
+                "risk_hour": rh,
                 "reasons": reasons,
-                "message_bn": message_bn(int(round(r.opening_cash)),
-                                         int(risk_by_agent.loc[r.agent_id, "hour"])
-                                         if r.agent_id in risk_by_agent.index else 8,
-                                         reasons),
-                "message_en": message_en(int(round(r.opening_cash)),
-                                         int(risk_by_agent.loc[r.agent_id, "hour"])
-                                         if r.agent_id in risk_by_agent.index else 8,
-                                         reasons),
+                "message_bn": message_bn(oc, rh, reasons),
+                "message_en": message_en(oc, rh, reasons),
             }
         (serve / "plans" / f"{date}.json").write_text(json.dumps(
             {"date": date, "opening_cash_default": 60000,

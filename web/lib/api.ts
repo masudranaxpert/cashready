@@ -111,23 +111,15 @@ export async function getAgentPlan(
     `/agents/${encodeURIComponent(agentId)}/plan?date=${encodeURIComponent(date)}&risk=${encodeURIComponent(risk)}`
   );
 
-  // Adapter: ensure risk-tier scaling is properly reflected if backend returns base cash
-  let opening_cash = res.opening_cash;
-  if (risk === "0.8") {
-    opening_cash = Math.round(res.opening_cash * 0.86);
-  } else if (risk === "0.95") {
-    opening_cash = Math.round(res.opening_cash * 1.18);
-  }
-
-  // Update opening_cash in message_bn if needed
-  const formattedCash = new Intl.NumberFormat("en-US").format(opening_cash);
-  let message_bn = res.message_bn || `আজ সকালে ${formattedCash} টাকা নগদ রাখুন।`;
-  message_bn = message_bn.replace(/\d[\d,]*\s*টাকা/, `${formattedCash} টাকা`);
+  // AUDIT FIX: no frontend multipliers. The plan artifact carries the exact
+  // opening for the requested service level (opening_cash_by_level) computed
+  // by business_sim.plan_opening; fall back to opening_cash only if absent.
+  const byLevel = (res as { opening_cash_by_level?: Record<string, number> }).opening_cash_by_level;
+  const opening_cash = (byLevel && byLevel[risk] != null) ? byLevel[risk] : res.opening_cash;
 
   return {
     ...res,
     opening_cash,
-    message_bn,
     selected_risk: risk,
   };
 }
@@ -176,11 +168,10 @@ export async function submitAgentFeedback(
       const data = await res.json();
       return { ok: Boolean(data?.ok ?? true) };
     }
-    // Note: Teammate commit 15ca5ad removed feedback POST endpoint from demo FastAPI service.
-    // If backend returns 404 or 405, fall back gracefully to ok: true for judge presentation.
+    // AUDIT FIX: no fake success. If the demo endpoint is absent, surface it.
     if (res.status === 404 || res.status === 405) {
-      console.warn("Backend feedback endpoint not available; handling gracefully");
-      return { ok: true };
+      console.warn("Demo: feedback endpoint not available in this deployment");
+      return { ok: false, demo_only: true };
     }
     throw new Error(`Feedback failed with status ${res.status}`);
   } catch (err: unknown) {

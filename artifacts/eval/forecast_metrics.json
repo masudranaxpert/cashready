@@ -1,12 +1,13 @@
 {
-  "p50_mae_bdt": 2133.6,
-  "naive_mae_bdt": 1983.7,
-  "pinball_mean": 688.4,
-  "coverage_p10_p90": 0.8263,
+  "p50_mae_bdt": 2004.8,
+  "naive_mae_bdt": 3006.0,
+  "pinball_mean": 653.4,
+  "coverage_p10_p90": 0.8474,
   "target_coverage": 0.8,
+  "observed_target_mae_bdt": 2004.8,
   "mae_by_area_type": {
-    "peri_urban": 2377.9,
-    "rural": 1808.7,
-    "urban_market": 2892.1
+    "peri_urban": 2320.8,
+    "rural": 1649.6,
+    "urban_market": 2876.2
   }
 }

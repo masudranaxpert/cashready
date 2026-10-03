@@ -9,17 +9,27 @@
     "lost_pct": 18.1
   },
   "cashready_policy": {
-    "lost_bdt": 4785765.0,
-    "lost_pct": 1.36
+    "lost_bdt": 10207111.0,
+    "lost_pct": 2.89
   },
   "lost_commission_bdt": {
     "habit": 1148942.0,
-    "cashready": 86144.0
+    "cashready": 183728.0
   },
-  "commission_saved_bdt": 1062799.0,
+  "commission_saved_bdt": 965214.0,
   "opening_comparison": {
     "habit_mean_opening": 40047.0,
-    "cashready_mean_opening": 62601.0,
-    "opening_ratio": 1.563
+    "cashready_mean_opening": 59888.0,
+    "opening_ratio": 1.495
+  },
+  "same_capital_comparison": {
+    "habit_lost_pct": 6.04,
+    "cashready_lost_pct": 2.89,
+    "habit_mean_opening_scaled": 58049.0
+  },
+  "idle_cash_at_close_bdt": {
+    "habit_mean": 6661.0,
+    "habit_scaled_mean": 19361.0,
+    "cashready_mean": 19990.0
   }
 }

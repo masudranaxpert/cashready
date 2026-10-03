@@ -148,6 +148,23 @@ def evaluate(det_states: pd.Series, truth: pd.Series) -> dict:
     }
 
 
+def evaluate_all_hours(det_states: pd.Series, truth: pd.Series) -> dict:
+    """AUDIT FIX: score on ALL test agent-hours — missing panel rows count as
+    predicted 'closed'. No exclusion flattering."""
+    from sklearn.metrics import f1_score
+    yt, yp = truth.astype(str), det_states.astype(str)
+    labels = ["normal", "cash_stockout", "float_stockout", "closed"]
+    return {
+        "f1_macro_all": round(float(f1_score(yt, yp, average="macro",
+                                             zero_division=0)), 4),
+        "f1_cash_stockout_all": round(float(f1_score(
+            yt, yp, labels=["cash_stockout"], average="macro", zero_division=0)), 4),
+        "recall_cash_stockout_all": round(float(f1_score(
+            yt, yp, labels=["cash_stockout"], average="macro", zero_division=0)), 4),
+        "n_all": int(len(yt)),
+    }
+
+
 def run(panel: pd.DataFrame, seed=0) -> dict:
     add_closed_flag(panel)
     truth = pd.read_parquet("data/ground_truth/hourly_truth.parquet")
@@ -157,17 +174,56 @@ def run(panel: pd.DataFrame, seed=0) -> dict:
     te = panel[panel.day_idx >= config.TEST_DAYS[0]].merge(
         truth[key + ["state"]].rename(columns={"state": "true_state"}), on=key)
 
+    # AUDIT FIX: choose 'best' on a VALIDATION slice of train (last 10 train days),
+    # never on test.
+    val_hi = config.TRAIN_DAYS[1]
+    val_lo = val_hi - 10
+    val = panel[panel.day_idx.between(val_lo, val_hi - 1)].merge(
+        truth[key + ["state"]], on=key)
+
     results = {}
+    dets = {}
     for name, fn in [("rule", lambda df: rule_detector(df)),
                      ("hmm", lambda df: hmm_detector(tr, df, seed)),
                      ("lgbm", lambda df: ml_detector(tr, df, seed))]:
         det = finalize(te.copy(), fn(te))
+        dets[name] = det
         m = evaluate(det.state, te.true_state)
         results[name] = m
         det.to_parquet(f"data/processed/detector_{name}.parquet", index=False)
-    # consensus states used downstream: best method by f1_macro
-    best = max(results, key=lambda k: results[k]["f1_macro"])
+
+    # validation-based model choice
+    val_results = {}
+    for name, fn in [("rule", lambda df: rule_detector(df)),
+                     ("hmm", lambda df: hmm_detector(tr, df, seed)),
+                     ("lgbm", lambda df: ml_detector(tr, df, seed))]:
+        det_v = finalize(val.copy(), fn(val))
+        val_results[name] = evaluate(det_v.state, val.state)
+
+    # AUDIT FIX: ALL test agent-hours evaluation (missing panel hours = closed)
+    truth_te = truth[truth.day_idx >= config.TEST_DAYS[0]]
+    for name, det in dets.items():
+        det_keyed = det.set_index(key)
+        all_states = det_keyed.state.reindex(
+            pd.MultiIndex.from_frame(truth_te[key], names=key))
+        all_states = all_states.fillna("closed")
+        results[name].update(evaluate_all_hours(all_states, truth_te.state.values))
+
+    # 10%-labels variant (simulated agent one-tap feedback)
+    rng = np.random.default_rng(seed)
+    sample_days = rng.choice(np.arange(0, config.TRAIN_DAYS[1]),
+                             size=max(1, config.TRAIN_DAYS[1] // 10), replace=False)
+    tr_fb = tr[tr.day_idx.isin(sample_days)]
+    det_fb = finalize(te.copy(), ml_detector(tr_fb, te, seed))
+    results["lgbm_10pct_feedback"] = evaluate(det_fb.state, te.true_state)
+    results["lgbm_10pct_feedback"]["train_days_used"] = int(len(sample_days))
+    det_fb.to_parquet("data/processed/detector_lgbm_10pct.parquet", index=False)
+
+    # consensus states used downstream: best method by VALIDATION f1_macro
+    best = max(val_results, key=lambda k: val_results[k]["f1_macro"])
     results["best"] = best
+    results["best_by"] = "validation_f1_macro"
+    results["validation_f1_macro"] = {k: v["f1_macro"] for k, v in val_results.items()}
     Path("artifacts/eval").mkdir(parents=True, exist_ok=True)
     with open("artifacts/eval/detector_metrics.json", "w") as f:
         json.dump(results, f, indent=2)

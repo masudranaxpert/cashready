@@ -38,7 +38,7 @@ export default function AgentPage() {
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
   // Feedback states
-  const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "submitting" | "success" | "demo" | "error">("idle");
   const [feedbackAnswer, setFeedbackAnswer] = useState<boolean | null>(null);
 
   // Fetch agents list once
@@ -117,11 +117,12 @@ export default function AgentPage() {
     setFeedbackAnswer(helpful);
 
     try {
-      await submitAgentFeedback(selectedAgentId, {
+      const resp = await submitAgentFeedback(selectedAgentId, {
         helpful,
         comment: helpful ? (lang === "en" ? "useful advice" : "কাজের পরামর্শ") : (lang === "en" ? "too much or too little cash" : "অতিরিক্ত বা কম নগদ"),
       });
-      setFeedbackStatus("success");
+      // AUDIT FIX: honest state — demo deployments without the endpoint show it
+      setFeedbackStatus(resp.demo_only ? "demo" : "success");
     } catch (err: unknown) {
       setFeedbackStatus("error");
     }
@@ -465,11 +466,13 @@ export default function AgentPage() {
               {t.feedbackHeading}
             </h3>
 
-            {feedbackStatus === "success" ? (
+            {feedbackStatus === "success" || feedbackStatus === "demo" ? (
               <div className="flex items-center gap-2 p-3 bg-navy-900 rounded-xl border border-slate-800 text-slate-100">
-                <CheckCircle2 className="w-5 h-5 text-teal-400 shrink-0" />
-                <span className="text-sm font-bold text-teal-400">{t.feedbackSuccess}</span>
-                <span className="text-xs text-slate-400">{t.feedbackRecorded}</span>
+                <CheckCircle2 className={`w-5 h-5 shrink-0 ${feedbackStatus === "demo" ? "text-slate-400" : "text-teal-400"}`} />
+                <span className={`text-sm font-bold ${feedbackStatus === "demo" ? "text-slate-300" : "text-teal-400"}`}>{t.feedbackSuccess}</span>
+                <span className="text-xs text-slate-400">
+                  {feedbackStatus === "demo" ? (lang === "en" ? "Demo: feedback not saved" : "ডেমো: মতামত সংরক্ষিত হয়নি") : t.feedbackRecorded}
+                </span>
               </div>
             ) : (
               <div className="space-y-2">

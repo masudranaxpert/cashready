@@ -21,13 +21,22 @@ from cashready.features import PANEL_FEATURES
 TRUTH = "data/ground_truth/hourly_truth.parquet"
 
 
-def load_clean_panel(panel: pd.DataFrame) -> pd.DataFrame:
-    """Clean hours = no stock-out (from TRAIN period only, labels via truth)."""
+def load_clean_panel(panel: pd.DataFrame, det: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Clean hours = detector p_normal >= 0.8 (audit fix: NOT ground truth).
+
+    If det is None, fall back to truth labels for the TRAIN period only.
+    """
     truth = pd.read_parquet(TRUTH)
     key = ["agent_id", "day_idx", "hour"]
     df = panel.merge(truth[key + ["state", "true_cashout_demand_count",
                                   "true_cashout_demand_amount"]], on=key)
-    clean = df[(df.state == "normal") & (df.day_idx < config.TRAIN_DAYS[1])].copy()
+    if det is not None:
+        df = df.merge(det[key + ["p_normal", "p_cash_stockout"]], on=key, how="left")
+        df["p_normal"] = df.p_normal.fillna(1.0)
+        df["p_cash_stockout"] = df.p_cash_stockout.fillna(0.0)
+        clean = df[(df.p_normal >= 0.8) & (df.day_idx < config.TRAIN_DAYS[1])].copy()
+    else:
+        clean = df[(df.state == "normal") & (df.day_idx < config.TRAIN_DAYS[1])].copy()
     censor = df[df.day_idx >= config.TEST_DAYS[0]].copy()
     return clean, censor
 
@@ -50,8 +59,13 @@ def demand_shift_flags(censor: pd.DataFrame) -> pd.DataFrame:
 
 def recover(panel: pd.DataFrame, seed=0) -> dict:
     import lightgbm as lgb
+    from pathlib import Path as _P
 
-    clean, censor = load_clean_panel(panel)
+    # detector-driven recovery (audit fix): clean hours via p_normal>=0.8,
+    # recovery applied ONLY where p_cash_stockout >= 0.5
+    det_path = _P("data/processed/detector_lgbm.parquet")
+    det = pd.read_parquet(det_path) if det_path.exists() else None
+    clean, censor = load_clean_panel(panel, det)
     wk = demand_shift_flags(censor)
     censor["week"] = censor.day_idx // 7
     censor = censor.merge(wk, on=["area_id", "week"], how="left")
@@ -76,8 +90,16 @@ def recover(panel: pd.DataFrame, seed=0) -> dict:
     obs_cnt = censor.cash_out.to_numpy()
     obs_amt = censor.cash_out_amt.to_numpy()
 
-    recovered_cnt = np.maximum(pred_cnt, obs_cnt)
-    recovered_amt = np.maximum(pred_amt, obs_amt)
+    # RECOVERY GATE (audit fix): apply uplift ONLY where the detector flags a
+    # cash stock-out (p>=0.5); elsewhere trust the observation. No max() inflation.
+    if det is not None and "p_cash_stockout" in censor.columns:
+        gate = censor.p_cash_stockout.to_numpy() >= 0.5
+    else:
+        gate = np.zeros(len(censor), dtype=bool)
+    recovered_cnt = np.where(gate, pred_cnt, obs_cnt)
+    recovered_amt = np.where(gate, pred_amt, obs_amt)
+    recovered_cnt = np.maximum(recovered_cnt, obs_cnt)   # never below observed
+    recovered_amt = np.maximum(recovered_amt, obs_amt)
 
     # demand-shift guard: where digital shift flagged, cap recovery uplift
     # at +30% over observed (rest of the gap is migration, not censoring)
@@ -132,6 +154,12 @@ def recover(panel: pd.DataFrame, seed=0) -> dict:
         "censored_hours": int((censor.state == "cash_stockout").sum()),
         "total_estimated_lost_bdt": float(out.estimated_lost_amount.sum()),
         "demand_shift_area_weeks": int(wk.demand_shift.sum()),
+        "recovery_gated_hours": int(gate.sum()),
+        # audit metric: share of estimated loss falling in TRULY normal hours
+        "estimated_loss_in_normal_hours_pct": round(float(
+            out.loc[censor.state.to_numpy() == "normal",
+                    "estimated_lost_amount"].sum()
+            / max(float(out.estimated_lost_amount.sum()), 1e-9) * 100), 2),
     }
     Path("artifacts/eval").mkdir(parents=True, exist_ok=True)
     with open("artifacts/eval/recovery_metrics.json", "w") as f:

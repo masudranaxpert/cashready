@@ -48,6 +48,7 @@ export interface FeedbackPayload {
 
 export interface FeedbackResponse {
   ok: boolean;
+  demo_only?: boolean;
 }
 
 export interface AreaAgentRisk {
