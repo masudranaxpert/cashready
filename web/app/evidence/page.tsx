@@ -176,7 +176,7 @@ export default function EvidencePage() {
               </div>
               <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
                 <span>{t.kpiVsHabit}</span>
-                <span className="text-teal-400 font-semibold">&minus;16.7% হ্রাস</span>
+                <span className="text-teal-400 font-semibold">{lang === "en" ? "&minus;16.7% reduction" : "&minus;16.7% হ্রাস"}</span>
               </p>
             </div>
 
@@ -347,7 +347,7 @@ export default function EvidencePage() {
                   <ShieldAlert className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
                 </div>
                 <div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">ধাপ ১</div>
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">{lang === "en" ? "Step 1" : "ধাপ ১"}</div>
                   <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep1Title}</h4>
                   <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep1Desc}</p>
                 </div>
@@ -359,7 +359,7 @@ export default function EvidencePage() {
                   <RotateCcw className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
                 </div>
                 <div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">ধাপ ২</div>
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">{lang === "en" ? "Step 2" : "ধাপ ২"}</div>
                   <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep2Title}</h4>
                   <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep2Desc}</p>
                 </div>
@@ -371,7 +371,7 @@ export default function EvidencePage() {
                   <TrendingUp className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
                 </div>
                 <div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">ধাপ ৩</div>
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">{lang === "en" ? "Step 3" : "ধাপ ৩"}</div>
                   <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep3Title}</h4>
                   <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep3Desc}</p>
                 </div>
@@ -383,7 +383,7 @@ export default function EvidencePage() {
                   <Banknote className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
                 </div>
                 <div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">ধাপ ৪</div>
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">{lang === "en" ? "Step 4" : "ধাপ ৪"}</div>
                   <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep4Title}</h4>
                   <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep4Desc}</p>
                 </div>
