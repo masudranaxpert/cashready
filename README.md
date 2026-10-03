@@ -161,6 +161,6 @@ Because actual MFS client records are protected by strict financial privacy regu
 
 ## Core Team
 
-- **Masud Rana** — ML Pipeline, Statistical Modeling & Architecture Lead
+- **Masud Rana** — ML Pipeline, Statistical Modeling & Architecture Lead, Deployment Lead
 - **Ajmine Adil** — Frontend Architecture, UI/UX Engineering & Integration Lead
-- **Farhana Nasrin** — Backend Engineering, Testing & Deployment Lead
+- **Farhana Nasrin** — API Engineering

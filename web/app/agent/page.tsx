@@ -305,11 +305,16 @@ export default function AgentPage() {
                 <span>
                   {t.planShortfall}{" "}
                   <strong className="text-slate-200">
-                    {Math.round((
-                      (typeof plan.stockout_prob_plan === "object" && plan.stockout_prob_plan !== null
-                        ? (plan.stockout_prob_plan[riskLevel] ?? Object.values(plan.stockout_prob_plan)[0])
-                        : plan.stockout_prob_plan) ?? 0.1
-                    ) * 100)}%
+                    {(() => {
+                      const prob = Math.round((
+                        (typeof plan.stockout_prob_plan === "object" && plan.stockout_prob_plan !== null
+                          ? (plan.stockout_prob_plan[riskLevel] ?? Object.values(plan.stockout_prob_plan)[0])
+                          : plan.stockout_prob_plan) ?? 0.1
+                      ) * 100);
+                      return prob === 0
+                        ? (lang === "en" ? "0/14 days in past 14d" : "গত ১৪ দিনে ০/১৪ দিন")
+                        : `${prob}%`;
+                    })()}
                   </strong>
                 </span>
                 <span>

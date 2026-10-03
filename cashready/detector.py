@@ -190,9 +190,10 @@ def run(panel: pd.DataFrame, seed=0) -> dict:
     for name, fn in [("rule", lambda df: rule_detector(df)),
                      ("hmm", lambda df: hmm_detector(tr, df, seed)),
                      ("lgbm", lambda df: ml_detector(tr, df, seed))]:
-        det = finalize(te.copy(), fn(te))
+        det = finalize(panel.copy(), fn(panel))
         dets[name] = det
-        m = evaluate(det.state, te.true_state)
+        det_te = det[det.day_idx >= config.TEST_DAYS[0]].reset_index(drop=True)
+        m = evaluate(det_te.state, te.true_state)
         results[name] = m
         det.to_parquet(f"data/processed/detector_{name}.parquet", index=False)
 

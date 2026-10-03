@@ -82,7 +82,7 @@ def export(target_date: str | None = None):
         plans_all.append(p)
     plan_all = pd.concat(plans_all, ignore_index=True)
     plan_all["opening_cash"] = (plan_all.opening_cash / 1000).round() * 1000
-    plan_all["opening_cash"] = plan_all.opening_cash.astype(int)
+    plan_all["opening_cash"] = plan_all.opening_cash.clip(lower=10000).astype(int)
 
     panel_daily = compute_daily_habit(panel)
 
@@ -118,9 +118,10 @@ def export(target_date: str | None = None):
         h_dict = {sl: round(h, 3) for sl in ("0.8", "0.9", "0.95")}
         return {"plan": p, "habit": h_dict}
 
+    agent_areas = panel[["agent_id", "area_id"]].drop_duplicates()
     plan_src = plan_all[plan_all.service_level == "0.9"].merge(
         panel_daily[["agent_id", "day_idx", "habit"]], on=["agent_id", "day_idx"],
-        how="left")
+        how="left").merge(agent_areas, on="agent_id", how="left")
 
     from cashready.forecast import build_dayahead_features
     grid = build_dayahead_features(panel)
@@ -172,17 +173,21 @@ def export(target_date: str | None = None):
             {"date": date, "opening_cash_default": 60000,
              "agents": agents_json}, ensure_ascii=False))
 
-        # area risk: top 5 unique risky agents per area
-        day_det = det[det.day_idx == d]
+        # area risk: top 5 unique risky agents per area, ranked by stockout_prob_habit
         ar = {}
-        for area, g in day_det.groupby("area_id"):
-            top_agents = (g.groupby("agent_id")["p_cash_stockout"].max()
-                          .nlargest(5).reset_index())
-            ar[area] = [{"agent_id": r.agent_id,
-                         "stockout_prob_habit": round(float(r.p_cash_stockout), 3),
-                         "risk_hour": int(risk_by_agent.loc[r.agent_id, "hour"])
-                         if r.agent_id in risk_by_agent.index else 8}
-                        for r in top_agents.itertuples()]
+        for area, g in day_plan.groupby("area_id"):
+            agent_risks = [
+                (r.agent_id,
+                 float(agents_json[r.agent_id]["stockout_prob_habit"]["0.9"]),
+                 agents_json[r.agent_id]["risk_hour"])
+                for r in g.itertuples() if r.agent_id in agents_json
+            ]
+            agent_risks.sort(key=lambda x: x[1], reverse=True)
+            top5 = agent_risks[:5]
+            ar[area] = [{"agent_id": aid,
+                         "stockout_prob_habit": round(prob, 3),
+                         "risk_hour": rh}
+                        for aid, prob, rh in top5]
         (serve / "area_risk" / f"{date}.json").write_text(json.dumps(
             {"date": date, "areas": ar}, ensure_ascii=False))
 

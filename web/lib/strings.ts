@@ -186,18 +186,20 @@ const BN: Dict = {
   impactDown: "হ্রাস",
   impactNeutral: "নিরপেক্ষ",
   noAgentMatch: "কোনো এজেন্ট মেলেনি",
-  lostCountUnit: (n: number) => `${n} জন`,
+  lostCountUnit: (n: number) => `আনুমানিক ${Math.round(n)} জন`,
   feedbackRecorded: "আপনার মতামত রেকর্ড করা হয়েছে।",
   areaViewBadge: "এরিয়া ভিউ",
   areaSubheading: "আগামীকালের জন্য সম্ভাব্য ক্যাশ ঘাটতি এবং এরিয়াভিত্তিক চাহিদা শিফট বিশ্লেষণ",
   agentShortfallList: "এজেন্ট ঘাটতি ঝুঁকির তালিকা",
-  areaAgentCount: (id: string, n: number) => `এরিয়া ${id} • মোট ${n} জন এজেন্ট`,
+  areaAgentCount: (id: string, n: number) => `এরিয়া ${id} • শীর্ষ ${n} জন ঝুঁকিপূর্ণ এজেন্ট`,
   redBorderLegend: "লাল সীমানা = উচ্চ ঝুঁকি (≥ ৩০%)",
   sortBy: "সাজান:",
   riskTime: (h: number) => {
     const h12 = h % 12 === 0 ? 12 : h % 12;
     const period = h < 12 ? "সকাল" : h < 15 ? "দুপুর" : h < 18 ? "বিকেল" : h < 20 ? "সন্ধ্যা" : "রাত";
-    return `সময়: ${period} ${h12}:00`;
+    const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+    const h12Bn = String(h12).split("").map((d) => bnDigits[Number(d)] ?? d).join("");
+    return `সময়: ${period} ${h12Bn}টা`;
   },
   shortfallProb: "ঘাটতি সম্ভাবনা",
   cashShortfall: "নগদ ঘাটতি",
@@ -317,12 +319,12 @@ const EN: Dict = {
   impactDown: "down",
   impactNeutral: "neutral",
   noAgentMatch: "No agents match",
-  lostCountUnit: (n: number) => `${n}`,
+  lostCountUnit: (n: number) => `Approx. ${Math.round(n)} customers`,
   feedbackRecorded: "Your feedback has been recorded.",
   areaViewBadge: "Area view",
   areaSubheading: "Likely cash shortfalls for tomorrow and demand-shift analysis by area",
   agentShortfallList: "Agent shortfall risk list",
-  areaAgentCount: (id: string, n: number) => `Area ${id} • ${n} agents`,
+  areaAgentCount: (id: string, n: number) => `Area ${id} • Top ${n} risky agents`,
   redBorderLegend: "Red border = high risk (≥ 30%)",
   sortBy: "Sort:",
   riskTime: (h: number) => {

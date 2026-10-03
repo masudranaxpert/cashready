@@ -77,17 +77,9 @@ def rolling_forecast(panel: pd.DataFrame, seed=0) -> dict:
     truth = pd.read_parquet("data/ground_truth/hourly_truth.parquet")
 
     grid = build_dayahead_features(panel)
-    # target: RECOVERED demand on the grid. Recovery output covers TEST days;
-    # for TRAIN days use observed cash-out (censoring is negligible there and
-    # no ground truth is needed — keeps the training target truth-free).
+    # target: RECOVERED demand on the grid (now covering both train and test days).
     tgt = recov[["agent_id", "day_idx", "hour", "recovered_amount"]]
     g = grid.merge(tgt, on=["agent_id", "day_idx", "hour"], how="left")
-    obs = panel.groupby(["agent_id", "day_idx", "hour"]).cash_out_amt.sum()
-    train_mask = g.day_idx < config.TRAIN_DAYS[1]
-    g.loc[train_mask, "recovered_amount"] = [
-        obs.get((a, d, h), 0.0)
-        for a, d, h in g.loc[train_mask, ["agent_id", "day_idx", "hour"]].itertuples(index=False)
-    ]
     g["recovered_amount"] = g.recovered_amount.fillna(0.0)
     g = g.merge(truth[["agent_id", "day_idx", "hour", "true_cashout_demand_amount"]],
                 on=["agent_id", "day_idx", "hour"], how="left")
@@ -166,6 +158,7 @@ def rolling_forecast(panel: pd.DataFrame, seed=0) -> dict:
         "naive_mae_bdt": round(float(np.abs(yte - naive_pred).mean()), 1),
         "observed_target_mae_bdt": round(float(np.abs(
             yte - out.pred_obs_q50.to_numpy()).mean()), 1),
+        "p50_pinball": round(float(pinball(yte, p50, 0.5)), 1),
         "pinball_mean": round(float(np.mean([
             pinball(yte, out.pred_q10, 0.1),
             pinball(yte, p50, 0.5),

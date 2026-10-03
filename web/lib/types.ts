@@ -122,5 +122,10 @@ export interface MetricsResponse {
       cashready_mean_opening: number;
       opening_ratio: number;
     };
+    same_capital_comparison?: {
+      habit_lost_pct: number;
+      cashready_lost_pct: number;
+      habit_mean_opening_scaled?: number;
+    };
   };
 }

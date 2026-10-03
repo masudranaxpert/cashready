@@ -11,6 +11,8 @@ from cashready import config
 
 EPOCH = pd.Timestamp("2026-07-05")
 
+BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+
 LABELS_BN = {
     "salary_window": ("মাসের বেতনের সময়", "এই সময়ে টাকা তোলার চাপ বাড়ে"),
     "eid_window": ("ঈদের ধাক্কা", "ঈদের ছুটিতে নগদ তোলা অনেক বাড়ে"),
@@ -19,6 +21,13 @@ LABELS_BN = {
     "hour": ("দিনের এই সময়", "দিনের এই সময়ে লেনদেন ঘনত্ব বেশি"),
     "out_mean_7d": ("গত সপ্তাহের ধরন", "গত সপ্তাহে আপনার লেনদেন বেশি ছিল"),
     "out_mean_28d": ("গত মাসের ধরন", "গত মাসের গড় চাহিদা বেশি"),
+    "mean7": ("গত ৭ দিনের গড় চাহিদা", "গত ৭ দিনের লেনদেনের গড়ের প্রভাব"),
+    "mean28": ("গত ২৮ দিনের লেনদেন প্রবণতা", "দীর্ঘমেয়াদী লেনদেনের গড় প্রভাব"),
+    "lag1": ("গতকাল একই ঘণ্টার চাহিদা", "গতকালের একই সময়ে চাহিদা কেমন ছিল"),
+    "lag7": ("গত সপ্তাহে একই ঘণ্টার চাহিদা", "গত সপ্তাহে একই বারে ও সময়ে চাহিদা"),
+    "at_rural": ("পল্লী অঞ্চলের নগদ চাহিদা", "পল্লী অঞ্চলে হাট ও ক্যাশ-আউটের ভিন্ন প্যাটার্ন"),
+    "at_peri_urban": ("উপশহরের নগদ চাহিদা", "উপশহরাঞ্চলে মিশ্র লেনদেনের প্রভাব"),
+    "at_urban_market": ("শহর বাজারের নগদ চাহিদা", "শহুরে বাজারে দ্রুত ক্যাশ আবর্তনের প্রভাব"),
     "nbr_out_amt": ("পাশের এলাকার চাপ", "আশপাশের এজেন্টদের চাহিদা বাড়ছে"),
     "nbr_z_out": ("এলাকার চাপ বেশি", "আপনার এলাকায় চাহিদা স্বাভাবিকের চেয়ে বেশি"),
     "fail_count": ("সাম্প্রতিক ব্যর্থতা", "সম্প্রতি কিছু লেনদেন ব্যর্থ হয়েছে"),
@@ -39,6 +48,13 @@ LABELS_EN = {
     "hour": ("Time of day", "Transactions cluster at this hour"),
     "out_mean_7d": ("Last week's pattern", "Your transactions were higher last week"),
     "out_mean_28d": ("Last month's pattern", "Average demand this month is higher"),
+    "mean7": ("7-day mean demand", "Impact of trailing 7-day average transactions"),
+    "mean28": ("28-day demand trend", "Long-term transaction baseline"),
+    "lag1": ("Yesterday same hour demand", "Demand pattern at this time yesterday"),
+    "lag7": ("Last week same hour demand", "Demand pattern on this weekday last week"),
+    "at_rural": ("Rural area demand", "Rural market and cash-out pattern"),
+    "at_peri_urban": ("Peri-urban demand", "Mixed commercial and residential transaction pattern"),
+    "at_urban_market": ("Urban market demand", "High-velocity urban commercial market pattern"),
     "nbr_out_amt": ("Neighbouring area pressure", "Nearby agents are seeing higher demand"),
     "nbr_z_out": ("Area pressure high", "Demand in your area is above normal"),
     "fail_count": ("Recent failures", "Some transactions failed recently"),
@@ -97,12 +113,15 @@ def message_bn(opening_cash: int, risk_hour: int, reasons) -> str:
     r2 = reasons[1]["label_bn"] if len(reasons) > 1 else ""
     tw = time_word_bn(risk_hour)
     h12 = to_12h(risk_hour)
-    base = (f"আজ সকালে {opening_cash:,} টাকা নগদ রাখুন। "
-            f"সবচেয়ে ঝুঁকির সময় {tw} {h12}টা-এর পর। "
+    h12_bn = str(h12).translate(BN_DIGITS)
+    oc_bn = f"{opening_cash:,}".translate(BN_DIGITS)
+    base = (f"আজ সকালে {oc_bn} টাকা নগদ রাখুন। "
+            f"সবচেয়ে ঝুঁকির সময় {tw} {h12_bn}টা-এর পর। "
             f"কারণ: {r1}")
     if r2:
         base += f", {r2}"
     return base
+
 
 
 def message_en(opening_cash: int, risk_hour: int, reasons) -> str:

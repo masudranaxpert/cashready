@@ -1,17 +1,18 @@
 {
  "forecast_metrics": {
-  "p50_mae_bdt": 2004.8,
+  "p50_mae_bdt": 2004.0,
   "naive_mae_bdt": 3006.0,
   "observed_target_mae_bdt": 2004.8,
-  "pinball_mean": 653.4,
+  "p50_pinball": 1002.0,
+  "pinball_mean": 652.5,
   "naive_pinball_mean": 1503.0,
   "observed_target_pinball_mean": 1002.4,
-  "coverage_p10_p90": 0.8474,
+  "coverage_p10_p90": 0.8453,
   "target_coverage": 0.8,
   "mae_by_area_type": {
-   "peri_urban": 2320.8,
-   "rural": 1649.6,
-   "urban_market": 2876.2
+   "peri_urban": 2321.9,
+   "rural": 1647.1,
+   "urban_market": 2879.1
   }
  },
  "detector_metrics": {
@@ -100,19 +101,19 @@
   "amount_mae_pct": {
    "naive_observed": 71.87,
    "mean_correction": 69.74,
-   "cashready_recovery": 67.76
+   "cashready_recovery": 70.27
   },
   "count_mae_pct": {
    "naive_observed": 63.52,
    "mean_correction": 61.75,
-   "cashready_recovery": 54.92
+   "cashready_recovery": 55.25
   },
   "censored_hours": 3463,
-  "total_estimated_lost_bdt": 1757701.24,
+  "total_estimated_lost_bdt": 507488.33,
   "total_true_lost_bdt": 17098350.0,
-  "demand_shift_area_weeks": 19,
+  "demand_shift_area_weeks": 6,
   "recovery_gated_hours": 1824,
-  "estimated_loss_in_normal_hours_pct": 6.56
+  "estimated_loss_in_normal_hours_pct": 19.22
  },
  "business_sim_metrics": {
   "test_days": [
@@ -125,28 +126,28 @@
    "lost_pct": 18.1
   },
   "cashready_policy": {
-   "lost_bdt": 1700688.0,
-   "lost_pct": 0.48
+   "lost_bdt": 1198439.0,
+   "lost_pct": 0.34
   },
   "lost_commission_bdt": {
    "habit": 1148942.0,
-   "cashready": 30612.0
+   "cashready": 21572.0
   },
-  "commission_saved_bdt": 1118330.0,
+  "commission_saved_bdt": 1127371.0,
   "opening_comparison": {
    "habit_mean_opening": 40047.0,
-   "cashready_mean_opening": 82694.0,
-   "opening_ratio": 2.065
+   "cashready_mean_opening": 82904.0,
+   "opening_ratio": 2.07
   },
   "same_capital_comparison": {
-   "habit_lost_pct": 1.67,
-   "cashready_lost_pct": 0.48,
-   "habit_mean_opening_scaled": 80172.0
+   "habit_lost_pct": 1.65,
+   "cashready_lost_pct": 0.34,
+   "habit_mean_opening_scaled": 80442.0
   },
   "idle_cash_at_close_bdt": {
    "habit_mean": 6661.0,
-   "habit_scaled_mean": 39060.0,
-   "cashready_mean": 41168.0
+   "habit_scaled_mean": 39312.0,
+   "cashready_mean": 41383.0
   }
  }
 }

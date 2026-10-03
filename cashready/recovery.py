@@ -21,7 +21,7 @@ from cashready.features import PANEL_FEATURES
 TRUTH = "data/ground_truth/hourly_truth.parquet"
 
 
-def load_clean_panel(panel: pd.DataFrame, det: pd.DataFrame | None = None) -> pd.DataFrame:
+def load_clean_panel(panel: pd.DataFrame, det: pd.DataFrame | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Clean hours = detector p_normal >= 0.8 (audit fix: NOT ground truth).
 
     If det is None, fall back to truth labels for the TRAIN period only.
@@ -37,13 +37,12 @@ def load_clean_panel(panel: pd.DataFrame, det: pd.DataFrame | None = None) -> pd
         clean = df[(df.p_normal >= 0.8) & (df.day_idx < config.TRAIN_DAYS[1])].copy()
     else:
         clean = df[(df.state == "normal") & (df.day_idx < config.TRAIN_DAYS[1])].copy()
-    censor = df[df.day_idx >= config.TEST_DAYS[0]].copy()
-    return clean, censor
+    return clean, df
 
 
-def demand_shift_flags(censor: pd.DataFrame) -> pd.DataFrame:
+def demand_shift_flags(panel_df: pd.DataFrame) -> pd.DataFrame:
     """Area-week payment-share growth vs trailing 4 weeks (>15% => shifted)."""
-    aw = (censor.groupby(["area_id", "day_idx"])
+    aw = (panel_df.groupby(["area_id", "day_idx"])
           .agg(pay=("payment_amt", "sum"), out=("cash_out_amt", "sum"),
                sm=("send_money_amt", "sum")).reset_index())
     aw["week"] = aw.day_idx // 7
@@ -65,17 +64,17 @@ def recover(panel: pd.DataFrame, seed=0) -> dict:
     # recovery applied ONLY where p_cash_stockout >= 0.5
     det_path = _P("data/processed/detector_lgbm.parquet")
     det = pd.read_parquet(det_path) if det_path.exists() else None
-    clean, censor = load_clean_panel(panel, det)
-    wk = demand_shift_flags(censor)
-    censor["week"] = censor.day_idx // 7
-    censor = censor.merge(wk, on=["area_id", "week"], how="left")
-    censor["demand_shift"] = censor.demand_shift.fillna(0).astype(int)
+    clean, df = load_clean_panel(panel, det)
+    wk = demand_shift_flags(df)
+    df["week"] = df.day_idx // 7
+    df = df.merge(wk, on=["area_id", "week"], how="left")
+    df["demand_shift"] = df.demand_shift.fillna(0).astype(int)
 
     feats = [f for f in PANEL_FEATURES if f != "is_new"] + ["is_new"]
-    # two targets: count and amount of true cash-out demand
-    models, metrics = {}, {}
+    # two targets: count and amount of cash-out demand on clean hours (truth-free)
+    models = {}
     for tgt, log in [("count", False), ("amount", True)]:
-        ycol = ("true_cashout_demand_" + tgt)
+        ycol = "cash_out" if tgt == "count" else "cash_out_amt"
         y = clean[ycol].to_numpy()
         ym = np.log1p(y) if log else y
         m = lgb.LGBMRegressor(n_estimators=400, learning_rate=0.06,
@@ -85,52 +84,31 @@ def recover(panel: pd.DataFrame, seed=0) -> dict:
         m.fit(clean[feats], ym)
         models[tgt] = m
 
-    pred_cnt = np.clip(models["count"].predict(censor[feats]), 0, None)
-    pred_amt = np.expm1(models["amount"].predict(censor[feats]))
-    obs_cnt = censor.cash_out.to_numpy()
-    obs_amt = censor.cash_out_amt.to_numpy()
+    pred_cnt = np.clip(models["count"].predict(df[feats]), 0, None)
+    pred_amt = np.expm1(models["amount"].predict(df[feats]))
+    obs_cnt = df.cash_out.to_numpy()
+    obs_amt = df.cash_out_amt.to_numpy()
 
-    # RECOVERY GATE (audit fix): apply uplift ONLY where the detector flags a
-    # cash stock-out (p>=0.5); formula: recovered = observed + p*(pred - observed)
-    if det is not None and "p_cash_stockout" in censor.columns:
-        p_so = censor.p_cash_stockout.to_numpy()
+    # RECOVERY GATE: apply uplift ONLY where the detector flags a cash stock-out
+    if det is not None and "p_cash_stockout" in df.columns:
+        p_so = df.p_cash_stockout.to_numpy()
         gate = p_so >= 0.5
     else:
-        gate = np.zeros(len(censor), dtype=bool)
-        p_so = np.zeros(len(censor))
+        gate = np.zeros(len(df), dtype=bool)
+        p_so = np.zeros(len(df))
 
     recovered_cnt = np.where(gate, obs_cnt + p_so * np.maximum(pred_cnt - obs_cnt, 0), obs_cnt)
     recovered_amt = np.where(gate, obs_amt + p_so * np.maximum(pred_amt - obs_amt, 0), obs_amt)
 
-    # demand-shift guard: where digital shift flagged, cap recovery uplift
-    # at +30% over observed (rest of the gap is migration, not censoring)
-    cap = obs_amt * 1.30
-    shifted = censor.demand_shift.to_numpy() == 1
-    recovered_amt = np.where(shifted, np.minimum(recovered_amt, cap), recovered_amt)
-    recovered_cnt = np.where(shifted, np.minimum(recovered_cnt, obs_cnt * 1.30),
-                              recovered_cnt)
+    # demand-shift guard: when digital migration is flagged, cap recovery uplift
+    # without collapsing to 0 when obs_amt is 0
+    shifted = df.demand_shift.to_numpy() == 1
+    pay_amt = df.payment_amt.to_numpy() if "payment_amt" in df.columns else np.zeros(len(df))
+    cap_amt = np.maximum(pred_amt - pay_amt, obs_amt * 1.30)
+    recovered_amt = np.where(shifted & gate, np.minimum(recovered_amt, np.maximum(cap_amt, obs_amt)), recovered_amt)
+    recovered_cnt = np.where(shifted & gate, np.minimum(recovered_cnt, np.maximum(pred_cnt * 0.70, obs_cnt)), recovered_cnt)
 
-    # baselines
-    naive_cnt, naive_amt = obs_cnt, obs_amt
-    # mean correction: area trailing-28d average lost amount from TRAIN
-    truth = pd.read_parquet(TRUTH)
-    tr = truth[truth.day_idx < config.TRAIN_DAYS[1]]
-    tr = tr.merge(panel[["agent_id", "area_id"]].drop_duplicates(), on="agent_id")
-    area_lost = tr.groupby("area_id").lost_cashout_amount.mean()
-    area_lost_cnt = tr.groupby("area_id").lost_cashout_count.mean()
-    mean_amt = obs_amt + censor.area_id.map(area_lost).fillna(0).to_numpy()
-    mean_cnt = obs_cnt + censor.area_id.map(area_lost_cnt).fillna(0).to_numpy()
-
-    true_cnt = censor.true_cashout_demand_count.to_numpy()
-    true_amt = censor.true_cashout_demand_amount.to_numpy()
-
-    def mae_pct(est, tru):
-        # score ONLY the censored hours — where recovery actually matters
-        m = censor.state.to_numpy() == "cash_stockout"
-        return round(float(np.abs(est[m] - tru[m]).mean()
-                           / max(tru[m].mean(), 1e-9) * 100), 2)
-
-    out = censor[key_columns()].copy()
+    out = df[key_columns()].copy()
     out["observed_count"] = obs_cnt
     out["observed_amount"] = obs_amt
     out["recovered_count"] = np.round(recovered_cnt, 2)
@@ -141,28 +119,58 @@ def recover(panel: pd.DataFrame, seed=0) -> dict:
     Path("data/processed").mkdir(parents=True, exist_ok=True)
     out.to_parquet("data/processed/recovered_demand.parquet", index=False)
 
+    # Evaluation on held-out test partition
+    test_mask = df.day_idx >= config.TEST_DAYS[0]
+    censor = df[test_mask].copy()
+    censor_obs_cnt = obs_cnt[test_mask]
+    censor_obs_amt = obs_amt[test_mask]
+    censor_rec_cnt = recovered_cnt[test_mask]
+    censor_rec_amt = recovered_amt[test_mask]
+    censor_gate = gate[test_mask]
+
+    # baselines for test evaluation
+    naive_cnt, naive_amt = censor_obs_cnt, censor_obs_amt
+    truth = pd.read_parquet(TRUTH)
+    tr = truth[truth.day_idx < config.TRAIN_DAYS[1]]
+    tr = tr.merge(panel[["agent_id", "area_id"]].drop_duplicates(), on="agent_id")
+    area_lost = tr.groupby("area_id").lost_cashout_amount.mean()
+    area_lost_cnt = tr.groupby("area_id").lost_cashout_count.mean()
+    mean_amt = censor_obs_amt + censor.area_id.map(area_lost).fillna(0).to_numpy()
+    mean_cnt = censor_obs_cnt + censor.area_id.map(area_lost_cnt).fillna(0).to_numpy()
+
+    true_cnt = censor.true_cashout_demand_count.to_numpy()
+    true_amt = censor.true_cashout_demand_amount.to_numpy()
+
+    def mae_pct(est, tru):
+        # score ONLY the censored hours — where recovery actually matters
+        m = censor.state.to_numpy() == "cash_stockout"
+        return round(float(np.abs(est[m] - tru[m]).mean()
+                           / max(tru[m].mean(), 1e-9) * 100), 2)
+
+    censor_out = out[test_mask]
     metrics = {
         "amount_mae_pct": {
             "naive_observed": mae_pct(naive_amt, true_amt),
             "mean_correction": mae_pct(mean_amt, true_amt),
-            "cashready_recovery": mae_pct(recovered_amt, true_amt),
+            "cashready_recovery": mae_pct(censor_rec_amt, true_amt),
         },
         "count_mae_pct": {
             "naive_observed": mae_pct(naive_cnt, true_cnt),
             "mean_correction": mae_pct(mean_cnt, true_cnt),
-            "cashready_recovery": mae_pct(recovered_cnt, true_cnt),
+            "cashready_recovery": mae_pct(censor_rec_cnt, true_cnt),
         },
         "censored_hours": int((censor.state == "cash_stockout").sum()),
-        "total_estimated_lost_bdt": round(float(out.estimated_lost_amount.sum()), 2),
-        "total_true_lost_bdt": round(float(np.maximum(true_amt - obs_amt, 0).sum()), 2),
+        "total_estimated_lost_bdt": round(float(censor_out.estimated_lost_amount.sum()), 2),
+        "total_true_lost_bdt": round(float(np.maximum(true_amt - censor_obs_amt, 0).sum()), 2),
         "demand_shift_area_weeks": int(wk.demand_shift.sum()),
-        "recovery_gated_hours": int(gate.sum()),
+        "recovery_gated_hours": int(censor_gate.sum()),
         # audit metric: share of estimated loss falling in TRULY normal hours
         "estimated_loss_in_normal_hours_pct": round(float(
-            out.loc[censor.state.to_numpy() == "normal",
-                    "estimated_lost_amount"].sum()
-            / max(float(out.estimated_lost_amount.sum()), 1e-9) * 100), 2),
+            censor_out.loc[censor.state.to_numpy() == "normal",
+                           "estimated_lost_amount"].sum()
+            / max(float(censor_out.estimated_lost_amount.sum()), 1e-9) * 100), 2),
     }
+
     Path("artifacts/eval").mkdir(parents=True, exist_ok=True)
     with open("artifacts/eval/recovery_metrics.json", "w") as f:
         json.dump(metrics, f, indent=2)
