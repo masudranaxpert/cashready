@@ -34,11 +34,19 @@ import {
 type SortField = "agent_id" | "stockout_prob_habit" | "risk_hour";
 type SortDirection = "asc" | "desc";
 
+function getTodayIsoDate(): string {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function AreaPage() {
   const { t, lang } = useLang();
   const [areas, setAreas] = useState<Area[]>([]);
   const [selectedAreaId, setSelectedAreaId] = useState<string>("A01");
-  const [selectedDate, setSelectedDate] = useState<string>("2026-10-04");
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayIsoDate);
 
   const [riskData, setRiskData] = useState<AreaRiskResponse | null>(null);
   const [lostDemandData, setLostDemandData] = useState<AreaLostDemandResponse | null>(null);

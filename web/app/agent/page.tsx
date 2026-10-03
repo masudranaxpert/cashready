@@ -20,11 +20,19 @@ import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
 import { Search, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 
+function getTodayIsoDate(): string {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function AgentPage() {
   const { t, lang } = useLang();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("T0039");
-  const [selectedDate, setSelectedDate] = useState<string>("2026-10-04");
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayIsoDate);
   const [riskLevel, setRiskLevel] = useState<RiskLevel>("0.9");
 
   const [plan, setPlan] = useState<AgentPlan | null>(null);
