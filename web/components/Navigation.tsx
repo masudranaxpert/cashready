@@ -17,7 +17,6 @@ export function Navigation() {
 
   return (
     <>
-      {/* Desktop Top Header Navigation */}
       <header className="sticky top-0 z-30 w-full bg-navy-900/90 backdrop-blur-md border-b border-slate-800/80">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -57,7 +56,6 @@ export function Navigation() {
         </div>
       </header>
 
-      {/* Mobile Floating Bottom Bar with Safe-Area Clearance */}
       <nav
         className="md:hidden fixed bottom-5 safe-nav-bottom left-1/2 -translate-x-1/2 z-40 bg-navy-850/95 backdrop-blur-md rounded-full px-2 py-1 shadow-soft-lg border border-slate-800 flex items-center gap-1 max-w-[calc(100vw-1.5rem)]"
         aria-label="Mobile navigation"

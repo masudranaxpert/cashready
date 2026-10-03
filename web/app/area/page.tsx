@@ -148,7 +148,6 @@ export default function AreaPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
-      {/* Top Header Card */}
       <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5" aria-label={t.areaViewBadge}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
@@ -166,7 +165,6 @@ export default function AreaPage() {
           </div>
 
           <div className="flex flex-col min-[480px]:flex-row items-stretch min-[480px]:items-center gap-2.5">
-            {/* Area Selector */}
             <div className="flex items-center gap-2 bg-slate-900 rounded-full px-3.5 py-2 border border-slate-800">
               <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
               <label htmlFor="area-select" className="sr-only">
@@ -186,7 +184,6 @@ export default function AreaPage() {
               </select>
             </div>
 
-            {/* Date Selector */}
             <div className="flex items-center gap-2 bg-slate-900 rounded-full px-3.5 py-2 border border-slate-800">
               <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
               <label htmlFor="date-select" className="sr-only">
@@ -206,7 +203,6 @@ export default function AreaPage() {
         </div>
       </section>
 
-      {/* Main Grid: 2 Columns for Risk Table, 1 Column for Lost Demand Bar Chart */}
       {error ? (
         <ErrorState onRetry={() => setSelectedAreaId(selectedAreaId)} />
       ) : loading ? (
@@ -221,7 +217,6 @@ export default function AreaPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 animate-fade-in">
-          {/* Column 1 & 2: Risk Table / Mobile Cards */}
           <div className="lg:col-span-2 bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
               <div>
@@ -239,9 +234,7 @@ export default function AreaPage() {
               </div>
             </div>
 
-            {/* MOBILE VIEW (< 640px): Card layout preventing clipped horizontal table overflow */}
             <div className="block sm:hidden space-y-2.5">
-              {/* Mobile sorting toolbar */}
               <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-slate-800/80">
                 <span className="text-[11px]">{t.sortBy}</span>
                 <div className="flex items-center gap-1">
@@ -325,12 +318,10 @@ export default function AreaPage() {
               })}
             </div>
 
-            {/* DESKTOP/TABLET VIEW (>= 640px): Full Sortable Table */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    {/* Agent ID Column */}
                     <th className="pb-3 pr-4">
                       <button
                         type="button"
@@ -351,7 +342,6 @@ export default function AreaPage() {
                       </button>
                     </th>
 
-                    {/* Risk Pill Column */}
                     <th className="pb-3 px-4">
                       <button
                         type="button"
@@ -372,7 +362,6 @@ export default function AreaPage() {
                       </button>
                     </th>
 
-                    {/* Risk Hour Column */}
                     <th className="pb-3 pl-4 text-right">
                       <button
                         type="button"
@@ -407,7 +396,6 @@ export default function AreaPage() {
                           isHighRisk ? "border-l-2 border-l-red-500 bg-red-950/20" : ""
                         }`}
                       >
-                        {/* Agent ID */}
                         <td className="py-3.5 pr-4 font-bold text-slate-100 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <span>{ag.agent_id}</span>
@@ -419,7 +407,6 @@ export default function AreaPage() {
                           </div>
                         </td>
 
-                        {/* Status / Risk Pill */}
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           {isHighRisk ? (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-950/40 text-amber-300 border border-amber-800/50">
@@ -433,7 +420,6 @@ export default function AreaPage() {
                           )}
                         </td>
 
-                        {/* Risk Hour */}
                         <td className="py-3.5 pl-4 text-right font-medium text-slate-300 tabular-nums whitespace-nowrap">
                           {t.riskTime(ag.risk_hour)}
                         </td>
@@ -445,7 +431,6 @@ export default function AreaPage() {
             </div>
           </div>
 
-          {/* Column 3: Lost Demand Side Card */}
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4">
               <div className="flex items-start justify-between gap-2">
@@ -456,7 +441,6 @@ export default function AreaPage() {
                   <p className="text-xs text-slate-400 mt-0.5">{t.week} {DEMO_WEEK}</p>
                 </div>
 
-                {/* Digital shift badge if present in selected area */}
                 {hasDigitalShift && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-950/40 text-amber-300 border border-amber-800/50 shrink-0">
                     <TrendingDown className="w-3.5 h-3.5 text-amber-400" />
@@ -465,7 +449,6 @@ export default function AreaPage() {
                 )}
               </div>
 
-              {/* Selected Area Summary Metrics */}
               {selectedAreaLostInfo && (
                 <div className="p-3.5 bg-navy-900/90 rounded-xl space-y-2 text-xs border border-slate-800">
                   <div className="flex items-center justify-between">
@@ -487,7 +470,6 @@ export default function AreaPage() {
                 </div>
               )}
 
-              {/* Bar Chart */}
               <div
                 className="h-60 sm:h-64 w-full pt-2"
                 role="region"

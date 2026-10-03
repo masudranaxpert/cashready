@@ -111,9 +111,7 @@ export async function getAgentPlan(
     `/agents/${encodeURIComponent(agentId)}/plan?date=${encodeURIComponent(date)}&risk=${encodeURIComponent(risk)}`
   );
 
-  // AUDIT FIX: no frontend multipliers. The plan artifact carries the exact
-  // opening for the requested service level (opening_cash_by_level) computed
-  // by business_sim.plan_opening; fall back to opening_cash only if absent.
+  // Opening cash by risk tier from plan artifact; falls back to opening_cash.
   const byLevel = (res as { opening_cash_by_level?: Record<string, number> }).opening_cash_by_level;
   let opening_cash: number;
   if (byLevel && byLevel[risk] != null) {
@@ -175,7 +173,7 @@ export async function submitAgentFeedback(
       const data = await res.json();
       return { ok: Boolean(data?.ok ?? true) };
     }
-    // AUDIT FIX: no fake success. If the demo endpoint is absent, surface it.
+    // Handle demo deployments where endpoint is unconfigured.
     if (res.status === 404 || res.status === 405) {
       console.warn("Demo: feedback endpoint not available in this deployment");
       return { ok: false, demo_only: true };

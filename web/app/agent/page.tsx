@@ -121,7 +121,6 @@ export default function AgentPage() {
         helpful,
         comment: helpful ? (lang === "en" ? "useful advice" : "কাজের পরামর্শ") : (lang === "en" ? "too much or too little cash" : "অতিরিক্ত বা কম নগদ"),
       });
-      // AUDIT FIX: honest state — demo deployments without the endpoint show it
       setFeedbackStatus(resp.demo_only ? "demo" : "success");
     } catch (err: unknown) {
       setFeedbackStatus("error");
@@ -134,7 +133,6 @@ export default function AgentPage() {
 
   return (
     <div className="max-w-md mx-auto space-y-3.5 sm:space-y-4 w-full">
-      {/* Top Bar: Title, Date Picker, and Searchable Agent Selector */}
       <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-3.5 sm:p-4 space-y-3" aria-label={t.agentSelectorLabel}>
         <div className="flex items-center justify-between gap-2 min-w-0">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
@@ -146,7 +144,6 @@ export default function AgentPage() {
             </span>
           </div>
 
-          {/* Date Picker */}
           <div className="flex items-center gap-1 bg-slate-900 rounded-full px-2.5 py-1 text-xs font-medium text-slate-300 border border-slate-800 shrink-0">
             <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <input
@@ -161,7 +158,6 @@ export default function AgentPage() {
           </div>
         </div>
 
-        {/* Searchable Agent Selector */}
         <div className="relative">
           <label htmlFor="agent-search" className="block text-xs font-medium text-slate-400 mb-1">
             {t.agentSelectCount(agents.length)}
@@ -231,7 +227,6 @@ export default function AgentPage() {
         </div>
       </section>
 
-      {/* Main Content Area: Loading / Error / Data */}
       {error ? (
         <ErrorState onRetry={() => setSelectedAgentId(selectedAgentId)} />
       ) : loading || !plan ? (
@@ -243,7 +238,6 @@ export default function AgentPage() {
         </div>
       ) : (
         <div className="space-y-3.5 sm:space-y-4 animate-fade-in">
-          {/* HERO CARD: Opening Cash & Segmented Risk Control */}
           <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 text-center space-y-3.5 sm:space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -254,7 +248,6 @@ export default function AgentPage() {
               </span>
             </div>
 
-            {/* Responsive Opening Cash Number (34px mobile, 40px tablet/desktop) */}
             <div className="py-1">
               <div className="text-[34px] min-[390px]:text-[40px] leading-tight font-extrabold text-teal-400 tracking-tight tabular-nums">
                 ৳ {formatBDT(plan.opening_cash)}
@@ -262,14 +255,12 @@ export default function AgentPage() {
               <p className="text-xs font-medium text-slate-400 mt-1">{t.openingCashLabel}</p>
             </div>
 
-            {/* Full Bangla Message */}
             <div className="p-3 sm:p-3.5 bg-navy-900/90 rounded-xl text-left border border-slate-800">
               <p className="text-[16px] min-[390px]:text-[17px] sm:text-[18px] text-slate-200 leading-relaxed font-normal">
                 {lang === "en" && plan.message_en ? plan.message_en : plan.message_bn}
               </p>
             </div>
 
-            {/* 3-Way Segmented Control */}
             <div className="pt-1">
               <div className="text-xs font-medium text-slate-400 mb-2 flex items-center justify-between">
                 <span>{t.riskLevelSet}</span>
@@ -310,7 +301,6 @@ export default function AgentPage() {
                 })}
               </div>
 
-              {/* Stockout Probability Info */}
               <div className="mt-2.5 flex items-center justify-between text-[11px] sm:text-xs text-slate-400 px-1">
                 <span>
                   {t.planShortfall}{" "}
@@ -336,7 +326,6 @@ export default function AgentPage() {
             </div>
           </div>
 
-          {/* REASONS CARD: Top 3 Reasons with Horizontal Bars */}
           <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3.5 sm:space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-100 tracking-tight">
@@ -347,7 +336,6 @@ export default function AgentPage() {
               </span>
             </div>
 
-            {/* Responsive scale reference bar */}
             <div className="flex items-center justify-between text-[10px] min-[390px]:text-[11px] text-slate-500 px-0.5 border-b border-slate-800/60 pb-1.5">
               <span>{t.scaleLess}</span>
               <span className="font-semibold text-slate-400">{t.scaleBase}</span>
@@ -397,7 +385,6 @@ export default function AgentPage() {
                           </div>
                         </div>
 
-                        {/* Bi-directional impact bar with clear center baseline */}
                         <div
                           className="h-3 w-full bg-slate-900 rounded-full flex items-center relative border border-slate-800 overflow-hidden"
                           role="meter"
@@ -406,7 +393,6 @@ export default function AgentPage() {
                           aria-valuemin={-1}
                           aria-valuemax={1}
                         >
-                          {/* Left Half: Negative impact extending left from center baseline */}
                           <div className="w-1/2 h-full flex justify-end">
                             {isNegative && (
                               <div
@@ -416,10 +402,8 @@ export default function AgentPage() {
                             )}
                           </div>
 
-                          {/* Center Baseline Divider */}
                           <div className="w-[1.5px] h-full bg-slate-600 shrink-0 z-10" />
 
-                          {/* Right Half: Positive impact extending right from center baseline */}
                           <div className="w-1/2 h-full flex justify-start">
                             {isPositive && (
                               <div
@@ -439,7 +423,6 @@ export default function AgentPage() {
             )}
           </div>
 
-          {/* LOST DEMAND CARD */}
           {lostDemand && (
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3">
               <h3 className="text-sm font-bold text-slate-100 tracking-tight">
@@ -469,7 +452,6 @@ export default function AgentPage() {
             </div>
           )}
 
-          {/* FEEDBACK CARD */}
           <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3">
             <h3 className="text-sm font-bold text-slate-100 tracking-tight">
               {t.feedbackHeading}

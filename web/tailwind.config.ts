@@ -11,11 +11,11 @@ const config: Config = {
     extend: {
       colors: {
         navy: {
-          950: "#080C16", // deepest navy
-          900: "#0B1120", // page shell background
-          850: "#111827", // card surface
-          800: "#162035", // elevated surfaces / secondary controls
-          700: "#1E293B", // borders
+          950: "#080C16",
+          900: "#0B1120",
+          850: "#111827",
+          800: "#162035",
+          700: "#1E293B",
         },
         teal: {
           400: "#2DD4BF",

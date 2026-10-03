@@ -29,7 +29,6 @@ export default function RootLayout({
           <Navigation />
           <main className="flex-1 safe-page-pad pb-36 sm:pb-32 md:pb-12 pt-3 sm:pt-4 px-3 sm:px-6 w-full max-w-full overflow-x-hidden">
             {children}
-            {/* Dedicated mobile clearance spacer */}
             <div className="h-6 md:hidden w-full pointer-events-none" aria-hidden="true" />
           </main>
         </LangProvider>

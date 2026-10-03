@@ -69,7 +69,6 @@ export default function EvidencePage() {
     ];
   }, [metrics, lang]);
 
-  // Forecast MAE by area_type Data (Chart B: vertical bars)
   const forecastAreaChartData = useMemo(() => {
     if (!metrics?.forecast_metrics.mae_by_area_type) return [];
     const areaMap: Record<string, string> = {
@@ -85,7 +84,6 @@ export default function EvidencePage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
-      {/* Page Header */}
       <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6" aria-label={t.evidenceHeading}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -109,7 +107,6 @@ export default function EvidencePage() {
         </div>
       </section>
 
-      {/* Loading / Error / Data */}
       {error ? (
         <ErrorState onRetry={() => setMetrics(null)} />
       ) : loading || !metrics ? (
@@ -125,9 +122,7 @@ export default function EvidencePage() {
         </div>
       ) : (
         <div className="space-y-4 sm:space-y-6 animate-fade-in">
-          {/* FOUR KPI CARDS */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" aria-label={t.evalEvidenceTitle}>
-            {/* KPI 1: Detector F1 */}
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
@@ -143,7 +138,6 @@ export default function EvidencePage() {
               </p>
             </div>
 
-            {/* KPI 2: Forecast Coverage */}
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
@@ -159,7 +153,6 @@ export default function EvidencePage() {
               </p>
             </div>
 
-            {/* KPI 3: Habit lost % vs CashReady lost % */}
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
@@ -180,7 +173,6 @@ export default function EvidencePage() {
               </p>
             </div>
 
-            {/* KPI 4: Commission Saved */}
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
@@ -201,7 +193,6 @@ export default function EvidencePage() {
             </div>
           </section>
 
-          {/* "Keno bishwas korben?" Section with 2 Charts */}
           <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6 space-y-4 sm:space-y-6" aria-label={t.whyTrustHeading}>
             <div className="border-b border-slate-800 pb-3 sm:pb-4">
               <h2 className="text-lg sm:text-xl font-bold text-slate-100 tracking-tight flex items-center gap-2">
@@ -216,7 +207,6 @@ export default function EvidencePage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-              {/* CHART A: Recovery comparison (Horizontal bars) */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs sm:text-sm font-bold text-slate-200">
@@ -277,7 +267,6 @@ export default function EvidencePage() {
                   </ResponsiveContainer>
                 </div>
 
-                {/* Accessible Textual Summary */}
                 <div className="p-3 bg-navy-900/90 border border-slate-800 rounded-xl text-xs text-slate-300 space-y-1">
                   <div className="font-semibold text-slate-200">{t.chartSummary}:</div>
                   <p className="leading-relaxed">
@@ -286,7 +275,6 @@ export default function EvidencePage() {
                 </div>
               </div>
 
-              {/* CHART B: Forecast MAE by area_type */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs sm:text-sm font-bold text-slate-200">
@@ -334,7 +322,6 @@ export default function EvidencePage() {
                   </ResponsiveContainer>
                 </div>
 
-                {/* Accessible Textual Summary */}
                 <div className="p-3 bg-navy-900/90 border border-slate-800 rounded-xl text-xs text-slate-300 space-y-1">
                   <div className="font-semibold text-slate-200">{t.chartSummary}:</div>
                   <p className="leading-relaxed">
@@ -344,7 +331,6 @@ export default function EvidencePage() {
             </div>
           </section>
 
-          {/* PIPELINE STRIP: 4 Steps with Lucide Icons (No Emoji) */}
           <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6" aria-label={t.pipelineTitle}>
             <h3 className="text-sm font-bold text-slate-100 tracking-tight mb-3 sm:mb-4 flex items-center gap-2">
               <Layers className="w-4 h-4 text-slate-400" />
@@ -352,7 +338,6 @@ export default function EvidencePage() {
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
-              {/* Step 1: Detect */}
               <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex items-start gap-3">
                 <div className="p-2 sm:p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-teal-400 shrink-0">
                   <ShieldAlert className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
@@ -364,7 +349,6 @@ export default function EvidencePage() {
                 </div>
               </div>
 
-              {/* Step 2: Recover */}
               <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex items-start gap-3">
                 <div className="p-2 sm:p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-teal-400 shrink-0">
                   <RotateCcw className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
@@ -376,7 +360,6 @@ export default function EvidencePage() {
                 </div>
               </div>
 
-              {/* Step 3: Forecast */}
               <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex items-start gap-3">
                 <div className="p-2 sm:p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-teal-400 shrink-0">
                   <TrendingUp className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
@@ -388,7 +371,6 @@ export default function EvidencePage() {
                 </div>
               </div>
 
-              {/* Step 4: Plan */}
               <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex items-start gap-3">
                 <div className="p-2 sm:p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-teal-400 shrink-0">
                   <Banknote className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
@@ -402,7 +384,6 @@ export default function EvidencePage() {
             </div>
           </section>
 
-          {/* FOOTER & DISCLOSURES */}
           <footer className="card-soft text-center space-y-2 py-5 sm:py-6 border border-slate-800">
             <p className="text-xs text-slate-400 font-medium">
               {t.footerSynthetic}
