@@ -21,9 +21,13 @@ export function Navigation() {
       <header className="sticky top-0 z-30 w-full bg-navy-900/90 backdrop-blur-md border-b border-slate-800/80">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-xl tracking-tight text-slate-100">
+            <Link
+              href="/agent"
+              className="font-bold text-xl tracking-tight text-slate-100 hover:text-teal-300 transition-colors"
+              aria-label="CashReady home"
+            >
               CashReady
-            </span>
+            </Link>
           </div>
 
           <div className="flex items-center gap-2">

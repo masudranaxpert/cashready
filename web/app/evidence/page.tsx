@@ -81,7 +81,7 @@ export default function EvidencePage() {
       areaType: areaMap[key] || key,
       mae: val,
     }));
-  }, [metrics]);
+  }, [metrics, lang]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
@@ -310,6 +310,7 @@ export default function EvidencePage() {
                       />
                       <Tooltip
                         formatter={(val: number) => [`৳ ${formatBDT(val)}`, "MAE"]}
+                        labelFormatter={(label) => String(label)}
                         contentStyle={{
                           backgroundColor: "#0B1120",
                           borderRadius: "12px",
