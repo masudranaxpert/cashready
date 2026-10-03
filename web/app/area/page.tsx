@@ -39,7 +39,8 @@ function getTodayIsoDate(): string {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  const iso = `${year}-${month}-${day}`;
+  return iso >= "2024-01-01" && iso <= "2030-12-31" ? iso : "2026-10-04";
 }
 
 export default function AreaPage() {
@@ -201,8 +202,8 @@ export default function AreaPage() {
                 id="date-select"
                 type="date"
                 value={selectedDate}
-                min="2026-07-05"
-                max="2026-12-31"
+                min="2024-01-01"
+                max="2030-12-31"
                 onChange={(e) => setSelectedDate(e.target.value)}
                 className="bg-transparent text-xs sm:text-sm font-medium text-slate-200 border-none focus:outline-none cursor-pointer w-full [color-scheme:dark]"
               />
