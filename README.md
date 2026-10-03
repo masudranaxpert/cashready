@@ -13,7 +13,15 @@ CashReady predicts unobserved cash-out demand caused by cash/float stock-outs, f
 
 ---
 
-## API Surface & Contract
+## API Documentation
+
+Interactive Swagger documentation, ReDoc specification, and raw OpenAPI schemas are served directly by the FastAPI backend:
+
+- **Swagger UI (Interactive API Docs):** [http://204.136.10.31:8100/docs](http://204.136.10.31:8100/docs)
+- **ReDoc (API Reference):** [http://204.136.10.31:8100/redoc](http://204.136.10.31:8100/redoc)
+- **OpenAPI Schema (JSON):** [http://204.136.10.31:8100/openapi.json](http://204.136.10.31:8100/openapi.json)
+
+### Endpoints Overview
 
 | Endpoint | Method | Key Parameters | Description |
 |---|---|---|---|
