@@ -4,9 +4,17 @@ import { Navigation } from "@/components/Navigation";
 import { LangProvider } from "@/lib/lang";
 
 export const metadata: Metadata = {
-  title: "CashReady: AI Liquidity Planner (upay)",
+  title: {
+    default: "CashReady: AI Liquidity Planner (upay)",
+    template: "%s | CashReady",
+  },
   description:
     "Smart cash & e-float liquidity planner for mobile-money (MFS) agents for AI DEV FEST 2026, Track 05.",
+  openGraph: {
+    title: "CashReady: AI Liquidity Planner (upay)",
+    description: "Automated Liquidity Management & Decision Support for MFS Agents",
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {
