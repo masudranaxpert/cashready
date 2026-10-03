@@ -2,7 +2,7 @@
 
 > **Track 05 (DIU CPC × upay):** Automated Liquidity Management for Mobile Financial Services Agents.
 
-CashReady predicts unobserved cash-out demand caused by cash/float stock-outs, forecasts next-day hourly demand, and recommends calibrated morning opening balances for MFS agents with deterministic SHAP explanations in Bangla.
+CashReady predicts unobserved cash-out demand caused by cash/float stock-outs, forecasts next-day hourly demand, and recommends calibrated morning opening balances for MFS agents with deterministic SHAP explanations.
 
 ---
 
@@ -18,9 +18,9 @@ CashReady predicts unobserved cash-out demand caused by cash/float stock-outs, f
 1. **Stock-Out Detector:** Multiclass detection (normal, cash stock-out, float stock-out, closed) from transaction patterns without extra hardware.
 2. **Censored Demand Recovery:** Recovers unserved transactions using clean-hour regression gated at $P(\text{stockout}) \ge 0.5$ with digital migration guard.
 3. **Day-Ahead Quantile Forecast:** Predicts P10, P50, and P90 cash needs using strictly causal features known the evening before.
-4. **Calibrated Morning Cash:** Continuous newsvendor optimization recommending opening cash across 3 risk tiers (80% ঝুঁকি বেশি, 90% ভারসাম্য, 95% সবচেয়ে নিরাপদ).
-5. **SHAP Bangla Explanations:** Explains recommendations using top-3 feature drivers in deterministic Bangla. Zero generative hallucination in the math path.
-6. **Bilingual UI:** Next.js mobile-first dashboard (Agent, Area, Evidence) with instant BN/EN toggle.
+4. **Calibrated Morning Cash:** Continuous newsvendor optimization recommending opening cash across 3 risk tiers (80% Higher Risk, 90% Balanced, 95% Safest).
+5. **SHAP Explanations:** Explains recommendations using top-3 feature drivers in natural, deterministic language. Zero generative hallucination in the math path.
+6. **Bilingual UI:** Next.js mobile-first dashboard (Agent, Area, Evidence) with instant Bengali/English language toggle.
 
 ---
 
