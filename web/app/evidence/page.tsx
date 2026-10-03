@@ -92,7 +92,7 @@ export default function EvidencePage() {
                 {STRINGS.evidenceHeading}
               </h1>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 shrink-0">
-                P9 সায়েন্টিফিক ট্রুথ
+                মূল্যায়ন-ভিত্তিক প্রমাণ
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-3xl">
@@ -161,7 +161,7 @@ export default function EvidencePage() {
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
-                  হারানো চাহিদা (চাপকাল)
+                  হারানো চাহিদা (৩০ দিনের সিমুলেশন)
                 </span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-teal-400 tracking-tight tabular-nums">
