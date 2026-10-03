@@ -115,7 +115,14 @@ export async function getAgentPlan(
   // opening for the requested service level (opening_cash_by_level) computed
   // by business_sim.plan_opening; fall back to opening_cash only if absent.
   const byLevel = (res as { opening_cash_by_level?: Record<string, number> }).opening_cash_by_level;
-  const opening_cash = (byLevel && byLevel[risk] != null) ? byLevel[risk] : res.opening_cash;
+  let opening_cash: number;
+  if (byLevel && byLevel[risk] != null) {
+    opening_cash = byLevel[risk];
+  } else if (typeof res.opening_cash === "object" && res.opening_cash !== null) {
+    opening_cash = (res.opening_cash as Record<string, number>)[risk] ?? (res.opening_cash as Record<string, number>)["0.9"] ?? 60000;
+  } else {
+    opening_cash = Number(res.opening_cash) || 60000;
+  }
 
   return {
     ...res,

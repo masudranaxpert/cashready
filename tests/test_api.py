@@ -62,3 +62,23 @@ def test_metrics(client):
     assert r.status_code == 200
     m = r.json()
     assert any("detector" in k or "recovery" in k or "forecast" in k for k in m)
+
+
+def test_plan_risk_levels(client):
+    agents = client.get("/agents").json()
+    aid = agents[0]["agent_id"]
+    plans = sorted(Path("artifacts/serve/plans").glob("*.json"))
+    date = plans[-1].stem
+    r80 = client.get(f"/agents/{aid}/plan", params={"date": date, "risk": "0.8"}).json()
+    r90 = client.get(f"/agents/{aid}/plan", params={"date": date, "risk": "0.9"}).json()
+    r95 = client.get(f"/agents/{aid}/plan", params={"date": date, "risk": "0.95"}).json()
+    assert r80["opening_cash"] <= r90["opening_cash"] <= r95["opening_cash"]
+    assert "opening_cash_by_level" in r90
+    assert "stockout_prob_plan" in r90
+    assert "stockout_prob_habit" in r90
+
+
+def test_feedback_endpoint(client):
+    r = client.post("/agents/T0000/feedback", json={"helpful": True, "comment": "test feedback"})
+    assert r.status_code == 200
+    assert r.json() == {"ok": True}

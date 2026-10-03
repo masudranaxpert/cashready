@@ -1,3 +1,5 @@
+.PHONY: install data pipeline api test
+
 install:
 	.venv/bin/python -m pip install -r requirements.txt
 data:
@@ -5,6 +7,6 @@ data:
 pipeline:
 	.venv/bin/python scripts/run_pipeline.py
 api:
-	.venv/bin/python -m uvicorn api.main:app --host 0.0.0.0 --port $$${PORT:-8000}
+	.venv/bin/python -m uvicorn api.main:app --host 0.0.0.0 --port $${PORT:-8000}
 test:
 	.venv/bin/python -m pytest tests/ -q

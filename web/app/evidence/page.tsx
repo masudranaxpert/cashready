@@ -238,7 +238,7 @@ export default function EvidencePage() {
                     >
                       <XAxis
                         type="number"
-                        domain={[0, 80]}
+                        domain={[0, (dataMax: number) => Math.max(80, Math.ceil(dataMax * 1.1))]}
                         tick={{ fill: "#94A3B8", fontSize: 11 }}
                         unit="%"
                       />

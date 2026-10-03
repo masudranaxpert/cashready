@@ -20,21 +20,22 @@ COMMISSION_RATE = config.CASHOUT_COMMISSION_RATE
 def plan_opening(forecasts: pd.DataFrame, service_level=0.90) -> pd.DataFrame:
     """For each agent-day: opening cash = quantile of CUMULATIVE day demand
     at the service level (piecewise: use q10/q50/q90 interpolation)."""
+    from scipy.stats import norm
     fc = forecasts.copy()
     # cumulative demand across the day (forecast is per-hour)
     fc = fc.sort_values(["agent_id", "day_idx", "hour"])
     for q in ("q10", "q50", "q90"):
         fc[f"cum_{q}"] = fc.groupby(["agent_id", "day_idx"])[f"pred_{q}"].cumsum()
 
-    # per service level, needed cumulative = interpolate between quantiles
+    # z-score factor relative to q90 (z_90 = 1.28155157)
+    z_sl = float(norm.ppf(service_level))
+    factor = z_sl / 1.28155157
+
     rows = []
     for (a, d), g in fc.groupby(["agent_id", "day_idx"]):
         last = g.iloc[-1]
-        cum = {0.8: last.cum_q90, 0.9: None, 0.95: None}
-        # q90 of the CUMULATIVE demand is the P10-safe opening; q50 cum is the
-        # median plan. For 0.90 we take 60% between cum_q50 and cum_q90 (this
-        # matches ~90% service under right-skewed demand).
-        need = 0.6 * (last.cum_q90 - last.cum_q50) + last.cum_q50
+        sigma = max(last.cum_q90 - last.cum_q50, 0.0)
+        need = max(last.cum_q50 + factor * sigma, 0.0)
         risk_h = int(g.loc[g.pred_q90.idxmax(), "hour"]) if len(g) else 8
         rows.append((a, d, float(need), risk_h))
     plan = pd.DataFrame(rows, columns=["agent_id", "day_idx", "opening_cash",

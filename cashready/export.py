@@ -105,17 +105,28 @@ def export(target_date: str | None = None):
             lambda g: (g[col] < g.need).mean(), include_groups=False)
 
     so_habit = _so(daily_need, "opening_habit")
-    so_plan = {sl: _so(daily_need[daily_need.service_level == str(sl)], "opening_cash")
-               for sl in ("0.8", "0.9", "0.95")}
+    so_plan = {}
+    for sl in ("0.8", "0.9", "0.95"):
+        sub = plan_all[(plan_all.service_level == sl) & (plan_all.day_idx.isin(replay_days))][
+            ["agent_id", "day_idx", "opening_cash"]]
+        dn = daily_need[["agent_id", "day_idx", "need"]].merge(sub, on=["agent_id", "day_idx"], how="inner")
+        so_plan[sl] = _so(dn, "opening_cash")
 
     def probs_for(agent_id: str) -> dict:
         h = float(so_habit.get(agent_id, 0.3))
-        p = {sl: float(so_plan[sl].get(agent_id, 0.1)) for sl in ("0.8", "0.9", "0.95")}
-        return {"plan": p, "habit": h}
+        p = {sl: round(float(so_plan[sl].get(agent_id, 0.1)), 3) for sl in ("0.8", "0.9", "0.95")}
+        h_dict = {sl: round(h, 3) for sl in ("0.8", "0.9", "0.95")}
+        return {"plan": p, "habit": h_dict}
 
     plan_src = plan_all[plan_all.service_level == "0.9"].merge(
         panel_daily[["agent_id", "day_idx", "habit"]], on=["agent_id", "day_idx"],
         how="left")
+
+    from cashready.forecast import build_dayahead_features
+    grid = build_dayahead_features(panel)
+    for at in ("urban_market", "peri_urban", "rural"):
+        grid[f"at_{at}"] = (grid.area_type == at).astype(int)
+    model_feats = m50.feature_name()
 
     # per-day export (all forecast days; day_list already sorted)
     for d in day_list:
@@ -125,7 +136,7 @@ def export(target_date: str | None = None):
         risk_by_agent = (day_fc.loc[day_fc.groupby("agent_id").pred_q90.idxmax()]
                          .set_index("agent_id")[["hour"]])
         # SHAP reasons from feature means for this day
-        Xd = panel[panel.day_idx == d].groupby("agent_id")[PANEL_FEATURES].mean()
+        Xd = grid[grid.day_idx == d].groupby("agent_id")[model_feats].mean()
         try:
             sv = explain_agents(m50, Xd)
             reasons_map = {a: top_reasons(sv.loc[a]) for a in Xd.index}
@@ -148,7 +159,7 @@ def export(target_date: str | None = None):
                 "0.95": int(r.opening_cash)}
             oc = oc_by_level["0.9"]
             agents_json[r.agent_id] = {
-                "opening_cash": oc,
+                "opening_cash": oc_by_level,
                 "opening_cash_by_level": oc_by_level,
                 "stockout_prob_plan": pr["plan"],
                 "stockout_prob_habit": pr["habit"],

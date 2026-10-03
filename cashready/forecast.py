@@ -164,14 +164,17 @@ def rolling_forecast(panel: pd.DataFrame, seed=0) -> dict:
     metrics = {
         "p50_mae_bdt": round(float(np.abs(yte - p50).mean()), 1),
         "naive_mae_bdt": round(float(np.abs(yte - naive_pred).mean()), 1),
+        "observed_target_mae_bdt": round(float(np.abs(
+            yte - out.pred_obs_q50.to_numpy()).mean()), 1),
         "pinball_mean": round(float(np.mean([
             pinball(yte, out.pred_q10, 0.1),
             pinball(yte, p50, 0.5),
             pinball(yte, out.pred_q90, 0.9)])), 1),
+        "naive_pinball_mean": round(float(pinball(yte, naive_pred, 0.5)), 1),
+        "observed_target_pinball_mean": round(float(pinball(
+            yte, out.pred_obs_q50.to_numpy(), 0.5)), 1),
         "coverage_p10_p90": round(coverage, 4),
         "target_coverage": 0.80,
-        "observed_target_mae_bdt": round(float(np.abs(
-            yte - out.pred_obs_q50.to_numpy()).mean()), 1),
     }
     # fairness: MAE by area_type
     out["err"] = (out.true_cashout_demand_amount.fillna(0) - out.pred_q50).abs()

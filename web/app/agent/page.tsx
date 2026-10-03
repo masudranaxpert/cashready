@@ -153,7 +153,7 @@ export default function AgentPage() {
               type="date"
               value={selectedDate}
               min="2026-09-03"
-              max="2026-10-08"
+              max="2026-10-02"
               onChange={(e) => setSelectedDate(e.target.value)}
               className="bg-transparent border-none text-[11px] sm:text-xs text-slate-200 focus:outline-none cursor-pointer [color-scheme:dark]"
               aria-label="তারিখ নির্বাচন"
@@ -315,13 +315,21 @@ export default function AgentPage() {
                 <span>
                   {t.planShortfall}{" "}
                   <strong className="text-slate-200">
-                    {Math.round((plan.stockout_prob_plan[riskLevel] ?? 0.1) * 100)}%
+                    {Math.round((
+                      (typeof plan.stockout_prob_plan === "object" && plan.stockout_prob_plan !== null
+                        ? (plan.stockout_prob_plan[riskLevel] ?? Object.values(plan.stockout_prob_plan)[0])
+                        : plan.stockout_prob_plan) ?? 0.1
+                    ) * 100)}%
                   </strong>
                 </span>
                 <span>
                   {t.habitBefore}{" "}
                   <strong className="text-slate-200">
-                    {Math.round((plan.stockout_prob_habit[riskLevel] ?? 0.28) * 100)}%
+                    {Math.round((
+                      (typeof plan.stockout_prob_habit === "object" && plan.stockout_prob_habit !== null
+                        ? (plan.stockout_prob_habit[riskLevel] ?? Object.values(plan.stockout_prob_habit)[0])
+                        : plan.stockout_prob_habit) ?? 0.28
+                    ) * 100)}%
                   </strong>
                 </span>
               </div>
@@ -468,10 +476,11 @@ export default function AgentPage() {
 
             {feedbackStatus === "success" || feedbackStatus === "demo" ? (
               <div className="flex items-center gap-2 p-3 bg-navy-900 rounded-xl border border-slate-800 text-slate-100">
-                <CheckCircle2 className={`w-5 h-5 shrink-0 ${feedbackStatus === "demo" ? "text-slate-400" : "text-teal-400"}`} />
-                <span className={`text-sm font-bold ${feedbackStatus === "demo" ? "text-slate-300" : "text-teal-400"}`}>{t.feedbackSuccess}</span>
-                <span className="text-xs text-slate-400">
-                  {feedbackStatus === "demo" ? (lang === "en" ? "Demo: feedback not saved" : "ডেমো: মতামত সংরক্ষিত হয়নি") : t.feedbackRecorded}
+                <CheckCircle2 className={`w-5 h-5 shrink-0 ${feedbackStatus === "demo" ? "text-amber-400" : "text-teal-400"}`} />
+                <span className={`text-sm font-semibold ${feedbackStatus === "demo" ? "text-amber-300" : "text-teal-400"}`}>
+                  {feedbackStatus === "demo"
+                    ? (lang === "en" ? "Demo: feedback not saved" : "ডেমো: মতামত সংরক্ষিত হয়নি")
+                    : `${t.feedbackSuccess} ${t.feedbackRecorded}`}
                 </span>
               </div>
             ) : (

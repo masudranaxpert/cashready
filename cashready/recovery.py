@@ -91,15 +91,16 @@ def recover(panel: pd.DataFrame, seed=0) -> dict:
     obs_amt = censor.cash_out_amt.to_numpy()
 
     # RECOVERY GATE (audit fix): apply uplift ONLY where the detector flags a
-    # cash stock-out (p>=0.5); elsewhere trust the observation. No max() inflation.
+    # cash stock-out (p>=0.5); formula: recovered = observed + p*(pred - observed)
     if det is not None and "p_cash_stockout" in censor.columns:
-        gate = censor.p_cash_stockout.to_numpy() >= 0.5
+        p_so = censor.p_cash_stockout.to_numpy()
+        gate = p_so >= 0.5
     else:
         gate = np.zeros(len(censor), dtype=bool)
-    recovered_cnt = np.where(gate, pred_cnt, obs_cnt)
-    recovered_amt = np.where(gate, pred_amt, obs_amt)
-    recovered_cnt = np.maximum(recovered_cnt, obs_cnt)   # never below observed
-    recovered_amt = np.maximum(recovered_amt, obs_amt)
+        p_so = np.zeros(len(censor))
+
+    recovered_cnt = np.where(gate, obs_cnt + p_so * np.maximum(pred_cnt - obs_cnt, 0), obs_cnt)
+    recovered_amt = np.where(gate, obs_amt + p_so * np.maximum(pred_amt - obs_amt, 0), obs_amt)
 
     # demand-shift guard: where digital shift flagged, cap recovery uplift
     # at +30% over observed (rest of the gap is migration, not censoring)
@@ -152,7 +153,8 @@ def recover(panel: pd.DataFrame, seed=0) -> dict:
             "cashready_recovery": mae_pct(recovered_cnt, true_cnt),
         },
         "censored_hours": int((censor.state == "cash_stockout").sum()),
-        "total_estimated_lost_bdt": float(out.estimated_lost_amount.sum()),
+        "total_estimated_lost_bdt": round(float(out.estimated_lost_amount.sum()), 2),
+        "total_true_lost_bdt": round(float(np.maximum(true_amt - obs_amt, 0).sum()), 2),
         "demand_shift_area_weeks": int(wk.demand_shift.sum()),
         "recovery_gated_hours": int(gate.sum()),
         # audit metric: share of estimated loss falling in TRULY normal hours

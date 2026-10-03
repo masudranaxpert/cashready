@@ -72,7 +72,26 @@ def agent_plan(agent_id: str, date: str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2
     a = doc["agents"].get(agent_id)
     if a is None:
         raise HTTPException(404, f"agent {agent_id} not in plan for {date}")
-    return {"date": date, "agent_id": agent_id, **a}
+    res = dict(a)
+    if isinstance(res.get("opening_cash"), dict):
+        by_level = res["opening_cash"]
+        res["opening_cash_by_level"] = by_level
+        res["opening_cash"] = by_level.get(risk, by_level.get("0.9", 60000))
+    return {"date": date, "agent_id": agent_id, **res}
+
+
+@app.post("/agents/{agent_id}/feedback")
+def agent_feedback(agent_id: str, payload: dict, x_api_key: str | None = Header(None)):
+    check_key(x_api_key)
+    out_file = ARTIFACTS / "feedback.jsonl"
+    record = {
+        "timestamp": str(Path().stat().st_mtime),
+        "agent_id": agent_id,
+        **payload,
+    }
+    with open(out_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    return {"ok": True}
 
 
 @app.get("/agents/{agent_id}/lost-demand")

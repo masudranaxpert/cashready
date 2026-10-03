@@ -15,4 +15,5 @@ data/raw/
 data/processed/
 data/ground_truth/
 artifacts/models/
+artifacts/serve/feedback.jsonl
 .nd/

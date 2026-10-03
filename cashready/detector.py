@@ -151,15 +151,19 @@ def evaluate(det_states: pd.Series, truth: pd.Series) -> dict:
 def evaluate_all_hours(det_states: pd.Series, truth: pd.Series) -> dict:
     """AUDIT FIX: score on ALL test agent-hours — missing panel rows count as
     predicted 'closed'. No exclusion flattering."""
-    from sklearn.metrics import f1_score
+    from sklearn.metrics import f1_score, precision_score, recall_score
     yt, yp = truth.astype(str), det_states.astype(str)
     labels = ["normal", "cash_stockout", "float_stockout", "closed"]
+    f1_per = f1_score(yt, yp, labels=labels, average=None, zero_division=0)
+    per_class_f1 = {lbl: round(float(val), 4) for lbl, val in zip(labels, f1_per)}
     return {
         "f1_macro_all": round(float(f1_score(yt, yp, average="macro",
                                              zero_division=0)), 4),
-        "f1_cash_stockout_all": round(float(f1_score(
+        "f1_per_class_all": per_class_f1,
+        "f1_cash_stockout_all": per_class_f1.get("cash_stockout", 0.0),
+        "precision_cash_stockout_all": round(float(precision_score(
             yt, yp, labels=["cash_stockout"], average="macro", zero_division=0)), 4),
-        "recall_cash_stockout_all": round(float(f1_score(
+        "recall_cash_stockout_all": round(float(recall_score(
             yt, yp, labels=["cash_stockout"], average="macro", zero_division=0)), 4),
         "n_all": int(len(yt)),
     }
@@ -215,8 +219,13 @@ def run(panel: pd.DataFrame, seed=0) -> dict:
                              size=max(1, config.TRAIN_DAYS[1] // 10), replace=False)
     tr_fb = tr[tr.day_idx.isin(sample_days)]
     det_fb = finalize(te.copy(), ml_detector(tr_fb, te, seed))
-    results["lgbm_10pct_feedback"] = evaluate(det_fb.state, te.true_state)
-    results["lgbm_10pct_feedback"]["train_days_used"] = int(len(sample_days))
+    fb_eval = evaluate(det_fb.state, te.true_state)
+    det_fb_keyed = det_fb.set_index(key)
+    fb_all_states = det_fb_keyed.state.reindex(
+        pd.MultiIndex.from_frame(truth_te[key], names=key)).fillna("closed")
+    fb_eval.update(evaluate_all_hours(fb_all_states, truth_te.state.values))
+    fb_eval["train_days_used"] = int(len(sample_days))
+    results["lgbm_10pct_feedback"] = fb_eval
     det_fb.to_parquet("data/processed/detector_lgbm_10pct.parquet", index=False)
 
     # consensus states used downstream: best method by VALIDATION f1_macro

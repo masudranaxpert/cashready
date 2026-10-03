@@ -197,7 +197,7 @@ export default function AreaPage() {
                 type="date"
                 value={selectedDate}
                 min="2026-09-03"
-                max="2026-10-08"
+                max="2026-10-02"
                 onChange={(e) => setSelectedDate(e.target.value)}
                 className="bg-transparent text-xs sm:text-sm font-medium text-slate-200 border-none focus:outline-none cursor-pointer w-full [color-scheme:dark]"
               />
