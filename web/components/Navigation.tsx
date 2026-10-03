@@ -28,9 +28,6 @@ export function Navigation() {
             <span className="font-bold text-xl tracking-tight text-slate-100">
               CashReady
             </span>
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700/60">
-              উপায় AI লিকুইডিটি
-            </span>
           </div>
 
           <nav className="hidden md:flex items-center gap-1.5" aria-label="প্রধান নেভিগেশন">

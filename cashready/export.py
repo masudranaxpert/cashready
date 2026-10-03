@@ -81,8 +81,8 @@ def export(target_date: str | None = None):
                               on=["agent_id", "day_idx"], how="left")
     plan_src["opening_habit"] = (plan_src.habit * config.OPEN_BUFFER).fillna(0)
 
-    # per-day export
-    for d in day_list[-1:]:
+    # per-day export (all forecast days; day_list already sorted)
+    for d in day_list:
         date = day_label(d)
         day_plan = plan_src[plan_src.day_idx == d]
         day_fc = fc[fc.day_idx == d]
@@ -158,7 +158,7 @@ def export(target_date: str | None = None):
         if "metrics" in f:
             metrics[Path(f).stem] = json.loads(Path(f).read_text())
     (serve / "metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=1))
-    print(f"exported: plans for {len(day_list[-1:])} day(s), "
+    print(f"exported: plans for {len(day_list)} day(s), "
           f"{len(list((serve/'lost_demand').glob('*.json')))} weeks, metrics.json")
 
 

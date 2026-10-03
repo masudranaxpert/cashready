@@ -1,6 +1,6 @@
 export const STRINGS = {
   appName: "CashReady",
-  appTagline: "উপায় AI লিকুইডিটি",
+  appTagline: "AI Liquidity Planner for upay agents",
   
   // Navigation
   navAgent: "এজেন্ট",

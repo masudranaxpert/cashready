@@ -149,6 +149,8 @@ export default function AgentPage() {
             <input
               type="date"
               value={selectedDate}
+              min="2026-09-03"
+              max="2026-10-08"
               onChange={(e) => setSelectedDate(e.target.value)}
               className="bg-transparent border-none text-[11px] sm:text-xs text-slate-200 focus:outline-none cursor-pointer [color-scheme:dark]"
               aria-label="তারিখ নির্বাচন"
