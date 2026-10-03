@@ -25,7 +25,7 @@ LABELS_BN = {
     "payment": ("ডিজিটালে সরে যাওয়া", "কিছু ক্রেতা ডিজিটাল পেমেন্টে যাচ্ছেন"),
     "out_amt_lag1": ("গতকালের চাহিদা", "গতকাল বেশি টাকা তোলা হয়েছিল"),
     "out_vel_3h": ("সাম্প্রতিক গতি", "শেষ কয়েক ঘণ্টায় চাহিদা দ্রুত বাড়ছে"),
-    "is_new": ("নতুন এজেন্ট", "নতুন এজেন্ট — ইতিহাস কম, সতর্ক পরিকল্পনা দরকার"),
+    "is_new": ("নতুন এজেন্ট", "নতুন এজেন্ট: ইতিহাস কম, সতর্ক পরিকল্পনা দরকার"),
     "day_of_month": ("মাসের তারিখ", "মাসের এই সময়ে চাহিদা বদলায়"),
     "cash_in_amt": ("ক্যাশ-ইন প্রবণতা", "ক্যাশ-ইনের ধরন পরিকল্পনায় প্রভাব রাখে"),
 }
@@ -45,7 +45,7 @@ LABELS_EN = {
     "payment": ("Shift to digital", "Some customers are moving to digital payments"),
     "out_amt_lag1": ("Yesterday's demand", "High withdrawals happened yesterday"),
     "out_vel_3h": ("Recent velocity", "Demand is rising fast in the last few hours"),
-    "is_new": ("New agent", "New agent — little history, needs a cautious plan"),
+    "is_new": ("New agent", "New agent: little history, needs a cautious plan"),
     "day_of_month": ("Day of month", "Demand changes around this time of month"),
     "cash_in_amt": ("Cash-in trend", "Cash-in pattern influences the plan"),
 }

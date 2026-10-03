@@ -28,7 +28,7 @@ tags_metadata = [
     {"name": "System", "description": "Healthcheck and runtime readiness probes."},
     {"name": "Agents", "description": "Agent profiles, day-ahead liquidity plans, unserved demand, and feedback."},
     {"name": "Areas", "description": "Area classifications, agent risk distributions, and weekly aggregations."},
-    {"name": "Metrics", "description": "Comprehensive pipeline metrics, detector F1, recovery MAE, and business impact."},
+    {"name": "Metrics", "description": "Pipeline metrics, detector F1, recovery MAE, and business impact."},
 ]
 
 app = FastAPI(

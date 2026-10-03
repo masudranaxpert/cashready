@@ -1,4 +1,4 @@
-# CashReady — AI Liquidity Planner for MFS Agents
+# CashReady: AI Liquidity Planner for MFS Agents
 
 > **Track 05 (DIU CPC × upay):** Automated Liquidity Management for Mobile Financial Services Agents.
 

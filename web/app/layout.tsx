@@ -4,9 +4,9 @@ import { Navigation } from "@/components/Navigation";
 import { LangProvider } from "@/lib/lang";
 
 export const metadata: Metadata = {
-  title: "CashReady — AI Liquidity Planner (upay)",
+  title: "CashReady: AI Liquidity Planner (upay)",
   description:
-    "Smart cash & e-float liquidity planner for mobile-money (MFS) agents — AI DEV FEST 2026, Track 05",
+    "Smart cash & e-float liquidity planner for mobile-money (MFS) agents for AI DEV FEST 2026, Track 05.",
 };
 
 export const viewport: Viewport = {
