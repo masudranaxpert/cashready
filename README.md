@@ -13,13 +13,29 @@ CashReady predicts unobserved cash-out demand caused by cash/float stock-outs, f
 
 ---
 
+## API Surface & Contract
+
+| Endpoint | Method | Key Parameters | Description |
+|---|---|---|---|
+| `/health` | `GET` | — | Service health and artifacts availability |
+| `/agents` | `GET` | `area_id` (optional) | Agent list filtered by area |
+| `/areas` | `GET` | — | Distinct areas and area classifications |
+| `/metrics` | `GET` | — | 30-day evaluation metrics and baseline comparisons |
+| `/agents/{id}/plan` | `GET` | `date` (YYYY-MM-DD), `risk` (0.8\|0.9\|0.95) | Opening cash recommendation and SHAP reasons |
+| `/agents/{id}/lost-demand` | `GET` | `week` (YYYY-Www) | Weekly unserved demand and lost commission |
+| `/agents/{id}/feedback` | `POST` | JSON payload `{helpful, comment}` | Agent advisory feedback audit log |
+| `/areas/{id}/risk` | `GET` | `date` (YYYY-MM-DD) | Area-level agent shortfall risks |
+| `/areas/lost-demand` | `GET` | `week` (YYYY-Www) | Area-wide weekly lost demand aggregation |
+
+---
+
 ## Key Features
 
 1. **Stock-Out Detector:** Multiclass detection (normal, cash stock-out, float stock-out, closed) from transaction patterns without extra hardware.
 2. **Censored Demand Recovery:** Recovers unserved transactions using clean-hour regression gated at $P(\text{stockout}) \ge 0.5$ with digital migration guard.
 3. **Day-Ahead Quantile Forecast:** Predicts P10, P50, and P90 cash needs using strictly causal features known the evening before.
 4. **Calibrated Morning Cash:** Continuous newsvendor optimization recommending opening cash across 3 risk tiers (80% Higher Risk, 90% Balanced, 95% Safest).
-5. **SHAP Explanations:** Explains recommendations using top-3 feature drivers in natural, deterministic language. Zero generative hallucination in the math path.
+5. **SHAP Explanations:** Explains recommendations using top-3 feature drivers in clear technical language. Calculations are deterministic and decoupled from generative LLMs.
 6. **Bilingual UI:** Next.js mobile-first dashboard (Agent, Area, Evidence) with instant Bengali/English language toggle.
 
 ---
@@ -121,7 +137,7 @@ Due to MFS customer privacy, data is generated via `cashready/simulate.py` using
 ## Responsible AI & Limitations
 
 - **Demographic Fairness:** Validated across urban, peri-urban, and rural areas to avoid liquidity starvation.
-- **Zero Generative Hallucination:** Numbers are 100% algorithmic; LLM is decoupled from mathematical paths.
+- **Algorithmic Integrity:** Cash amounts, risk intervals, and metrics are computed algorithmically via newsvendor optimization; LLMs are decoupled from mathematical logic.
 - **Limitations:** Cold-start agents (<7 days) fall back to cluster averages; informal shop-to-shop borrowing is unobserved; severe telecom outages are treated as store closures.
 - **External Resources:** LightGBM, SHAP, FastAPI, Next.js, Antigravity IDE.
 

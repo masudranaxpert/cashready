@@ -209,7 +209,7 @@ const BN: Dict = {
   lostTransactionsLabel: "হারানো লেনদেন",
   chartTapHint: "চার্টের বারে ট্যাপ করে নির্দিষ্ট এরিয়া পরিবর্তন করুন।",
   evidenceBadge: "মূল্যায়ন-ভিত্তিক প্রমাণ",
-  evidenceSubheading2: "কোনো অনুমিত বা কাল্পনিক সংখ্যা নয় — সমস্ত ফলাফল লুকানো গ্রাউন্ড ট্রুথের সাথে পরিমাপযোগ্য।",
+  evidenceSubheading2: "সমস্ত ফলাফল লুকানো গ্রাউন্ড ট্রুথ এবং টেস্ট মূল্যায়নের সাথে যাচাইকৃত।",
   kpiDetectorF1: "স্টক-আউট ডিটেক্টর F1",
   kpiLightgbm: "LightGBM মডেল",
   kpiCalibration: "পূর্বাভাস ক্যালিব্রেশন (P10–P90)",
@@ -255,7 +255,7 @@ const BN: Dict = {
   pipelineStep4Desc: "newsvendor",
 
   footerSynthetic: "সব সংখ্যা সিনথেটিক ডেটার উপর মূল্যায়ন থেকে; কোড: github.com/masudranaxpert/cashready",
-  footerLlmDisclosure: "স্বীকৃতি: লার্জ ল্যাঙ্গুয়েজ মডেল (LLM) কেবল ফলাফল সংক্ষেপে উপস্থাপন করে, কোনো গাণিতিক সংখ্যা তৈরি বা পরিবর্তন করে না।",
+  footerLlmDisclosure: "স্বীকৃতি: লার্জ ল্যাঙ্গুয়েজ মডেল (LLM) কেবল সিদ্ধান্ত সারসংক্ষেপ তৈরি করে; সমস্ত গাণিতিক সংখ্যা অ্যালগরিদমের মাধ্যমে নির্ধারিত।",
 };
 
 const EN: Dict = {
@@ -341,7 +341,7 @@ const EN: Dict = {
   lostTransactionsLabel: "Lost transactions",
   chartTapHint: "Tap a bar in the chart to switch to that area.",
   evidenceBadge: "Evaluation-based evidence",
-  evidenceSubheading2: "No made-up numbers — every result is measured against hidden ground truth.",
+  evidenceSubheading2: "All results are empirically measured against hidden ground truth in our 30-day evaluation.",
   kpiDetectorF1: "Stock-out detector F1",
   kpiLightgbm: "LightGBM model",
   kpiCalibration: "Forecast calibration (P10–P90)",
@@ -387,7 +387,7 @@ const EN: Dict = {
   pipelineStep4Desc: "newsvendor",
 
   footerSynthetic: "All numbers come from synthetic-data evaluation; code: github.com/masudranaxpert/cashready",
-  footerLlmDisclosure: "Disclosure: the LLM only presents results in plain words; it never creates or changes any number.",
+  footerLlmDisclosure: "Disclosure: Language models summarize advisory text; all numeric recommendations are computed algorithmically.",
 };
 
 export const STRINGS: Record<Lang, Dict> = { bn: BN, en: EN };

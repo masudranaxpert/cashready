@@ -6,6 +6,7 @@ frontend origin; optional X-API-Key via env ARTIFACTS_DIR/API_KEY/FRONTEND_ORIGI
 
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, Header, HTTPException, Query
@@ -66,7 +67,8 @@ def metrics(x_api_key: str | None = Header(None)):
 
 @app.get("/agents/{agent_id}/plan")
 def agent_plan(agent_id: str, date: str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2}$"),
-               risk: str = Query("0.9"), x_api_key: str | None = Header(None)):
+               risk: str = Query("0.9", pattern=r"^(0\.8|0\.9|0\.95)$"),
+               x_api_key: str | None = Header(None)):
     check_key(x_api_key)
     doc = load(f"plans/{date}.json")
     a = doc["agents"].get(agent_id)
@@ -85,7 +87,7 @@ def agent_feedback(agent_id: str, payload: dict, x_api_key: str | None = Header(
     check_key(x_api_key)
     out_file = ARTIFACTS / "feedback.jsonl"
     record = {
-        "timestamp": str(Path().stat().st_mtime),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "agent_id": agent_id,
         **payload,
     }
