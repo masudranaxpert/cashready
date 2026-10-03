@@ -73,26 +73,34 @@ async function fetchFromApi<T>(endpoint: string, options?: RequestInit): Promise
  * GET /agents?area_id=A01
  */
 export async function getAgents(areaId?: string): Promise<Agent[]> {
-  if (!isRealApiConfigured()) {
-    // Mock mode
-    if (areaId) {
-      return MOCK_AGENTS.filter((a) => a.area_id === areaId);
+  if (isRealApiConfigured()) {
+    try {
+      const query = areaId ? `?area_id=${encodeURIComponent(areaId)}` : "";
+      return await fetchFromApi<Agent[]>(`/agents${query}`);
+    } catch (err) {
+      console.warn("API unavailable, falling back to local data:", err);
     }
-    return MOCK_AGENTS;
   }
 
-  const query = areaId ? `?area_id=${encodeURIComponent(areaId)}` : "";
-  return fetchFromApi<Agent[]>(`/agents${query}`);
+  // Fallback to local data
+  if (areaId) {
+    return MOCK_AGENTS.filter((a) => a.area_id === areaId);
+  }
+  return MOCK_AGENTS;
 }
 
 /**
  * GET /areas
  */
 export async function getAreas(): Promise<Area[]> {
-  if (!isRealApiConfigured()) {
-    return MOCK_AREAS;
+  if (isRealApiConfigured()) {
+    try {
+      return await fetchFromApi<Area[]>("/areas");
+    } catch (err) {
+      console.warn("API unavailable, falling back to local data:", err);
+    }
   }
-  return fetchFromApi<Area[]>("/areas");
+  return MOCK_AREAS;
 }
 
 /**
@@ -103,24 +111,27 @@ export async function getAgentPlan(
   date: string = DEMO_DATE,
   risk: RiskLevel = "0.9"
 ): Promise<AgentPlan> {
-  if (!isRealApiConfigured()) {
-    return getMockAgentPlan(agentId, date, risk);
+  if (isRealApiConfigured()) {
+    try {
+      const res = await fetchFromApi<AgentPlan>(
+        `/agents/${encodeURIComponent(agentId)}/plan?date=${encodeURIComponent(date)}&risk=${encodeURIComponent(risk)}`
+      );
+
+      const byLevel = (res as { opening_cash_by_level?: Record<string, number> }).opening_cash_by_level;
+      const rawOpening = typeof res.opening_cash === "object" && res.opening_cash !== null ? (res.opening_cash as Record<string, number>)[risk] : res.opening_cash;
+      const opening_cash = (byLevel?.[risk] ?? Number(rawOpening)) || 60000;
+
+      return {
+        ...res,
+        opening_cash,
+        selected_risk: risk,
+      };
+    } catch (err) {
+      console.warn("API unavailable, falling back to local plan:", err);
+    }
   }
 
-  const res = await fetchFromApi<AgentPlan>(
-    `/agents/${encodeURIComponent(agentId)}/plan?date=${encodeURIComponent(date)}&risk=${encodeURIComponent(risk)}`
-  );
-
-  // Opening cash by risk tier from plan artifact; falls back to opening_cash.
-  const byLevel = (res as { opening_cash_by_level?: Record<string, number> }).opening_cash_by_level;
-  const rawOpening = typeof res.opening_cash === "object" && res.opening_cash !== null ? (res.opening_cash as Record<string, number>)[risk] : res.opening_cash;
-  const opening_cash = (byLevel?.[risk] ?? Number(rawOpening)) || 60000;
-
-  return {
-    ...res,
-    opening_cash,
-    selected_risk: risk,
-  };
+  return getMockAgentPlan(agentId, date, risk);
 }
 
 /**
@@ -130,12 +141,16 @@ export async function getAgentLostDemand(
   agentId: string,
   week: string = DEMO_WEEK
 ): Promise<AgentLostDemand> {
-  if (!isRealApiConfigured()) {
-    return getMockAgentLostDemand(agentId, week);
+  if (isRealApiConfigured()) {
+    try {
+      return await fetchFromApi<AgentLostDemand>(
+        `/agents/${encodeURIComponent(agentId)}/lost-demand?week=${encodeURIComponent(week)}`
+      );
+    } catch (err) {
+      console.warn("API unavailable, falling back to local lost demand:", err);
+    }
   }
-  return fetchFromApi<AgentLostDemand>(
-    `/agents/${encodeURIComponent(agentId)}/lost-demand?week=${encodeURIComponent(week)}`
-  );
+  return getMockAgentLostDemand(agentId, week);
 }
 
 /**
@@ -186,32 +201,44 @@ export async function getAreaRisk(
   areaId: string,
   date: string = DEMO_DATE
 ): Promise<AreaRiskResponse> {
-  if (!isRealApiConfigured()) {
-    return getMockAreaRisk(areaId, date);
+  if (isRealApiConfigured()) {
+    try {
+      return await fetchFromApi<AreaRiskResponse>(
+        `/areas/${encodeURIComponent(areaId)}/risk?date=${encodeURIComponent(date)}`
+      );
+    } catch (err) {
+      console.warn("API unavailable, falling back to local area risk:", err);
+    }
   }
-  return fetchFromApi<AreaRiskResponse>(
-    `/areas/${encodeURIComponent(areaId)}/risk?date=${encodeURIComponent(date)}`
-  );
+  return getMockAreaRisk(areaId, date);
 }
 
 /**
  * GET /areas/lost-demand?week=YYYY-Www
  */
 export async function getAreaLostDemand(week: string = DEMO_WEEK): Promise<AreaLostDemandResponse> {
-  if (!isRealApiConfigured()) {
-    return getMockAreaLostDemand(week);
+  if (isRealApiConfigured()) {
+    try {
+      return await fetchFromApi<AreaLostDemandResponse>(
+        `/areas/lost-demand?week=${encodeURIComponent(week)}`
+      );
+    } catch (err) {
+      console.warn("API unavailable, falling back to local area lost demand:", err);
+    }
   }
-  return fetchFromApi<AreaLostDemandResponse>(
-    `/areas/lost-demand?week=${encodeURIComponent(week)}`
-  );
+  return getMockAreaLostDemand(week);
 }
 
 /**
  * GET /metrics
  */
 export async function getMetrics(): Promise<MetricsResponse> {
-  if (!isRealApiConfigured()) {
-    return MOCK_METRICS;
+  if (isRealApiConfigured()) {
+    try {
+      return await fetchFromApi<MetricsResponse>("/metrics");
+    } catch (err) {
+      console.warn("API unavailable, falling back to local metrics:", err);
+    }
   }
-  return fetchFromApi<MetricsResponse>("/metrics");
+  return MOCK_METRICS;
 }
