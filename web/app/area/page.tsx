@@ -157,11 +157,11 @@ export default function AreaPage() {
                 {t.areaHeading}
               </h1>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
-                এরিয়া ভিউ
+                {t.areaViewBadge}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              আগামীকালের জন্য সম্ভাব্য ক্যাশ ঘাটতি এবং এরিয়াভিত্তিক চাহিদা শিফট বিশ্লেষণ
+              {t.areaSubheading}
             </p>
           </div>
 
@@ -170,7 +170,7 @@ export default function AreaPage() {
             <div className="flex items-center gap-2 bg-slate-900 rounded-full px-3.5 py-2 border border-slate-800">
               <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
               <label htmlFor="area-select" className="sr-only">
-                এরিয়া নির্বাচন
+                {t.areaSelectorLabel}
               </label>
               <select
                 id="area-select"
@@ -190,7 +190,7 @@ export default function AreaPage() {
             <div className="flex items-center gap-2 bg-slate-900 rounded-full px-3.5 py-2 border border-slate-800">
               <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
               <label htmlFor="date-select" className="sr-only">
-                তারিখ
+                {t.dateSelectorLabel}
               </label>
               <input
                 id="date-select"
@@ -226,16 +226,16 @@ export default function AreaPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
               <div>
                 <h2 className="text-base font-bold text-slate-100 tracking-tight">
-                  এজেন্ট ঘাটতি ঝুঁকির তালিকা
+                  {t.agentShortfallList}
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  এরিয়া {selectedAreaId} • মোট {sortedAgents.length} জন এজেন্ট
+                  {t.areaAgentCount(selectedAreaId, sortedAgents.length)}
                 </p>
               </div>
 
               <div className="text-[11px] sm:text-xs text-slate-400 flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm border-l-2 border-l-red-500 bg-red-950/40 inline-block" />
-                <span>লাল সীমানা = উচ্চ ঝুঁকি (&ge; ৩০%)</span>
+                <span>{t.redBorderLegend}</span>
               </div>
             </div>
 
@@ -243,7 +243,7 @@ export default function AreaPage() {
             <div className="block sm:hidden space-y-2.5">
               {/* Mobile sorting toolbar */}
               <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-slate-800/80">
-                <span className="text-[11px]">সাজান:</span>
+                <span className="text-[11px]">{t.sortBy}</span>
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
@@ -254,7 +254,7 @@ export default function AreaPage() {
                         : "bg-slate-900/80 text-slate-400 border-slate-800"
                     }`}
                   >
-                    ঝুঁকি {sortField === "stockout_prob_habit" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+                    {t.riskWord} {sortField === "stockout_prob_habit" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
                   </button>
                   <button
                     type="button"
@@ -265,7 +265,7 @@ export default function AreaPage() {
                         : "bg-slate-900/80 text-slate-400 border-slate-800"
                     }`}
                   >
-                    আইডি {sortField === "agent_id" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+                    {t.agentIdCol} {sortField === "agent_id" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
                   </button>
                   <button
                     type="button"
@@ -276,7 +276,7 @@ export default function AreaPage() {
                         : "bg-slate-900/80 text-slate-400 border-slate-800"
                     }`}
                   >
-                    সময় {sortField === "risk_hour" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+                    {t.riskHourCol} {sortField === "risk_hour" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
                   </button>
                 </div>
               </div>
@@ -303,20 +303,20 @@ export default function AreaPage() {
                         )}
                       </div>
                       <span className="text-xs text-slate-400 tabular-nums">
-                        সময়: বিকেল {ag.risk_hour}:00
+                        {t.riskTime(ag.risk_hour)}
                       </span>
                     </div>
 
                     <div className="mt-2 flex items-center justify-between pt-2 border-t border-slate-800/60">
-                      <span className="text-xs text-slate-400">ঘাটতি সম্ভাবনা:</span>
+                      <span className="text-xs text-slate-400">{t.shortfallProb}:</span>
                       {isHighRisk ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-950/40 text-amber-300 border border-amber-800/50">
                           <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                          <span>নগদ ঘাটতি ({percent}%)</span>
+                          <span>{t.cashShortfall} ({percent}%)</span>
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700/60">
-                          স্বাভাবিক ({percent}%)
+                          {t.normal} ({percent}%)
                         </span>
                       )}
                     </div>
@@ -424,18 +424,18 @@ export default function AreaPage() {
                           {isHighRisk ? (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-950/40 text-amber-300 border border-amber-800/50">
                               <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                              <span>নগদ ঘাটতি ঝুঁকি ({percent}%)</span>
+                              <span>{t.cashShortfallRisk} ({percent}%)</span>
                             </span>
                           ) : (
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700/60">
-                              স্বাভাবিক অবস্থা ({percent}%)
+                              {t.normalState} ({percent}%)
                             </span>
                           )}
                         </td>
 
                         {/* Risk Hour */}
                         <td className="py-3.5 pl-4 text-right font-medium text-slate-300 tabular-nums whitespace-nowrap">
-                          বিকেল {ag.risk_hour}:00
+                          {t.riskTime(ag.risk_hour)}
                         </td>
                       </tr>
                     );
@@ -453,7 +453,7 @@ export default function AreaPage() {
                   <h3 className="text-base font-bold text-slate-100 tracking-tight">
                     {t.areaLostDemandHeading}
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">সপ্তাহ {DEMO_WEEK}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{t.week} {DEMO_WEEK}</p>
                 </div>
 
                 {/* Digital shift badge if present in selected area */}
@@ -469,7 +469,7 @@ export default function AreaPage() {
               {selectedAreaLostInfo && (
                 <div className="p-3.5 bg-navy-900/90 rounded-xl space-y-2 text-xs border border-slate-800">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">এরিয়া:</span>
+                    <span className="text-slate-400">{t.areaSelectorLabel}:</span>
                     <strong className="text-slate-200 font-bold">{selectedAreaId} ({currentArea?.area_type})</strong>
                   </div>
                   <div className="flex items-center justify-between">
@@ -479,7 +479,7 @@ export default function AreaPage() {
                     </strong>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">হারানো চাহিদা:</span>
+                    <span className="text-slate-400">{t.lostAmountLabel}:</span>
                     <strong className="text-teal-400 tabular-nums font-bold text-sm">
                       ৳ {formatBDT(selectedAreaLostInfo.lost_amount)}
                     </strong>
@@ -494,7 +494,7 @@ export default function AreaPage() {
                 aria-label="বিভিন্ন এরিয়ার সাপ্তাহিক হারানো চাহিদা চার্ট"
               >
                 <div className="text-[11px] font-semibold text-slate-400 mb-1 text-right">
-                  চাহিদা (BDT)
+                  {t.demandBdt}
                 </div>
                 <ResponsiveContainer width="100%" height="90%">
                   <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 20 }}>
@@ -511,8 +511,8 @@ export default function AreaPage() {
                       tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
                     />
                     <Tooltip
-                      formatter={(val: number) => [`৳ ${formatBDT(val)}`, "হারানো চাহিদা"]}
-                      labelFormatter={(label) => `এরিয়া: ${label}`}
+                      formatter={(val: number) => [`৳ ${formatBDT(val)}`, t.lostAmountLabel]}
+                      labelFormatter={(label) => `${t.areaSelectorLabel}: ${label}`}
                       contentStyle={{
                         backgroundColor: "#0B1120",
                         borderRadius: "12px",
@@ -536,7 +536,7 @@ export default function AreaPage() {
               </div>
 
               <p className="text-[11px] text-slate-500 text-center">
-                চার্টের বারে ট্যাপ করে নির্দিষ্ট এরিয়া পরিবর্তন করুন।
+                {t.chartTapHint}
               </p>
             </div>
           </div>

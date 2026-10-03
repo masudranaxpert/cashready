@@ -26,7 +26,7 @@ import {
 } from "recharts";
 
 export default function EvidencePage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,9 +63,9 @@ export default function EvidencePage() {
     if (!metrics) return [];
     const rec = metrics.recovery_metrics.amount_mae_pct;
     return [
-      { name: "Naive (সরল)", fullName: "Naive (সরল পর্যবেক্ষণ)", mae: rec.naive_observed, isCashReady: false },
-      { name: "Mean (গড়)", fullName: "Mean Correction (গড় সংশোধন)", mae: rec.mean_correction, isCashReady: false },
-      { name: "CashReady", fullName: "CashReady (রিকভারি মডেল)", mae: rec.cashready_recovery, isCashReady: true },
+      { name: lang === "en" ? "Naive" : "Naive (সরল)", fullName: lang === "en" ? "Naive (observed)" : "Naive (সরল পর্যবেক্ষণ)", mae: rec.naive_observed, isCashReady: false },
+      { name: lang === "en" ? "Mean" : "Mean (গড়)", fullName: lang === "en" ? "Mean Correction" : "Mean Correction (গড় সংশোধন)", mae: rec.mean_correction, isCashReady: false },
+      { name: "CashReady", fullName: lang === "en" ? "CashReady (recovery model)" : "CashReady (রিকভারি মডেল)", mae: rec.cashready_recovery, isCashReady: true },
     ];
   }, [metrics]);
 
@@ -73,9 +73,9 @@ export default function EvidencePage() {
   const forecastAreaChartData = useMemo(() => {
     if (!metrics?.forecast_metrics.mae_by_area_type) return [];
     const areaMap: Record<string, string> = {
-      urban_market: "শহর বাজার",
-      peri_urban: "উপশহর",
-      rural: "পল্লী অঞ্চল",
+      urban_market: lang === "en" ? "Urban market" : "শহর বাজার",
+      peri_urban: lang === "en" ? "Peri-urban" : "উপশহর",
+      rural: lang === "en" ? "Rural" : "পল্লী অঞ্চল",
     };
     return Object.entries(metrics.forecast_metrics.mae_by_area_type).map(([key, val]) => ({
       areaType: areaMap[key] || key,
@@ -94,11 +94,11 @@ export default function EvidencePage() {
                 {t.evidenceHeading}
               </h1>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 shrink-0">
-                মূল্যায়ন-ভিত্তিক প্রমাণ
+                {t.evidenceBadge}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-3xl">
-              {t.evidenceSubheading} কোনো অনুমিত বা কাল্পনিক সংখ্যা নয় — সমস্ত ফলাফল লুকানো গ্রাউন্ড ট্রুথের সাথে পরিমাপযোগ্য।
+              {t.evidenceSubheading} {t.evidenceSubheading2}
             </p>
           </div>
 
@@ -131,14 +131,14 @@ export default function EvidencePage() {
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
-                  স্টক-আউট ডিটেক্টর F1
+                  {t.kpiDetectorF1}
                 </span>
                 <div className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight tabular-nums">
                   {metrics.detector_metrics.f1_macro?.toFixed(2) ?? "0.79"}
                 </div>
               </div>
               <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
-                <span>LightGBM মডেল</span>
+                <span>{t.kpiLightgbm}</span>
                 <span className="text-slate-500">vs HMM 0.66</span>
               </p>
             </div>
@@ -147,15 +147,15 @@ export default function EvidencePage() {
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
-                  পূর্বাভাস ক্যালিব্রেশন (P10–P90)
+                  {t.kpiCalibration}
                 </span>
                 <div className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight tabular-nums">
                   {(metrics.forecast_metrics.coverage_p10_p90 * 100).toFixed(1)}%
                 </div>
               </div>
               <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
-                <span>কভারেজ হার</span>
-                <span className="text-slate-500">টার্গেট ৮০.০%</span>
+                <span>{t.kpiCoverage}</span>
+                <span className="text-slate-500">{t.kpiTarget80}</span>
               </p>
             </div>
 
@@ -163,7 +163,7 @@ export default function EvidencePage() {
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
-                  হারানো চাহিদা (৩০ দিনের সিমুলেশন)
+                  {t.kpiLostDemand}
                 </span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-teal-400 tracking-tight tabular-nums">
@@ -175,7 +175,7 @@ export default function EvidencePage() {
                 </div>
               </div>
               <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
-                <span>CashReady vs অভ্যাস</span>
+                <span>{t.kpiVsHabit}</span>
                 <span className="text-teal-400 font-semibold">&minus;16.7% হ্রাস</span>
               </p>
             </div>
@@ -184,14 +184,14 @@ export default function EvidencePage() {
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
-                  সংরক্ষিত কমিশন (৩০ দিন)
+                  {t.kpiCommissionSaved}
                 </span>
                 <div className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight tabular-nums">
-                  ৳ 10.6 লক্ষ
+                  {lang === "en" ? "৳ 1.06M" : "৳ 10.6 লক্ষ"}
                 </div>
               </div>
               <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
-                <span>মোট সাশ্রয়</span>
+                <span>{t.kpiTotalSaved}</span>
                 <span className="text-teal-400 font-bold tabular-nums">
                   ৳ {formatBDT(metrics.business_sim_metrics.commission_saved_bdt)}
                 </span>
@@ -205,11 +205,11 @@ export default function EvidencePage() {
               <h2 className="text-lg sm:text-xl font-bold text-slate-100 tracking-tight flex items-center gap-2">
                 <span>{t.whyTrustHeading}</span>
                 <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
-                  মূল্যায়ন প্রমাণ
+                  {t.evalEvidenceTitle}
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                মডেলের সিদ্ধান্ত গ্রহণ প্রক্রিয়া এবং অ্যালগরিদম ভিত্তিক সক্ষমতার তুলনামূলক পরিসংখ্যান।
+                {t.evalEvidenceDesc}
               </p>
             </div>
 
@@ -249,7 +249,7 @@ export default function EvidencePage() {
                         width={95}
                       />
                       <Tooltip
-                        formatter={(val: number) => [`${val.toFixed(1)}% MAE`, "ত্রুটি মাত্রা"]}
+                        formatter={(val: number) => [`${val.toFixed(1)}% MAE`, t.errorLevel]}
                         labelFormatter={(_, payload) => payload?.[0]?.payload?.fullName || ""}
                         contentStyle={{
                           backgroundColor: "#0B1120",
@@ -273,9 +273,9 @@ export default function EvidencePage() {
 
                 {/* Accessible Textual Summary */}
                 <div className="p-3 bg-navy-900/90 border border-slate-800 rounded-xl text-xs text-slate-300 space-y-1">
-                  <div className="font-semibold text-slate-200">চার্ট সারাংশ (Chart Summary):</div>
+                  <div className="font-semibold text-slate-200">{t.chartSummary}:</div>
                   <p className="leading-relaxed">
-                    সাধারণ পর্যবেক্ষণ (Naive) ত্রুটি ৭১.৯% এবং গড় সংশোধন (Mean correction) ৬৯.৭% হলেও CashReady রিকভারি মডেল তা কমিয়ে <strong className="text-teal-400">৬৮.৩%</strong>-এ নামিয়ে আনে (কম = ভালো)।
+                    {t.recoverySummary}
                   </p>
                 </div>
               </div>
@@ -286,7 +286,7 @@ export default function EvidencePage() {
                   <h3 className="text-xs sm:text-sm font-bold text-slate-200">
                     {t.forecastChartTitle}
                   </h3>
-                  <span className="text-[11px] sm:text-xs text-slate-400">গড় বিচ্যুতি (BDT)</span>
+                  <span className="text-[11px] sm:text-xs text-slate-400">{t.meanDeviationBdt}</span>
                 </div>
 
                 <div
@@ -325,10 +325,9 @@ export default function EvidencePage() {
 
                 {/* Accessible Textual Summary */}
                 <div className="p-3 bg-navy-900/90 border border-slate-800 rounded-xl text-xs text-slate-300 space-y-1">
-                  <div className="font-semibold text-slate-200">চার্ট সারাংশ (Chart Summary):</div>
+                  <div className="font-semibold text-slate-200">{t.chartSummary}:</div>
                   <p className="leading-relaxed">
-                    উচ্চ লেনদেন ঘনত্বের শহর বাজারে MAE ২,৮৯২ টাকা, উপশহরে ২,৩৭৮ টাকা এবং পল্লী অঞ্চলে ১,৮০৯ টাকা; সকল ক্ষেত্রে কোয়ান্টাইল প্রেডিকশন গ্রাহক চাহিদার ওঠানামা সফলভাবে ধারণ করে।
-                  </p>
+                    {t.forecastSummary}</p>
                 </div>
               </div>
             </div>
@@ -338,7 +337,7 @@ export default function EvidencePage() {
           <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6" aria-label="মেশিন লার্নিং পাইপলাইন ধাপসমূহ">
             <h3 className="text-sm font-bold text-slate-100 tracking-tight mb-3 sm:mb-4 flex items-center gap-2">
               <Layers className="w-4 h-4 text-slate-400" />
-              <span>CashReady এন্ড-টু-এন্ড পাইপলাইন আর্কিটেকচার</span>
+              <span>{t.pipelineTitle}</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">

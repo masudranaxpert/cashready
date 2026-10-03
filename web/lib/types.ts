@@ -29,6 +29,7 @@ export interface AgentPlan {
   risk_hour: number;
   reasons: Reason[];
   message_bn: string;
+  message_en?: string;
   selected_risk?: RiskLevel;
 }
 

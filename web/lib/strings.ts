@@ -40,6 +40,61 @@ type Dict = {
 
   agentSelectorLabel: string;
   agentSelectorPlaceholder: string;
+  agentViewBadge: string;
+  agentSelectCount: (n: number) => string;
+  openingCashLabel: string;
+  planBadgeSafe: string;
+  planBadgeBalanced: string;
+  planBadgeCautious: string;
+  riskLevelSet: string;
+  riskSafe80: string;
+  riskBalanced90: string;
+  riskCautious95: string;
+  planShortfall: string;
+  habitBefore: string;
+  scaleLess: string;
+  scaleBase: string;
+  scaleMore: string;
+  impactUp: string;
+  impactDown: string;
+  impactNeutral: string;
+  noAgentMatch: string;
+  lostCountUnit: (n: number) => string;
+  feedbackRecorded: string;
+  areaViewBadge: string;
+  areaSubheading: string;
+  agentShortfallList: string;
+  areaAgentCount: (id: string, n: number) => string;
+  redBorderLegend: string;
+  sortBy: string;
+  riskTime: (h: number) => string;
+  shortfallProb: string;
+  cashShortfall: string;
+  normal: string;
+  cashShortfallRisk: string;
+  normalState: string;
+  week: string;
+  demandBdt: string;
+  chartTapHint: string;
+  evidenceBadge: string;
+  evidenceSubheading2: string;
+  kpiDetectorF1: string;
+  kpiLightgbm: string;
+  kpiCalibration: string;
+  kpiCoverage: string;
+  kpiTarget80: string;
+  kpiLostDemand: string;
+  kpiVsHabit: string;
+  kpiCommissionSaved: string;
+  kpiTotalSaved: string;
+  evalEvidenceTitle: string;
+  evalEvidenceDesc: string;
+  errorLevel: string;
+  chartSummary: string;
+  meanDeviationBdt: string;
+  pipelineTitle: string;
+  recoverySummary: string;
+  forecastSummary: string;
 
   areaHeading: string;
   areaSelectorLabel: string;
@@ -111,6 +166,61 @@ const BN: Dict = {
 
   agentSelectorLabel: "এজেন্ট নির্বাচন",
   agentSelectorPlaceholder: "এজেন্ট নির্বাচন বা সার্চ করুন...",
+  agentViewBadge: "এজেন্ট ভিউ",
+  agentSelectCount: (n: number) => `এজেন্ট নির্বাচন (${n} জন)`,
+  openingCashLabel: "প্রস্তাবিত উদ্বোধনী নগদ (Opening Cash)",
+  planBadgeSafe: "নিরাপদ প্ল্যান",
+  planBadgeBalanced: "ভারসাম্য প্ল্যান",
+  planBadgeCautious: "সতর্ক প্ল্যান",
+  riskLevelSet: "ঝুঁকির স্তর নির্ধারণ:",
+  riskSafe80: "৮০% নিরাপদ",
+  riskBalanced90: "৯০% ভারসাম্য",
+  riskCautious95: "৯৫% সতর্ক",
+  planShortfall: "প্ল্যানে ঘাটতি:",
+  habitBefore: "পূর্বের অভ্যাসে:",
+  scaleLess: "← হ্রাস (Teal)",
+  scaleBase: "০ (ভিত্তি)",
+  scaleMore: "বৃদ্ধি (Amber) →",
+  impactUp: "বৃদ্ধি",
+  impactDown: "হ্রাস",
+  impactNeutral: "নিরপেক্ষ",
+  noAgentMatch: "কোনো এজেন্ট মেলেনি",
+  lostCountUnit: (n: number) => `${n} জন`,
+  feedbackRecorded: "আপনার মতামত রেকর্ড করা হয়েছে।",
+  areaViewBadge: "এরিয়া ভিউ",
+  areaSubheading: "আগামীকালের জন্য সম্ভাব্য ক্যাশ ঘাটতি এবং এরিয়াভিত্তিক চাহিদা শিফট বিশ্লেষণ",
+  agentShortfallList: "এজেন্ট ঘাটতি ঝুঁকির তালিকা",
+  areaAgentCount: (id: string, n: number) => `এরিয়া ${id} • মোট ${n} জন এজেন্ট`,
+  redBorderLegend: "লাল সীমানা = উচ্চ ঝুঁকি (≥ ৩০%)",
+  sortBy: "সাজান:",
+  riskTime: (h: number) => `সময়: বিকেল ${h}:00`,
+  shortfallProb: "ঘাটতি সম্ভাবনা",
+  cashShortfall: "নগদ ঘাটতি",
+  normal: "স্বাভাবিক",
+  cashShortfallRisk: "নগদ ঘাটতি ঝুঁকি",
+  normalState: "স্বাভাবিক অবস্থা",
+  week: "সপ্তাহ",
+  demandBdt: "চাহিদা (BDT)",
+  chartTapHint: "চার্টের বারে ট্যাপ করে নির্দিষ্ট এরিয়া পরিবর্তন করুন।",
+  evidenceBadge: "মূল্যায়ন-ভিত্তিক প্রমাণ",
+  evidenceSubheading2: "কোনো অনুমিত বা কাল্পনিক সংখ্যা নয় — সমস্ত ফলাফল লুকানো গ্রাউন্ড ট্রুথের সাথে পরিমাপযোগ্য।",
+  kpiDetectorF1: "স্টক-আউট ডিটেক্টর F1",
+  kpiLightgbm: "LightGBM মডেল",
+  kpiCalibration: "পূর্বাভাস ক্যালিব্রেশন (P10–P90)",
+  kpiCoverage: "কভারেজ হার",
+  kpiTarget80: "টার্গেট ৮০.০%",
+  kpiLostDemand: "হারানো চাহিদা (৩০ দিনের সিমুলেশন)",
+  kpiVsHabit: "CashReady vs অভ্যাস",
+  kpiCommissionSaved: "সংরক্ষিত কমিশন (৩০ দিন)",
+  kpiTotalSaved: "মোট সাশ্রয়",
+  evalEvidenceTitle: "মূল্যায়ন প্রমাণ",
+  evalEvidenceDesc: "মডেলের সিদ্ধান্ত গ্রহণ প্রক্রিয়া এবং অ্যালগরিদম ভিত্তিক সক্ষমতার তুলনামূলক পরিসংখ্যান।",
+  errorLevel: "ত্রুটি মাত্রা",
+  chartSummary: "চার্ট সারাংশ",
+  meanDeviationBdt: "গড় বিচ্যুতি (BDT)",
+  pipelineTitle: "CashReady এন্ড-টু-এন্ড পাইপলাইন আর্কিটেকচার",
+  recoverySummary: "সাধারণ পর্যবেক্ষণ (Naive) ত্রুটি ৭১.৯% এবং গড় সংশোধন (Mean correction) ৬৯.৭% হলেও CashReady রিকভারি মডেল তা কমিয়ে ৬৮.৩%-এ নামিয়ে আনে (কম = ভালো)।",
+  forecastSummary: "উচ্চ লেনদেন ঘনত্বের শহর বাজারে MAE ২,৮৯২ টাকা, উপশহরে ২,৩৭৮ টাকা এবং পল্লী অঞ্চলে ১,৮০৯ টাকা; সকল ক্ষেত্রে কোয়ান্টাইল প্রেডিকশন গ্রাহক চাহিদার ওঠানামা সফলভাবে ধারণ করে।",
 
   areaHeading: "আগামীকালের ঝুঁকি",
   areaSelectorLabel: "এরিয়া",
@@ -182,6 +292,61 @@ const EN: Dict = {
 
   agentSelectorLabel: "Select agent",
   agentSelectorPlaceholder: "Select or search an agent...",
+  agentViewBadge: "Agent view",
+  agentSelectCount: (n: number) => `Select agent (${n})`,
+  openingCashLabel: "Recommended opening cash",
+  planBadgeSafe: "Safe plan",
+  planBadgeBalanced: "Balanced plan",
+  planBadgeCautious: "Cautious plan",
+  riskLevelSet: "Set risk level:",
+  riskSafe80: "80% safe",
+  riskBalanced90: "90% balanced",
+  riskCautious95: "95% cautious",
+  planShortfall: "Shortfall with plan:",
+  habitBefore: "With old habit:",
+  scaleLess: "← Less (Teal)",
+  scaleBase: "0 (base)",
+  scaleMore: "More (Amber) →",
+  impactUp: "up",
+  impactDown: "down",
+  impactNeutral: "neutral",
+  noAgentMatch: "No agents match",
+  lostCountUnit: (n: number) => `${n}`,
+  feedbackRecorded: "Your feedback has been recorded.",
+  areaViewBadge: "Area view",
+  areaSubheading: "Likely cash shortfalls for tomorrow and demand-shift analysis by area",
+  agentShortfallList: "Agent shortfall risk list",
+  areaAgentCount: (id: string, n: number) => `Area ${id} • ${n} agents`,
+  redBorderLegend: "Red border = high risk (≥ 30%)",
+  sortBy: "Sort:",
+  riskTime: (h: number) => `Time: ${h}:00`,
+  shortfallProb: "Shortfall probability",
+  cashShortfall: "Cash shortfall",
+  normal: "Normal",
+  cashShortfallRisk: "Cash shortfall risk",
+  normalState: "Normal state",
+  week: "Week",
+  demandBdt: "Demand (BDT)",
+  chartTapHint: "Tap a bar in the chart to switch to that area.",
+  evidenceBadge: "Evaluation-based evidence",
+  evidenceSubheading2: "No made-up numbers — every result is measured against hidden ground truth.",
+  kpiDetectorF1: "Stock-out detector F1",
+  kpiLightgbm: "LightGBM model",
+  kpiCalibration: "Forecast calibration (P10–P90)",
+  kpiCoverage: "Coverage rate",
+  kpiTarget80: "Target 80.0%",
+  kpiLostDemand: "Lost demand (30-day simulation)",
+  kpiVsHabit: "CashReady vs habit",
+  kpiCommissionSaved: "Commission saved (30 days)",
+  kpiTotalSaved: "Total savings",
+  evalEvidenceTitle: "Evaluation evidence",
+  evalEvidenceDesc: "Comparative statistics of the model's decision process and algorithm-based capability.",
+  errorLevel: "Error level",
+  chartSummary: "Chart summary",
+  meanDeviationBdt: "Mean deviation (BDT)",
+  pipelineTitle: "CashReady end-to-end pipeline architecture",
+  recoverySummary: "Naive observation has 71.9% error and mean correction 69.7%, while the CashReady recovery model brings it down to 68.3% (lower is better).",
+  forecastSummary: "MAE is 2,892 BDT in busy urban markets, 2,378 BDT in peri-urban and 1,809 BDT in rural areas; in all cases the quantile forecast captures the swings in customer demand.",
 
   areaHeading: "Tomorrow's risk",
   areaSelectorLabel: "Area",

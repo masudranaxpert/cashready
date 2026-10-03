@@ -21,7 +21,7 @@ import { Skeleton, ErrorState } from "@/components/Skeleton";
 import { Search, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function AgentPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("T0039");
   const [selectedDate, setSelectedDate] = useState<string>(DEMO_DATE);
@@ -119,7 +119,7 @@ export default function AgentPage() {
     try {
       await submitAgentFeedback(selectedAgentId, {
         helpful,
-        comment: helpful ? "কাজের পরামর্শ" : "অতিরিক্ত বা কম নগদ",
+        comment: helpful ? (lang === "en" ? "useful advice" : "কাজের পরামর্শ") : (lang === "en" ? "too much or too little cash" : "অতিরিক্ত বা কম নগদ"),
       });
       setFeedbackStatus("success");
     } catch (err: unknown) {
@@ -141,7 +141,7 @@ export default function AgentPage() {
               CashReady
             </span>
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 truncate">
-              এজেন্ট ভিউ
+              {t.agentViewBadge}
             </span>
           </div>
 
@@ -163,7 +163,7 @@ export default function AgentPage() {
         {/* Searchable Agent Selector */}
         <div className="relative">
           <label htmlFor="agent-search" className="block text-xs font-medium text-slate-400 mb-1">
-            এজেন্ট নির্বাচন ({agents.length} জন)
+            {t.agentSelectCount(agents.length)}
           </label>
           <div className="relative">
             <button
@@ -188,7 +188,7 @@ export default function AgentPage() {
                 <div className="p-1 mb-1">
                   <input
                     type="text"
-                    placeholder="এজেন্ট আইডি বা এরিয়া সার্চ..."
+                    placeholder={t.agentSelectorPlaceholder}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full px-3 py-1.5 text-xs bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
@@ -221,7 +221,7 @@ export default function AgentPage() {
                     </li>
                   ))}
                   {filteredAgents.length === 0 && (
-                    <li className="px-3 py-2 text-xs text-slate-500 text-center">কোনো এজেন্ট মেলেনি</li>
+                    <li className="px-3 py-2 text-xs text-slate-500 text-center">{t.noAgentMatch}</li>
                   )}
                 </ul>
               </div>
@@ -249,7 +249,7 @@ export default function AgentPage() {
                 {t.heroPlanHeading}
               </h2>
               <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-teal-950/60 text-teal-300 border border-teal-800/50">
-                {riskLevel === "0.8" ? "নিরাপদ প্ল্যান" : riskLevel === "0.9" ? "ভারসাম্য প্ল্যান" : "সতর্ক প্ল্যান"}
+                {riskLevel === "0.8" ? t.planBadgeSafe : riskLevel === "0.9" ? t.planBadgeBalanced : t.planBadgeCautious}
               </span>
             </div>
 
@@ -258,22 +258,22 @@ export default function AgentPage() {
               <div className="text-[34px] min-[390px]:text-[40px] leading-tight font-extrabold text-teal-400 tracking-tight tabular-nums">
                 ৳ {formatBDT(plan.opening_cash)}
               </div>
-              <p className="text-xs font-medium text-slate-400 mt-1">প্রস্তাবিত উদ্বোধনী নগদ (Opening Cash)</p>
+              <p className="text-xs font-medium text-slate-400 mt-1">{t.openingCashLabel}</p>
             </div>
 
             {/* Full Bangla Message */}
             <div className="p-3 sm:p-3.5 bg-navy-900/90 rounded-xl text-left border border-slate-800">
               <p className="text-[16px] min-[390px]:text-[17px] sm:text-[18px] text-slate-200 leading-relaxed font-normal">
-                {plan.message_bn}
+                {lang === "en" && plan.message_en ? plan.message_en : plan.message_bn}
               </p>
             </div>
 
             {/* 3-Way Segmented Control */}
             <div className="pt-1">
               <div className="text-xs font-medium text-slate-400 mb-2 flex items-center justify-between">
-                <span>ঝুঁকির স্তর নির্ধারণ:</span>
-                <span className="font-semibold text-slate-200">
-                  {riskLevel === "0.8" ? "৮০% নিরাপদ" : riskLevel === "0.9" ? "৯০% ভারসাম্য" : "৯৫% সতর্ক"}
+                <span>{t.riskLevelSet}</span>
+                <span className="text-teal-300 font-semibold">
+                  {riskLevel === "0.8" ? t.riskSafe80 : riskLevel === "0.9" ? t.riskBalanced90 : t.riskCautious95}
                 </span>
               </div>
 
@@ -312,13 +312,13 @@ export default function AgentPage() {
               {/* Stockout Probability Info */}
               <div className="mt-2.5 flex items-center justify-between text-[11px] sm:text-xs text-slate-400 px-1">
                 <span>
-                  প্ল্যানে ঘাটতি:{" "}
+                  {t.planShortfall}{" "}
                   <strong className="text-slate-200">
                     {Math.round((plan.stockout_prob_plan[riskLevel] ?? 0.1) * 100)}%
                   </strong>
                 </span>
                 <span>
-                  পূর্বের অভ্যাসে:{" "}
+                  {t.habitBefore}{" "}
                   <strong className="text-slate-200">
                     {Math.round((plan.stockout_prob_habit[riskLevel] ?? 0.28) * 100)}%
                   </strong>
@@ -340,9 +340,9 @@ export default function AgentPage() {
 
             {/* Responsive scale reference bar */}
             <div className="flex items-center justify-between text-[10px] min-[390px]:text-[11px] text-slate-500 px-0.5 border-b border-slate-800/60 pb-1.5">
-              <span>← হ্রাস (Teal)</span>
-              <span className="font-semibold text-slate-400">০ (ভিত্তি)</span>
-              <span>বৃদ্ধি (Amber) →</span>
+              <span>{t.scaleLess}</span>
+              <span className="font-semibold text-slate-400">{t.scaleBase}</span>
+              <span>{t.scaleMore}</span>
             </div>
 
             {plan.reasons && plan.reasons.length > 0 ? (
@@ -367,11 +367,11 @@ export default function AgentPage() {
                       <div key={r.key || idx} className="space-y-1">
                         <div className="flex items-center justify-between text-xs gap-2">
                           <span className="font-medium text-slate-200 truncate flex-1 min-w-0 pr-1">
-                            {r.label_bn}
+                            {r.label_bn ? (lang === "en" && (r as { label_en?: string }).label_en ? (r as { label_en?: string }).label_en : r.label_bn) : ""}
                           </span>
                           <div className="flex items-center gap-1 shrink-0">
                             <span className="text-[10px] text-slate-400">
-                              {isPositive ? "বৃদ্ধি" : isNegative ? "হ্রাস" : "নিরপেক্ষ"}
+                              {isPositive ? t.impactUp : isNegative ? t.impactDown : t.impactNeutral}
                             </span>
                             <span
                               className={`font-semibold tabular-nums text-xs ${
@@ -440,7 +440,7 @@ export default function AgentPage() {
                 <div className="py-2 flex items-center justify-between gap-2">
                   <span className="text-slate-400">{t.lostCountLabel}</span>
                   <span className="font-bold text-slate-100 tabular-nums">
-                    {lostDemand.lost_count} জন
+                    {t.lostCountUnit(lostDemand.lost_count)}
                   </span>
                 </div>
                 <div className="py-2 flex items-center justify-between gap-2">
@@ -469,7 +469,7 @@ export default function AgentPage() {
               <div className="flex items-center gap-2 p-3 bg-navy-900 rounded-xl border border-slate-800 text-slate-100">
                 <CheckCircle2 className="w-5 h-5 text-teal-400 shrink-0" />
                 <span className="text-sm font-bold text-teal-400">{t.feedbackSuccess}</span>
-                <span className="text-xs text-slate-400">আপনার মতামত রেকর্ড করা হয়েছে।</span>
+                <span className="text-xs text-slate-400">{t.feedbackRecorded}</span>
               </div>
             ) : (
               <div className="space-y-2">
