@@ -129,6 +129,6 @@ Due to MFS customer privacy, data is generated via `cashready/simulate.py` using
 
 ## Team
 
-- **Masud Rana** (`masudranaxpert@gmail.com`) — ML Pipeline & Statistical Modeling
-- **Ajmine Adil** (`ajmineadil@gmail.com`) — Frontend Architecture & UI/UX
-- **Farhana Nasrin** (`farhana52@users.noreply.github.com`) — Backend Engineering & Testing
+- **Masud Rana** — ML Pipeline, Statistical Modeling & Architecture Lead
+- **Ajmine Adil** — Frontend Architecture, UI/UX Engineering & Integration Lead
+- **Farhana Nasrin** — Backend Engineering, Testing & Deployment Lead
