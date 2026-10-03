@@ -1,4 +1,4 @@
-from typing import List
+from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, Path as FPath, Query, status
 
 from api.dependencies import verify_api_key
@@ -27,8 +27,8 @@ def list_areas() -> List[AreaItem]:
 
 @router.get("/{area_id}/risk", response_model=AreaRiskResponse, summary="Area-level agent stockout risks")
 def get_area_risk(
-    area_id: str = FPath(..., max_length=32, pattern=r"^[A-Za-z0-9_-]+$"),
-    date: str = Query(..., pattern=r"^\d{4}-\d{2}-\d{2}$"),
+    area_id: Annotated[str, FPath(max_length=32, pattern=r"^[A-Za-z0-9_-]+$")],
+    date: Annotated[str, Query(pattern=r"^\d{4}-\d{2}-\d{2}$")],
 ) -> dict:
     doc = ensure_area_risk(date)
     if area_id not in doc["areas"]:
@@ -38,7 +38,7 @@ def get_area_risk(
 
 @router.get("/lost-demand", response_model=AreaLostDemandResponse, summary="Area-wide weekly unserved demand")
 def get_area_lost_demand(
-    week: str = Query(..., pattern=r"^\d{4}-W\d{2}$"),
+    week: Annotated[str, Query(pattern=r"^\d{4}-W\d{2}$")],
 ) -> dict:
     doc = ensure_lost_demand(week)
     return {"week": week, "areas": doc["areas"]}
