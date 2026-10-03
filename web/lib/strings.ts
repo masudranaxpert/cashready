@@ -194,7 +194,11 @@ const BN: Dict = {
   areaAgentCount: (id: string, n: number) => `এরিয়া ${id} • মোট ${n} জন এজেন্ট`,
   redBorderLegend: "লাল সীমানা = উচ্চ ঝুঁকি (≥ ৩০%)",
   sortBy: "সাজান:",
-  riskTime: (h: number) => `সময়: ${h < 12 ? "সকাল" : h < 15 ? "দুপুর" : h < 18 ? "বিকেল" : h < 20 ? "সন্ধ্যা" : "রাত"} ${h}:00`,
+  riskTime: (h: number) => {
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    const period = h < 12 ? "সকাল" : h < 15 ? "দুপুর" : h < 18 ? "বিকেল" : h < 20 ? "সন্ধ্যা" : "রাত";
+    return `সময়: ${period} ${h12}:00`;
+  },
   shortfallProb: "ঘাটতি সম্ভাবনা",
   cashShortfall: "নগদ ঘাটতি",
   normal: "স্বাভাবিক",
@@ -321,7 +325,12 @@ const EN: Dict = {
   areaAgentCount: (id: string, n: number) => `Area ${id} • ${n} agents`,
   redBorderLegend: "Red border = high risk (≥ 30%)",
   sortBy: "Sort:",
-  riskTime: (h: number) => `Time: ${h < 12 ? "morning" : h < 15 ? "midday" : h < 18 ? "afternoon" : h < 20 ? "evening" : "night"} ${h}:00`,
+  riskTime: (h: number) => {
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    const ampm = h < 12 ? "AM" : "PM";
+    const period = h < 12 ? "morning" : h < 15 ? "midday" : h < 18 ? "afternoon" : h < 20 ? "evening" : "night";
+    return `Time: ${period} ${h12}:00 ${ampm}`;
+  },
   shortfallProb: "Shortfall probability",
   cashShortfall: "Cash shortfall",
   normal: "Normal",

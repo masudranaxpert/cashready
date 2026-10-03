@@ -87,12 +87,18 @@ def time_word_en(hour: int) -> str:
     return "night"
 
 
+def to_12h(hour: int) -> int:
+    h = hour % 12
+    return 12 if h == 0 else h
+
+
 def message_bn(opening_cash: int, risk_hour: int, reasons) -> str:
     r1 = reasons[0]["label_bn"] if reasons else "স্বাভাবিক চাহিদা"
     r2 = reasons[1]["label_bn"] if len(reasons) > 1 else ""
     tw = time_word_bn(risk_hour)
+    h12 = to_12h(risk_hour)
     base = (f"আজ সকালে {opening_cash:,} টাকা নগদ রাখুন। "
-            f"সবচেয়ে ঝুঁকির সময় {tw} {risk_hour}টা-এর পর। "
+            f"সবচেয়ে ঝুঁকির সময় {tw} {h12}টা-এর পর। "
             f"কারণ: {r1}")
     if r2:
         base += f", {r2}"
@@ -103,8 +109,10 @@ def message_en(opening_cash: int, risk_hour: int, reasons) -> str:
     r1 = reasons[0]["label_en"] if reasons else "normal demand"
     r2 = reasons[1]["label_en"] if len(reasons) > 1 else ""
     twe = time_word_en(risk_hour)
+    h12 = to_12h(risk_hour)
+    ampm = "AM" if risk_hour < 12 else "PM"
     base = (f"Keep {opening_cash:,} BDT cash this morning. "
-            f"Highest risk {twe} after {risk_hour}:00. "
+            f"Highest risk {twe} after {h12}:00 {ampm}. "
             f"Because: {r1}")
     if r2:
         base += f", {r2}"
