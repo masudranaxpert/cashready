@@ -31,7 +31,7 @@ export default function AgentPage() {
   const [lostDemand, setLostDemand] = useState<AgentLostDemand | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<boolean>(false);
 
   // Search filter for agent dropdown
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -65,7 +65,7 @@ export default function AgentPage() {
 
     async function loadData() {
       setLoading(true);
-      setError(null);
+      setError(false);
       // Reset feedback on agent or date change
       setFeedbackStatus("idle");
       setFeedbackAnswer(null);
@@ -83,7 +83,7 @@ export default function AgentPage() {
         }
       } catch (err: unknown) {
         if (!isCancelled) {
-          setError(t.loadError);
+          setError(true);
           setLoading(false);
         }
       }
@@ -135,7 +135,7 @@ export default function AgentPage() {
   return (
     <div className="max-w-md mx-auto space-y-3.5 sm:space-y-4 w-full">
       {/* Top Bar: Title, Date Picker, and Searchable Agent Selector */}
-      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-3.5 sm:p-4 space-y-3" aria-label="এজেন্ট ও তারিখ নির্বাচন">
+      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-3.5 sm:p-4 space-y-3" aria-label={t.agentSelectorLabel}>
         <div className="flex items-center justify-between gap-2 min-w-0">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <span className="font-bold text-base sm:text-lg text-slate-100 tracking-tight shrink-0">
@@ -156,7 +156,7 @@ export default function AgentPage() {
               max="2026-10-02"
               onChange={(e) => setSelectedDate(e.target.value)}
               className="bg-transparent border-none text-[11px] sm:text-xs text-slate-200 focus:outline-none cursor-pointer [color-scheme:dark]"
-              aria-label="তারিখ নির্বাচন"
+              aria-label={t.dateSelectorLabel}
             />
           </div>
         </div>
@@ -233,7 +233,7 @@ export default function AgentPage() {
 
       {/* Main Content Area: Loading / Error / Data */}
       {error ? (
-        <ErrorState message={error} onRetry={() => setSelectedAgentId(selectedAgentId)} />
+        <ErrorState onRetry={() => setSelectedAgentId(selectedAgentId)} />
       ) : loading || !plan ? (
         <div className="space-y-3.5 sm:space-y-4">
           <Skeleton className="h-64 w-full" />
@@ -281,7 +281,7 @@ export default function AgentPage() {
               <div
                 className="grid grid-cols-3 gap-1 p-1 bg-navy-900/90 border border-slate-800 rounded-full w-full"
                 role="radiogroup"
-                aria-label="ঝুঁকি স্তর নিয়ন্ত্রণ"
+                aria-label={t.riskLevelSet}
               >
                 {(
                   [
@@ -371,12 +371,13 @@ export default function AgentPage() {
                     const pct = isZero
                       ? 0
                       : Math.min(100, Math.round((Math.abs(impact) / maxImpact) * 100));
+                    const reasonLabel = (lang === "en" && r.label_en) ? r.label_en : (r.label_bn || "");
 
                     return (
                       <div key={r.key || idx} className="space-y-1">
                         <div className="flex items-center justify-between text-xs gap-2">
                           <span className="font-medium text-slate-200 truncate flex-1 min-w-0 pr-1">
-                            {r.label_bn ? (lang === "en" && (r as { label_en?: string }).label_en ? (r as { label_en?: string }).label_en : r.label_bn) : ""}
+                            {reasonLabel}
                           </span>
                           <div className="flex items-center gap-1 shrink-0">
                             <span className="text-[10px] text-slate-400">
@@ -400,7 +401,7 @@ export default function AgentPage() {
                         <div
                           className="h-3 w-full bg-slate-900 rounded-full flex items-center relative border border-slate-800 overflow-hidden"
                           role="meter"
-                          aria-label={`${r.label_bn}: ${isPositive ? "ঝুঁকি বৃদ্ধি" : isNegative ? "ঝুঁকি হ্রাস" : "নিরপেক্ষ"} ${impact.toFixed(2)}`}
+                          aria-label={`${reasonLabel}: ${isPositive ? t.impactUp : isNegative ? t.impactDown : t.impactNeutral} ${impact.toFixed(2)}`}
                           aria-valuenow={Number(impact.toFixed(2))}
                           aria-valuemin={-1}
                           aria-valuemax={1}

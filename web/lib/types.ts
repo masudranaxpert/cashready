@@ -15,6 +15,7 @@ export interface Area {
 export interface Reason {
   key: string;
   label_bn: string;
+  label_en?: string;
   impact: number;
 }
 

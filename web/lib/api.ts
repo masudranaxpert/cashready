@@ -65,7 +65,7 @@ async function fetchFromApi<T>(endpoint: string, options?: RequestInit): Promise
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Network error";
     console.error(`Failed to fetch from ${endpoint}:`, message);
-    throw new Error("ডেটা লোড করা যায়নি — আবার চেষ্টা করুন");
+    throw new Error(message || "Failed to load data");
   }
 }
 
@@ -183,7 +183,7 @@ export async function submitAgentFeedback(
     throw new Error(`Feedback failed with status ${res.status}`);
   } catch (err: unknown) {
     console.error("Feedback error:", err);
-    throw new Error("মতামত জমা দেওয়া যায়নি — আবার চেষ্টা করুন");
+    throw new Error("Failed to submit feedback");
   }
 }
 

@@ -29,14 +29,14 @@ export default function EvidencePage() {
   const { t, lang } = useLang();
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
     let isCancelled = false;
 
     async function loadMetrics() {
       setLoading(true);
-      setError(null);
+      setError(false);
       try {
         const data = await getMetrics();
         if (!isCancelled) {
@@ -45,7 +45,7 @@ export default function EvidencePage() {
         }
       } catch (err: unknown) {
         if (!isCancelled) {
-          setError(t.loadError);
+          setError(true);
           setLoading(false);
         }
       }
@@ -67,7 +67,7 @@ export default function EvidencePage() {
       { name: lang === "en" ? "Mean" : "Mean (গড়)", fullName: lang === "en" ? "Mean Correction" : "Mean Correction (গড় সংশোধন)", mae: rec.mean_correction, isCashReady: false },
       { name: "CashReady", fullName: lang === "en" ? "CashReady (recovery model)" : "CashReady (রিকভারি মডেল)", mae: rec.cashready_recovery, isCashReady: true },
     ];
-  }, [metrics]);
+  }, [metrics, lang]);
 
   // Forecast MAE by area_type Data (Chart B: vertical bars)
   const forecastAreaChartData = useMemo(() => {
@@ -86,7 +86,7 @@ export default function EvidencePage() {
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Page Header */}
-      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6" aria-label="প্রমাণ ও মডেল মূল্যায়ন শীর্ষভাগ">
+      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6" aria-label={t.evidenceHeading}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export default function EvidencePage() {
 
       {/* Loading / Error / Data */}
       {error ? (
-        <ErrorState message={error} onRetry={() => setMetrics(null)} />
+        <ErrorState onRetry={() => setMetrics(null)} />
       ) : loading || !metrics ? (
         <div className="space-y-4 sm:space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -126,7 +126,7 @@ export default function EvidencePage() {
       ) : (
         <div className="space-y-4 sm:space-y-6 animate-fade-in">
           {/* FOUR KPI CARDS */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" aria-label="মূল পারফরম্যান্স সূচকসমূহ">
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" aria-label={t.evalEvidenceTitle}>
             {/* KPI 1: Detector F1 */}
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
@@ -176,7 +176,7 @@ export default function EvidencePage() {
               </div>
               <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
                 <span>{t.kpiVsHabit}</span>
-                <span className="text-teal-400 font-semibold">{lang === "en" ? "&minus;16.7% reduction" : "&minus;16.7% হ্রাস"}</span>
+                <span className="text-teal-400 font-semibold">{lang === "en" ? "−16.7% reduction" : "−16.7% হ্রাস"}</span>
               </p>
             </div>
 
@@ -187,7 +187,9 @@ export default function EvidencePage() {
                   {t.kpiCommissionSaved}
                 </span>
                 <div className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight tabular-nums">
-                  {lang === "en" ? "৳ 1.06M" : "৳ 10.6 লক্ষ"}
+                  {lang === "en"
+                    ? `৳ ${(metrics.business_sim_metrics.commission_saved_bdt / 1_000_000).toFixed(2)}M`
+                    : `৳ ${(metrics.business_sim_metrics.commission_saved_bdt / 100_000).toFixed(1)} লক্ষ`}
                 </div>
               </div>
               <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
@@ -200,7 +202,7 @@ export default function EvidencePage() {
           </section>
 
           {/* "Keno bishwas korben?" Section with 2 Charts */}
-          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6 space-y-4 sm:space-y-6" aria-label="কেন বিশ্বাস করবেন">
+          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6 space-y-4 sm:space-y-6" aria-label={t.whyTrustHeading}>
             <div className="border-b border-slate-800 pb-3 sm:pb-4">
               <h2 className="text-lg sm:text-xl font-bold text-slate-100 tracking-tight flex items-center gap-2">
                 <span>{t.whyTrustHeading}</span>
@@ -228,7 +230,11 @@ export default function EvidencePage() {
                 <div
                   className="h-52 sm:h-56 w-full"
                   role="region"
-                  aria-label="সেন্সরড চাহিদা পুনরুদ্ধারে ৩টি পদ্ধতির গড় ত্রুটির তুলনা চার্ট: Naive 71.9%, Mean correction 69.7%, CashReady 68.3%"
+                  aria-label={
+                    lang === "en"
+                      ? "Comparison of MAE for 3 methods on censored demand recovery: Naive 71.9%, Mean correction 69.7%, CashReady 68.3%"
+                      : "সেন্সরড চাহিদা পুনরুদ্ধারে ৩টি পদ্ধতির গড় ত্রুটির তুলনা চার্ট: Naive 71.9%, Mean correction 69.7%, CashReady 68.3%"
+                  }
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
@@ -292,7 +298,11 @@ export default function EvidencePage() {
                 <div
                   className="h-52 sm:h-56 w-full"
                   role="region"
-                  aria-label="এরিয়ার ধরন অনুযায়ী পূর্বাভাস গড় ত্রুটি চার্ট: শহর বাজার 2892.1 টাকা, উপশহর 2377.9 টাকা, পল্লী অঞ্চল 1808.7 টাকা"
+                  aria-label={
+                    lang === "en"
+                      ? "Forecast MAE by area type: Urban market 2,892 BDT, Peri-urban 2,378 BDT, Rural 1,809 BDT"
+                      : "এরিয়ার ধরন অনুযায়ী পূর্বাভাস গড় ত্রুটি চার্ট: শহর বাজার ২৮৯২ টাকা, উপশহর ২৩৭৮ টাকা, পল্লী অঞ্চল ১৮০৯ টাকা"
+                  }
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
@@ -335,7 +345,7 @@ export default function EvidencePage() {
           </section>
 
           {/* PIPELINE STRIP: 4 Steps with Lucide Icons (No Emoji) */}
-          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6" aria-label="মেশিন লার্নিং পাইপলাইন ধাপসমূহ">
+          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6" aria-label={t.pipelineTitle}>
             <h3 className="text-sm font-bold text-slate-100 tracking-tight mb-3 sm:mb-4 flex items-center gap-2">
               <Layers className="w-4 h-4 text-slate-400" />
               <span>{t.pipelineTitle}</span>

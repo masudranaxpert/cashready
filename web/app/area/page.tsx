@@ -35,7 +35,7 @@ type SortField = "agent_id" | "stockout_prob_habit" | "risk_hour";
 type SortDirection = "asc" | "desc";
 
 export default function AreaPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [areas, setAreas] = useState<Area[]>([]);
   const [selectedAreaId, setSelectedAreaId] = useState<string>("A01");
   const [selectedDate, setSelectedDate] = useState<string>(DEMO_DATE);
@@ -44,7 +44,7 @@ export default function AreaPage() {
   const [lostDemandData, setLostDemandData] = useState<AreaLostDemandResponse | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<boolean>(false);
 
   // Sorting state: default by stockout_prob_habit descending
   const [sortField, setSortField] = useState<SortField>("stockout_prob_habit");
@@ -74,7 +74,7 @@ export default function AreaPage() {
 
     async function loadData() {
       setLoading(true);
-      setError(null);
+      setError(false);
 
       try {
         const [riskRes, lostRes] = await Promise.all([
@@ -89,7 +89,7 @@ export default function AreaPage() {
         }
       } catch (err: unknown) {
         if (!isCancelled) {
-          setError(t.loadError);
+          setError(true);
           setLoading(false);
         }
       }
@@ -149,7 +149,7 @@ export default function AreaPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Top Header Card */}
-      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5" aria-label="এরিয়া নির্বাচন ও সময়">
+      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5" aria-label={t.areaViewBadge}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -208,7 +208,7 @@ export default function AreaPage() {
 
       {/* Main Grid: 2 Columns for Risk Table, 1 Column for Lost Demand Bar Chart */}
       {error ? (
-        <ErrorState message={error} onRetry={() => setSelectedAreaId(selectedAreaId)} />
+        <ErrorState onRetry={() => setSelectedAreaId(selectedAreaId)} />
       ) : loading ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="lg:col-span-2 space-y-3">
@@ -336,7 +336,7 @@ export default function AreaPage() {
                         type="button"
                         onClick={() => handleSort("agent_id")}
                         className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
-                        aria-label="এজেন্ট আইডি অনুযায়ী সাজান"
+                        aria-label={`${t.sortBy} ${t.agentIdCol}`}
                       >
                         <span>{t.agentIdCol}</span>
                         {sortField === "agent_id" ? (
@@ -357,7 +357,7 @@ export default function AreaPage() {
                         type="button"
                         onClick={() => handleSort("stockout_prob_habit")}
                         className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
-                        aria-label="ঝুঁকির মাত্রা অনুযায়ী সাজান"
+                        aria-label={`${t.sortBy} ${t.riskProbCol}`}
                       >
                         <span>{t.riskProbCol}</span>
                         {sortField === "stockout_prob_habit" ? (
@@ -378,7 +378,7 @@ export default function AreaPage() {
                         type="button"
                         onClick={() => handleSort("risk_hour")}
                         className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100 ml-auto"
-                        aria-label="ঝুঁকির সময় অনুযায়ী সাজান"
+                        aria-label={`${t.sortBy} ${t.riskHourCol}`}
                       >
                         <span>{t.riskHourCol}</span>
                         {sortField === "risk_hour" ? (
@@ -491,7 +491,7 @@ export default function AreaPage() {
               <div
                 className="h-60 sm:h-64 w-full pt-2"
                 role="region"
-                aria-label="বিভিন্ন এরিয়ার সাপ্তাহিক হারানো চাহিদা চার্ট"
+                aria-label={lang === "en" ? "Weekly lost demand chart across areas" : "বিভিন্ন এরিয়ার সাপ্তাহিক হারানো চাহিদা চার্ট"}
               >
                 <div className="text-[11px] font-semibold text-slate-400 mb-1 text-right">
                   {t.demandBdt}

@@ -91,12 +91,16 @@ export function getMockAgentPlan(agentId: string, date: string = DEMO_DATE, risk
   }
 
   const reasons = [
-    { key: "day_of_month", label_bn: "মাসের শেষ সপ্তাহের বেতন লেনদেন", impact: 0.32 },
-    { key: "out_mean_28d", label_bn: "গত ২৮ দিনের গড় নগদ উত্তোলনের চাপ", impact: -0.14 },
-    { key: "neighbour_pressure", label_bn: "আশপাশের এজেন্টদের সম্ভাব্য ঘাটতি", impact: 0.18 },
+    { key: "day_of_month", label_bn: "মাসের শেষ সপ্তাহের বেতন লেনদেন", label_en: "End-of-month salary transactions", impact: 0.32 },
+    { key: "out_mean_28d", label_bn: "গত ২৮ দিনের গড় নগদ উত্তোলনের চাপ", label_en: "Average cash-out pressure over last 28 days", impact: -0.14 },
+    { key: "neighbour_pressure", label_bn: "আশপাশের এজেন্টদের সম্ভাব্য ঘাটতি", label_en: "Potential shortages at neighbouring agents", impact: 0.18 },
   ];
 
   const formattedCash = new Intl.NumberFormat("en-US").format(opening_cash);
+  const h12 = base.hour % 12 === 0 ? 12 : base.hour % 12;
+  const periodBn = base.hour < 12 ? "সকাল" : base.hour < 15 ? "দুপুর" : base.hour < 18 ? "বিকেল" : base.hour < 20 ? "সন্ধ্যা" : "রাত";
+  const periodEn = base.hour < 12 ? "morning" : base.hour < 15 ? "midday" : base.hour < 18 ? "afternoon" : base.hour < 20 ? "evening" : "night";
+  const ampm = base.hour < 12 ? "AM" : "PM";
 
   return {
     date,
@@ -114,7 +118,8 @@ export function getMockAgentPlan(agentId: string, date: string = DEMO_DATE, risk
     },
     risk_hour: base.hour,
     reasons,
-    message_bn: `আজ সকালে ${formattedCash} টাকা নগদ রাখুন। সবচেয়ে ঝুঁকির সময় বিকেল ${base.hour}টা-এর পর। কারণ: মাসের শেষ সপ্তাহের বেতন লেনদেন, আশপাশের এজেন্টদের সম্ভাব্য ঘাটতি`,
+    message_bn: `আজ সকালে ${formattedCash} টাকা নগদ রাখুন। সবচেয়ে ঝুঁকির সময় ${periodBn} ${h12}টা-এর পর। কারণ: মাসের শেষ সপ্তাহের বেতন লেনদেন, আশপাশের এজেন্টদের সম্ভাব্য ঘাটতি`,
+    message_en: `Keep ${formattedCash} BDT cash this morning. Highest risk ${periodEn} after ${h12}:00 ${ampm}. Because: End-of-month salary transactions, Potential shortages at neighbouring agents`,
     selected_risk: risk,
   };
 }
