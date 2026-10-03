@@ -5,8 +5,6 @@ services:
       dockerfile: Dockerfile
     container_name: cashready-api
     restart: unless-stopped
-    ports:
-      - "${HOST_PORT:-8100}:${PORT:-8100}"
     environment:
       - PORT=${PORT:-8100}
       - ARTIFACTS_DIR=/app/artifacts/serve
@@ -27,8 +25,6 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
     container_name: cashready-web
     restart: unless-stopped
-    ports:
-      - "${WEB_HOST_PORT:-8200}:3000"
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-}
       - NODE_ENV=production
