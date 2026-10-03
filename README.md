@@ -120,10 +120,12 @@ The project is hosted and accessible at the following live endpoints:
 | Service | Address | Notes |
 |---|---|---|
 | **Production Domain** | [https://cashready.masud-rana.me](https://cashready.masud-rana.me) | Primary custom domain |
-| **Web Dashboard (Direct)** | [http://204.136.10.31:8200/agent](http://204.136.10.31:8200/agent) | Next.js interactive web app |
-| **API Documentation (Swagger)** | [http://204.136.10.31:8100/docs](http://204.136.10.31:8100/docs) | Interactive OpenAPI testing |
-| **API Reference (ReDoc)** | [http://204.136.10.31:8100/redoc](http://204.136.10.31:8100/redoc) | Detailed schema reference |
-| **OpenAPI Schema (JSON)** | [http://204.136.10.31:8100/openapi.json](http://204.136.10.31:8100/openapi.json) | Raw OpenAPI v3.1 specification |
+| **Web Dashboard** | [https://cashready.masud-rana.me/agent](https://cashready.masud-rana.me/agent) | Next.js interactive agent planner |
+| **Area Monitoring** | [https://cashready.masud-rana.me/area](https://cashready.masud-rana.me/area) | Cluster risk & demand analytics |
+| **Model Evidence** | [https://cashready.masud-rana.me/evidence](https://cashready.masud-rana.me/evidence) | Evaluation metrics & simulation proof |
+| **API Documentation (Swagger)** | [https://cashready.masud-rana.me/api-backend/docs](https://cashready.masud-rana.me/api-backend/docs) | Interactive OpenAPI testing |
+| **API Reference (ReDoc)** | [https://cashready.masud-rana.me/api-backend/redoc](https://cashready.masud-rana.me/api-backend/redoc) | Detailed schema reference |
+| **OpenAPI Schema (JSON)** | [https://cashready.masud-rana.me/api-backend/openapi.json](https://cashready.masud-rana.me/api-backend/openapi.json) | Raw OpenAPI v3.1 specification |
 
 ---
 

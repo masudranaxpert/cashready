@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     container_name: cashready-api
     restart: unless-stopped
+    networks:
+      - internal
     environment:
       - PORT=${PORT:-8100}
       - ARTIFACTS_DIR=/app/artifacts/serve
@@ -23,8 +25,14 @@ services:
       dockerfile: Dockerfile
     container_name: cashready-web
     restart: unless-stopped
+    networks:
+      - internal
     environment:
       - INTERNAL_API_URL=http://api:8100
       - NODE_ENV=production
     depends_on:
       - api
+
+networks:
+  internal:
+    driver: bridge
