@@ -58,6 +58,12 @@ After step 6, `artifacts/serve/` contains the JSON contract the API serves
 5. **Explain** — SHAP top-3 drivers per agent-day mapped to deterministic
    Bangla template messages. No LLM in the number path.
 
+## Live deployment
+
+- **Frontend (Next.js):** http://204.136.10.31:8200/agent
+- **Backend API (FastAPI):** http://204.136.10.31:8100/health
+- Note: free-tier style host — if the API sleeps, open `/health` once to wake it before judging.
+
 ## Status
 
 - [x] P1 synthetic data simulator (300 agents, 12 areas, 90 days, 4 states, censored demand)
