@@ -113,14 +113,8 @@ export async function getAgentPlan(
 
   // Opening cash by risk tier from plan artifact; falls back to opening_cash.
   const byLevel = (res as { opening_cash_by_level?: Record<string, number> }).opening_cash_by_level;
-  let opening_cash: number;
-  if (byLevel && byLevel[risk] != null) {
-    opening_cash = byLevel[risk];
-  } else if (typeof res.opening_cash === "object" && res.opening_cash !== null) {
-    opening_cash = (res.opening_cash as Record<string, number>)[risk] ?? (res.opening_cash as Record<string, number>)["0.9"] ?? 60000;
-  } else {
-    opening_cash = Number(res.opening_cash) || 60000;
-  }
+  const rawOpening = typeof res.opening_cash === "object" && res.opening_cash !== null ? (res.opening_cash as Record<string, number>)[risk] : res.opening_cash;
+  const opening_cash = (byLevel?.[risk] ?? Number(rawOpening)) || 60000;
 
   return {
     ...res,
