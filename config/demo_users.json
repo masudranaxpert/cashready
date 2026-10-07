@@ -1,0 +1,24 @@
+{
+  "demo-agent-t0039": {
+    "role": "agent",
+    "agent_id": "T0039"
+  },
+  "demo-agent-token": {
+    "role": "agent",
+    "agent_id": "T0039"
+  },
+  "demo-manager-a01": {
+    "role": "manager",
+    "area_id": "A01"
+  },
+  "demo-manager-token": {
+    "role": "manager",
+    "area_id": "A01"
+  },
+  "demo-admin": {
+    "role": "admin"
+  },
+  "demo-admin-token": {
+    "role": "admin"
+  }
+}

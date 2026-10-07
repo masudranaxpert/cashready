@@ -5,12 +5,17 @@ services:
       dockerfile: Dockerfile
     container_name: cashready-api
     restart: unless-stopped
+    ports:
+      - "8100:8100"
     networks:
       - internal
     environment:
       - PORT=${PORT:-8100}
       - ARTIFACTS_DIR=/app/artifacts/serve
-      - FRONTEND_ORIGIN=${FRONTEND_ORIGIN:-*}
+      - FRONTEND_ORIGIN=*
+      - FRONTEND_ORIGINS=*
+      - ENV=development
+      - USERS_FILE=/app/config/demo_users.json
       - API_KEY=${API_KEY:-}
     healthcheck:
       test: ["CMD", "python", "/app/healthcheck.py"]
@@ -25,6 +30,8 @@ services:
       dockerfile: Dockerfile
     container_name: cashready-web
     restart: unless-stopped
+    ports:
+      - "3456:3000"
     networks:
       - internal
     environment:

@@ -13,3 +13,14 @@ def health() -> HealthResponse:
         status="ok" if ok else "degraded",
         artifacts_dir=str(settings.artifacts_dir),
     )
+
+
+@router.get("/version", summary="Model and service version metadata")
+def version():
+    """Version probe for release verification."""
+    return {
+        "app_name": settings.app_name,
+        "app_version": settings.app_version,
+        "model_version": "1.0.0",
+        "env": settings.env,
+    }

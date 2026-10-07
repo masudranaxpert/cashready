@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # serving layer + committed artifacts only (data/, cashready/ ML code not needed)
 COPY api/ api/
 COPY artifacts/serve/ artifacts/serve/
+COPY config/ config/
 COPY healthcheck.py .
 
 # non-root user
