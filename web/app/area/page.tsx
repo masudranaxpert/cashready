@@ -27,7 +27,6 @@ import {
   ArrowDown,
   AlertTriangle,
   TrendingDown,
-  CheckCircle2,
 } from "lucide-react";
 import {
   BarChart,
@@ -207,7 +206,6 @@ export default function AreaPage() {
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30 text-xs font-bold">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>{lang === "en" ? "All Stable" : "স্থিতিশীল"}</span>
                 </span>
               )}
@@ -291,44 +289,32 @@ export default function AreaPage() {
                   <button
                     type="button"
                     onClick={() => handleSort("stockout_prob_habit")}
-                    className={`min-h-[36px] px-3 py-1 rounded-full text-xs font-semibold border transition-all flex items-center gap-1 ${
-                      sortField === "stockout_prob_habit"
+                    className={`min-h-[36px] px-3 py-1 rounded-full text-xs font-semibold border transition-all ${sortField === "stockout_prob_habit"
                         ? "bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-sm"
                         : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-navy-900/80 dark:text-slate-400 dark:border-white/[0.06]"
-                    }`}
+                      }`}
                   >
-                    <span>{t.riskWord}</span>
-                    {sortField === "stockout_prob_habit" && (
-                      sortDirection === "asc" ? <ArrowUp className="w-3 h-3 shrink-0" /> : <ArrowDown className="w-3 h-3 shrink-0" />
-                    )}
+                    {t.riskWord} {sortField === "stockout_prob_habit" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
                   </button>
                   <button
                     type="button"
                     onClick={() => handleSort("agent_id")}
-                    className={`min-h-[36px] px-3 py-1 rounded-full text-xs font-semibold border transition-all flex items-center gap-1 ${
-                      sortField === "agent_id"
+                    className={`min-h-[36px] px-3 py-1 rounded-full text-xs font-semibold border transition-all ${sortField === "agent_id"
                         ? "bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-sm"
                         : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-navy-900/80 dark:text-slate-400 dark:border-white/[0.06]"
-                    }`}
+                      }`}
                   >
-                    <span>{t.agentIdCol}</span>
-                    {sortField === "agent_id" && (
-                      sortDirection === "asc" ? <ArrowUp className="w-3 h-3 shrink-0" /> : <ArrowDown className="w-3 h-3 shrink-0" />
-                    )}
+                    {t.agentIdCol} {sortField === "agent_id" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
                   </button>
                   <button
                     type="button"
                     onClick={() => handleSort("risk_hour")}
-                    className={`min-h-[36px] px-3 py-1 rounded-full text-xs font-semibold border transition-all flex items-center gap-1 ${
-                      sortField === "risk_hour"
+                    className={`min-h-[36px] px-3 py-1 rounded-full text-xs font-semibold border transition-all ${sortField === "risk_hour"
                         ? "bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-sm"
                         : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-navy-900/80 dark:text-slate-400 dark:border-white/[0.06]"
-                    }`}
+                      }`}
                   >
-                    <span>{t.riskHourCol}</span>
-                    {sortField === "risk_hour" && (
-                      sortDirection === "asc" ? <ArrowUp className="w-3 h-3 shrink-0" /> : <ArrowDown className="w-3 h-3 shrink-0" />
-                    )}
+                    {t.riskHourCol} {sortField === "risk_hour" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
                   </button>
                 </div>
               </div>
@@ -340,11 +326,10 @@ export default function AreaPage() {
                 return (
                   <div
                     key={ag.agent_id}
-                    className={`p-3.5 rounded-xl border transition-all ${
-                      isHighRisk
+                    className={`p-3.5 rounded-xl border transition-all ${isHighRisk
                         ? "border-l-4 border-l-rose-500 border-rose-200 dark:border-white/[0.08] bg-rose-50/70 dark:bg-rose-500/10 shadow-sm"
                         : "border-slate-200 dark:border-white/[0.06] bg-white dark:bg-navy-900/70 shadow-sm"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -453,9 +438,8 @@ export default function AreaPage() {
                     return (
                       <tr
                         key={ag.agent_id}
-                        className={`transition-colors hover:bg-slate-100/70 dark:hover:bg-slate-800/40 ${
-                          isHighRisk ? "border-l-4 border-l-rose-500 bg-rose-50/50 dark:bg-rose-500/10" : ""
-                        }`}
+                        className={`transition-colors hover:bg-slate-100/70 dark:hover:bg-slate-800/40 ${isHighRisk ? "border-l-4 border-l-rose-500 bg-rose-50/50 dark:bg-rose-500/10" : ""
+                          }`}
                       >
                         <td className="py-3 px-4 font-extrabold text-slate-900 dark:text-white whitespace-nowrap">
                           <div className="flex items-center gap-2">

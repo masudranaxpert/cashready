@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserCheck, MapPin, BarChart3, Sparkles, Banknote } from "lucide-react";
+import { UserCheck, MapPin, BarChart3 } from "lucide-react";
 import { useLang, LangToggle } from "@/lib/lang";
 import { ThemeToggle } from "@/lib/theme";
 
@@ -26,18 +26,14 @@ export function Navigation() {
               className="group flex items-center gap-2.5 transition-transform duration-150 active:scale-[0.98]"
               aria-label="CashReady home"
             >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-slate-950 shadow-glow-emerald/40 shadow-sm border border-emerald-300/40 group-hover:scale-105 transition-transform">
-                <Banknote className="w-5 h-5 text-slate-950" />
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-slate-950 font-black text-lg shadow-glow-emerald/40 shadow-sm border border-emerald-300/40 group-hover:scale-105 transition-transform">
+                ৳
               </div>
-              <div className="flex flex-col">
-                <span className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+              <div className="flex flex-col justify-center">
+                <span className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors leading-tight">
                   CashReady
-                  <span className="hidden min-[400px]:inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    <Sparkles className="w-2.5 h-2.5" />
-                    AI MFS
-                  </span>
                 </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-tight -mt-0.5 hidden sm:block">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-tight hidden sm:block">
                   upay × DIU CPC Hackathon
                 </span>
               </div>
@@ -53,11 +49,10 @@ export function Navigation() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 active:scale-[0.97] ${
-                      isActive
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 active:scale-[0.97] ${isActive
                         ? "bg-emerald-600 text-white dark:bg-emerald-500/15 dark:text-emerald-300 dark:border dark:border-emerald-500/30 shadow-sm shadow-emerald-600/10"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50"
-                    }`}
+                      }`}
                     aria-current={isActive ? "page" : undefined}
                   >
                     <Icon className={`w-3.5 h-3.5 ${isActive ? "text-white dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`} />
@@ -84,11 +79,10 @@ export function Navigation() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 active:scale-[0.95] ${
-                isActive
+              className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 active:scale-[0.95] ${isActive
                   ? "bg-emerald-600 text-white dark:bg-emerald-500/20 dark:text-emerald-300 dark:border dark:border-emerald-500/35 shadow-sm"
                   : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-              }`}
+                }`}
               aria-current={isActive ? "page" : undefined}
             >
               <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-white dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`} />

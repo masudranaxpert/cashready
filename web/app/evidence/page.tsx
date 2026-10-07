@@ -17,10 +17,6 @@ import {
   Award,
   Layers,
   BarChart3,
-  Target,
-  Scale,
-  ShieldCheck,
-  TrendingDown,
 } from "lucide-react";
 import {
   BarChart,
@@ -137,14 +133,9 @@ export default function EvidencePage() {
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" aria-label={t.evalEvidenceTitle}>
             <div className="card-soft flex flex-col justify-between hover:border-emerald-500/30 transition-all">
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                    {t.kpiDetectorF1}
-                  </span>
-                  <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                    <ShieldAlert className="w-3.5 h-3.5" />
-                  </div>
-                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider block mb-1">
+                  {t.kpiDetectorF1}
+                </span>
                 <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums">
                   {metrics.detector_metrics.f1_macro?.toFixed(2) ?? "0.79"}
                 </div>
@@ -157,14 +148,9 @@ export default function EvidencePage() {
 
             <div className="card-soft flex flex-col justify-between hover:border-emerald-500/30 transition-all">
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                    {t.kpiCalibration}
-                  </span>
-                  <div className="w-6 h-6 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400">
-                    <Target className="w-3.5 h-3.5" />
-                  </div>
-                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider block mb-1">
+                  {t.kpiCalibration}
+                </span>
                 <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums">
                   {(metrics.forecast_metrics.coverage_p10_p90 * 100).toFixed(1)}%
                 </div>
@@ -177,14 +163,9 @@ export default function EvidencePage() {
 
             <div className="card-soft flex flex-col justify-between border-emerald-200 dark:border-emerald-500/25 bg-gradient-to-b from-emerald-50/70 to-emerald-100/40 dark:from-navy-850/90 dark:to-emerald-950/20 hover:border-emerald-400/60 dark:hover:border-emerald-500/40 transition-all">
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                    {t.kpiLostDemand}
-                  </span>
-                  <div className="w-6 h-6 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                    <TrendingDown className="w-3.5 h-3.5" />
-                  </div>
-                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider block mb-1">
+                  {t.kpiLostDemand}
+                </span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl sm:text-4xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight tabular-nums">
                     {metrics.business_sim_metrics.cashready_policy.lost_pct.toFixed(1)}%
@@ -204,14 +185,9 @@ export default function EvidencePage() {
 
             <div className="card-soft flex flex-col justify-between hover:border-emerald-500/30 transition-all">
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                    {t.kpiCommissionSaved}
-                  </span>
-                  <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                    <Banknote className="w-3.5 h-3.5" />
-                  </div>
-                </div>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider block mb-1">
+                  {t.kpiCommissionSaved}
+                </span>
                 <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums">
                   {lang === "en"
                     ? `৳ ${(metrics.business_sim_metrics.commission_saved_bdt / 1_000_000).toFixed(2)}M`
@@ -247,9 +223,8 @@ export default function EvidencePage() {
               {/* Proof 1: Forecast vs Naive */}
               <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-navy-950/80 border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between shadow-sm">
                 <div>
-                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1 flex items-center gap-1.5">
-                    <Target className="w-3.5 h-3.5 shrink-0" />
-                    <span>{lang === "en" ? "1. Forecast Accuracy vs Causal Naive" : "১. পূর্বাভাস নির্ভুলতা বনাম ক্যাজুয়াল বেসলাইন"}</span>
+                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
+                    {lang === "en" ? "1. Forecast Accuracy vs Causal Naive" : "১. পূর্বাভাস নির্ভুলতা বনাম ক্যাজুয়াল বেসলাইন"}
                   </div>
                   <div className="flex items-baseline gap-2 mt-2">
                     <span className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">
@@ -273,9 +248,8 @@ export default function EvidencePage() {
               {/* Proof 2: Equal Capital (Same Capital) test */}
               <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-navy-950/80 border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between shadow-sm">
                 <div>
-                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1 flex items-center gap-1.5">
-                    <Scale className="w-3.5 h-3.5 shrink-0" />
-                    <span>{lang === "en" ? "2. Controlled Capital Benchmark" : "২. একই পুঁজিতে নিয়ন্ত্রণ পরীক্ষা"}</span>
+                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
+                    {lang === "en" ? "2. Controlled Capital Benchmark" : "২. একই পুঁজিতে নিয়ন্ত্রণ পরীক্ষা"}
                   </div>
                   <div className="flex items-baseline gap-2 mt-2">
                     <span className="text-2xl font-black text-emerald-700 dark:text-emerald-400 tabular-nums">
@@ -299,9 +273,8 @@ export default function EvidencePage() {
               {/* Proof 3: Cash Stockout Detector F1 */}
               <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-navy-950/80 border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between shadow-sm">
                 <div>
-                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1 flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-                    <span>{lang === "en" ? "3. True Cash Stock-Out F1" : "৩. আসল নগদ ঘাটতি শনাক্তকরণ F1"}</span>
+                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
+                    {lang === "en" ? "3. True Cash Stock-Out F1" : "৩. আসল নগদ ঘাটতি শনাক্তকরণ F1"}
                   </div>
                   <div className="flex items-baseline gap-2 mt-2">
                     <span className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">
