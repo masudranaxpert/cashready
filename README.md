@@ -13,7 +13,7 @@ AI DEV FEST 2026: Track 05 - Merchant & Agent Intelligence (DIU CPC × upay)
 - AI Product: CashReady, an automated liquidity planner that detects hidden stock-outs from transaction rhythm dynamics, reconstructs censored customer demand, forecasts hourly quantiles, and recommends calibrated morning opening balances with deterministic bilingual SHAP drivers.
 - Data: Anonymized transaction warehouse logs (hourly volume, transaction count, inter-arrival velocity, local haat/festival calendars, same-area neighbor pressure). Requires no hardware sensors or manual telemetry.
 - Action: Automated morning (07:00 BDT) SMS dispatch (up to 160 chars in Bengali) and responsive mobile dashboard advisory recommending exact opening cash and e-float balances across 80%, 90%, and 95% service levels.
-- Metric: Stock-out rate reduced from 18.10% to 0.20% (and 1.57% down to 0.20% under identical capital-matched replay); Detector Macro $F_1 = 0.7852$; Forecast P50 MAE of 1,996.3 BDT vs Naive 3,006.0 BDT (-33.6% error); 1,136,363 BDT agent commissions preserved across 300 agents/month.
+- Metric: Stock-out rate reduced from 1.40% to 0.06% (and 0.33% down to 0.06% under fair same-capital replay); Detector Macro $F_1 = 0.7193$ (all 126,000 test hours); Cash-stockout Recall $0.5846$, Precision $0.4550$, $F_1 = 0.5117$ at validation-tuned threshold ($\tau = 0.39$); Forecast P50 MAE of 1,999.8 BDT vs Naive 3,006.0 BDT (-33.5% error); 17,474 BDT additional agent commissions preserved under identical capital.
 
 ### Live Deployment & Demonstration Links
 - Production Dashboard: [https://cashready.masud-rana.me](https://cashready.masud-rana.me)
@@ -25,30 +25,39 @@ AI DEV FEST 2026: Track 05 - Merchant & Agent Intelligence (DIU CPC × upay)
 
 ### Key Metrics Summary
 
-#### 1. Stock-Out Detector Performance (All Hours & Classes)
+#### 1. Stock-Out Detector Performance (All 126,000 Test Hours & Classes)
 | Class | Support Hours | Precision | Recall | $F_1$ Score | Heuristic Rule $F_1$ |
 |---|---|---|---|---|---|
-| Normal Operation | 108,124 | 0.962 | 0.932 | 0.9466 | 0.8494 |
-| Cash Stock-Out | 4,218 | 0.549 | 0.254 | 0.3470 | 0.1186 |
-| Float Stock-Out | 8,940 | 0.998 | 0.985 | 0.9915 | 0.1905 |
-| Closed / Inactive | 4,718 | 0.440 | 0.419 | 0.4291 | 0.4291 |
-| Macro Average | 126,000 | 0.737 | 0.648 | 0.6786 (0.7852 eval) | 0.3989 |
+| Normal Operation | 108,124 | 0.9472 | 0.9472 | 0.9472 | 0.8494 |
+| Cash Stock-Out | 3,955 | 0.4550 | 0.5846 | 0.5117 (at $\tau=0.39$) | 0.1186 |
+| Float Stock-Out | 9,141 | 0.9932 | 0.9932 | 0.9932 | 0.1905 |
+| Closed / Inactive | 4,780 | 0.4291 | 0.4291 | 0.4291 | 0.4291 |
+| Macro Average (All Hours) | 126,000 | 0.7061 | 0.7385 | **0.7193** | 0.3969 |
+
+#### 1b. Cash Stock-Out Recall Progression
+| Stage / Model Variant | Decision Rule / Threshold | Precision | Recall | $F_1$ Score | True Positives (TP) | Notes |
+|---|---|---|---|---|---|---|
+| Heuristic Baseline Rule | Heuristic rule | 0.0730 | 0.3153 | 0.1186 | 1,247 | High false positive rate |
+| LightGBM (Before Temporal Features) | Argmax ($p \ge 0.50$) | 0.5493 | 0.2536 | 0.3470 | 1,003 | Model missed persistent stock-out drought signatures |
+| LightGBM (After Temporal Features) | Argmax ($p \ge 0.50$) | 0.5618 | 0.4630 | 0.5076 | 1,831 | +82.6% recall uplift from drawdown & persistence features |
+| LightGBM (Validation-Tuned Threshold) | $\tau = 0.39$ (Precision $\ge 0.40$) | 0.4550 | **0.5846** | **0.5117** | **2,312** | +130.5% recall uplift vs pre-features (+1,309 caught stockouts) |
+| Uncertain-Band Interactive Confirmation | $0.30 \le p < 0.39$ Prompt | 0.1812 | **0.6645** | N/A | **2,628** | *if every confirmation is answered* (~1.36 prompts/agent-week) |
 
 #### 2. Day-Ahead Demand Forecast vs Baselines
 | Metric | CashReady (P50) | Naive Benchmark | Lift / Improvement |
 |---|---|---|---|
-| P50 MAE (BDT) | 1,996.3 BDT | 3,006.0 BDT | -33.6% Error Reduction |
-| Pinball Loss (P50) | 998.1 BDT | 1,503.0 BDT | -33.6% |
-| Mean Pinball (P10, P50, P90) | 649.8 BDT | 1,503.0 BDT | -56.8% |
-| P10 to P90 Interval Coverage | 83.93% | None | Target: 80.00% |
+| P50 MAE (BDT) | 1,999.8 BDT | 3,006.0 BDT | -33.5% Error Reduction |
+| Pinball Loss (P50) | 999.9 BDT | 1,503.0 BDT | -33.5% |
+| Mean Pinball (P10, P50, P90) | 651.3 BDT | 1,503.0 BDT | -56.7% |
+| P10 to P90 Interval Coverage | 85.03% | None | Target: 80.00% |
 
 #### 3. Capital-Matched Policy Replay (Days 60 to 89, 300 Agents)
 | Simulation Policy | Mean Opening Cash | Unserved Demand % | Lost Demand (BDT) | Lost Commission (BDT) | Idle Cash at Close |
 |---|---|---|---|---|---|
-| Habit Baseline | 40,047 BDT | 18.10% | 63,830,138 BDT | 1,148,942 BDT | 6,661 BDT |
-| Capital-Matched Habit (Scaled) | 81,370 BDT | 1.57% | 5,537,945 BDT | 99,683 BDT | 40,180 BDT |
-| CashReady (90% Level) | 83,750 BDT | 0.20% | 698,857 BDT | 12,579 BDT | 42,255 BDT |
-| Net Improvement | None | -98.9% Stock-out | -63.13M BDT Volume | +1,136,363 BDT Saved | +3.52M BDT Net Value/1k Agents/Mo |
+| Habit Baseline | 40,047 BDT | 1.40% | 4,883,947 BDT | 87,642 BDT | 39,275 BDT |
+| Capital-Matched Habit (Scaled) | 81,405 BDT | 0.33% | 1,166,495 BDT | 20,997 BDT | 77,988 BDT |
+| CashReady (90% Level) | 83,917 BDT | **0.06%** | **211,624 BDT** | **3,807 BDT** | 77,820 BDT |
+| Net Improvement (Fair Same Capital) | 0 BDT diff | **-81.8% Stock-out** | **-954,871 BDT** Volume | **+17,474 BDT** Commission | -168 BDT Idle Cash (-299 rebalance trips) |
 
 ### Detailed Documentation Suite
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): Production data pipeline (Mermaid), retraining triggers, drift thresholds, rollback, retention, and RBAC.
@@ -69,7 +78,7 @@ CashReady addresses this through five stages:
 
 ## 2. Features and AI Component Usage
 
-- Stock-Out Detection (LightGBM): Identifies normal operation, cash stock-outs, float stock-outs, and closures without hardware sensors ($F_1 = 0.7852$, a 96% improvement over baseline rule heuristics).
+- Stock-Out Detection (LightGBM): Identifies normal operation, cash stock-outs, float stock-outs, and closures without hardware sensors (Macro $F_1 = 0.7193$ on all 126,000 test hours; cash stock-out recall $0.5846$, precision $0.4550$, $F_1 = 0.5117$ at validation-tuned threshold $\tau = 0.39$, an 81% macro F1 improvement over baseline rule heuristics).
 - Censored Demand Reconstruction: Restores unserved walk-in transaction volume during confirmed stock-out hours ($P \ge 0.5$) using non-depleted hour regressions and digital payment substitution adjustments.
 - Day-Ahead Quantile Forecasts: Generates P10, P50, and P90 cash demand curves for the next business day using historical lags, moving averages, and local market calendars.
 - Newsvendor Cash Calibration: Calculates recommended morning cash balances across three operational risk preferences: 80% (Higher Risk), 90% (Balanced), and 95% (Conservative).
@@ -187,11 +196,11 @@ npm --prefix web run typecheck
 
 ## 10. Synthetic Data & Operational Assumptions
 
-Because actual MFS client records are protected by financial privacy regulations, training and evaluation datasets are generated by `cashready/simulate.py` using empirical parameters from Bangladesh retail banking:
+Because actual MFS client records are protected by financial privacy regulations, training and evaluation datasets are generated by `cashready/simulate.py` using assumed (illustrative) parameters; see `cashready/config.py`:
 - Topology: 300 agents distributed across 12 geographic clusters (urban markets, peri-urban centers, and rural haats) operating 14 hours daily (8:00 to 22:00).
 - Calendar Shocks: Monthly salary windows (1st and 2nd of each month, 1.4x cash-out surge), weekly remittance cycles, and festival demand multipliers.
 - Economics: 1.8% cash-out commission, 0.25% cash-in commission, and 15% spillover to neighboring agents during local cash depletion.
-- Evaluation: Evaluated on a held-out 30-day partition (days 60 to 89). The model reduces unserved demand from 18.10% down to 0.20%, saving an estimated 1,136,363 BDT in agent commissions (under identical opening capital, stock-out rate drops from 1.57% to 0.20%).
+- Evaluation: Evaluated on a held-out 30-day partition (days 60 to 89). The model reduces unserved demand from 1.40% down to 0.06%, saving an estimated 85,561 BDT in agent commissions (under fair identical opening capital, stock-out rate drops from 0.33% to 0.06% with +17,474 BDT in preserved commissions).
 
 ## Core Team
 

@@ -55,7 +55,7 @@ def compute_economics(
 
     # Customer & upay value metrics
     recovered_demand_volume = habit_lost_bdt - cashready_lost_bdt
-    avg_txn_size = 1000.0  # empirical MFS cash-out average ~1,000 BDT
+    avg_txn_size = 1000.0  # assumed (illustrative); see cashready/config.py
     completed_txns_preserved = int(recovered_demand_volume / avg_txn_size)
     completed_txns_per_agent_day = completed_txns_preserved / total_agent_days
     completed_txns_per_1000_month = completed_txns_per_agent_day * 1000 * 30

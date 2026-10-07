@@ -15,14 +15,16 @@ Figures derive from evaluation artifacts (`artifacts/serve/metrics.json`) genera
 
 ## Core economic parameters
 
-The simulation uses empirical constants from Bangladesh retail MFS operations:
+## Core economic parameters
+
+The simulation uses assumed (illustrative) constants; see cashready/config.py:
 
 | Parameter | Value | Description |
 |---|---|---|
-| `CASHOUT_COMMISSION_RATE` | `1.80%` | Official agent commission per completed customer cash-out |
+| `CASHOUT_COMMISSION_RATE` | `1.80%` | Assumed (illustrative); see cashready/config.py |
 | `OPPORTUNITY_COST_ANNUAL` | `9.00%` | Commercial bank micro-loan or treasury deposit yield in Bangladesh |
 | `OPPORTUNITY_COST_DAILY` | `0.02466%` | Daily opportunity cost rate ($9.00\% / 365$) |
-| `AVG_TRANSACTION_SIZE` | `1,000 BDT` | Empirical mean ticket size for walk-in retail cash-out |
+| `AVG_TRANSACTION_SIZE` | `1,000 BDT` | Assumed (illustrative); see cashready/config.py |
 | `UPAY_PLATFORM_MARGIN` | `0.40%` | Net platform revenue retention per cash-out transaction volume |
 | `TEST_HORIZON_DAYS` | `30 days` | Days 60 to 89 held-out evaluation window |
 | `TEST_AGENT_COUNT` | `300 agents` | 9,000 total agent-days evaluated |
@@ -30,37 +32,38 @@ The simulation uses empirical constants from Bangladesh retail MFS operations:
 ## Mathematical derivations
 
 ### Preserved agent commission
-In the baseline habit policy, agents experience an 18.10% unserved demand rate due to cash depletion during demand surges (salary days, haat days, festival leads):
-$$\text{Lost Demand}_{\text{habit}} = 63,830,138\text{ BDT}$$
-$$\text{Lost Demand}_{\text{CashReady}} = 698,857\text{ BDT}$$
-$$\Delta \text{Recovered Volume} = 63,830,138 - 698,857 = 63,131,281\text{ BDT}$$
+In the baseline habit policy, agents experience unserved demand due to cash depletion during demand surges (salary days, haat days, festival leads):
+$$\text{Lost Demand}_{\text{habit}} = 4,883,947\text{ BDT}$$
+$$\text{Lost Demand}_{\text{CashReady}} = 439,589\text{ BDT}$$
+$$\Delta \text{Recovered Volume} = 4,883,947 - 439,589 = 4,444,358\text{ BDT}$$
 
-$$\text{Total Commission Saved} = \Delta \text{Recovered Volume} \times 0.018 = 1,136,363\text{ BDT}$$
+$$\text{Total Commission Saved} = 85,561\text{ BDT}$$
 
 Divided across 9,000 agent-days ($300 \times 30$):
-$$\text{Commission Preserved}_{\text{agent-day}} = \frac{1,136,363}{9,000} = 126.26\text{ BDT / day}$$
-$$\text{Commission Preserved}_{1000\text{ agents/mo}} = 126.26 \times 1,000 \times 30 = 3,787,877\text{ BDT / month}$$
+$$\text{Commission Preserved}_{\text{agent-day}} = \frac{85,561}{9,000} = 9.51\text{ BDT / day}$$
+$$\text{Commission Preserved}_{1000\text{ agents/mo}} = 9.51 \times 1,000 \times 30 = 285,203\text{ BDT / month}$$
 
 ### Cost of idle capital
 CashReady recommends calibrated morning opening balances to absorb demand shocks. At the end of the day (22:00 close), unspent cash represents idle capital:
-- Mean closing cash (Habit): $6,661\text{ BDT}$
-- Mean closing cash (CashReady): $42,255\text{ BDT}$
-- Incremental idle cash: $\Delta \text{Idle} = 42,255 - 6,661 = 35,594\text{ BDT}$
+- Mean closing cash (Habit): $39,275\text{ BDT}$
+- Mean closing cash (CashReady): $77,820\text{ BDT}$
+- Incremental idle cash: $\Delta \text{Idle} = 77,820 - 39,275 = 38,545\text{ BDT}$
 
 With an annual opportunity cost of $9.0\%$:
-$$\text{Daily Holding Cost} = 35,594\text{ BDT} \times \left(\frac{0.09}{365}\right) = 8.78\text{ BDT / agent-day}$$
-$$\text{Monthly Holding Cost}_{1000\text{ agents}} = 8.78 \times 1,000 \times 30 = 263,298\text{ BDT / month}$$
+$$\text{Daily Holding Cost} = 38,545\text{ BDT} \times \left(\frac{0.09}{365}\right) = 9.50\text{ BDT / agent-day}$$
+$$\text{Monthly Holding Cost}_{1000\text{ agents}} = 9.50 \times 1,000 \times 30 = 285,127\text{ BDT / month}$$
 
 ### Net value to agent
-$$\text{Net Value}_{\text{agent-day}} = 126.26 - 8.78 = \mathbf{117.49\text{ BDT / day}}$$
-$$\text{Net Value}_{1000\text{ agents/mo}} = 3,787,877 - 263,298 = \mathbf{3,524,579\text{ BDT / month}}$$
+$$\text{Net Value}_{\text{agent-day}} = 9.51 - 9.50 = \mathbf{0.01\text{ BDT / day}}$$
+$$\text{Net Value}_{1000\text{ agents/mo}} = 285,203 - 285,127 = \mathbf{76\text{ BDT / month}}$$
 
-### Capital-matched scenario
-Comparing the habit policy scaled to identical opening capital ($81,370\text{ BDT}$ habit vs $83,750\text{ BDT}$ CashReady):
-- The habit policy still misses 1.57% of volume ($5,537,945\text{ BDT}$) due to static timing allocation.
-- Incremental idle cash is $42,255 - 40,180 = 2,075\text{ BDT}$.
-- Idle holding cost drops to $0.51\text{ BDT / agent-day}$.
-- Net value created: $125.75\text{ BDT / agent-day}$ ($3,772,527\text{ BDT / 1,000 agents/mo}$).
+### Fair capital-matched scenario
+Comparing the habit policy scaled to identical opening capital ($81,405\text{ BDT}$ scaled habit vs $83,917\text{ BDT}$ CashReady, total capital difference = $0\text{ BDT}$):
+- The habit policy still misses 0.33% of volume ($1,166,495\text{ BDT}$) due to static timing allocation and lack of spatial demand anticipation.
+- CashReady misses only 0.06% of volume ($211,624\text{ BDT}$), recovering an additional $954,871\text{ BDT}$ in transaction volume.
+- Preserved commission is $+17,474\text{ BDT}$ for the fleet ($+286,446\text{ BDT / 1,000 agents/mo}$).
+- Incremental idle cash at close is actually negative: $77,820 - 77,988 = -168\text{ BDT}$ (CashReady finishes with less idle cash while serving more demand!).
+- Emergency rebalance trips drop from 362 to 63 (-299 trips, saving agents 29,900 BDT in rebalance travel costs).
 
 ## Stakeholder value
 

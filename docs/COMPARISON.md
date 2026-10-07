@@ -7,14 +7,14 @@ Mobile Financial Services (MFS) liquidity management typically relies on manual 
 | Capability / Dimension | (a) Agent Habit / Last-Week Rule | (b) Manual Distributor Rebalancing (DSO/DSR) | (c) Peer Float Marketplace (e.g. IDEO.org × Tanda "Rebalance", Kenya) | (d) Plain Demand ML (No Censoring Correction) | CashReady (Track 05) |
 |---|---|---|---|---|---|
 | Approach Type | Naive rule-of-thumb heuristic | Reactive field logistics | Reactive peer-to-peer liquidity swapping | Supervised regression on raw logs (ARIMA / GBDT) | Causal stock-out detection, censoring correction, and quantile planning |
-| Detection of Hidden Stock-outs | None (assumes 0 volume = 0 demand) | None (relies on agent phone calls) | None (agent manually registers shortage) | None (trains naively on truncated zeros) | LightGBM detector ($F_1 = 0.7852$) |
+| Detection of Hidden Stock-outs | None (assumes 0 volume = 0 demand) | None (relies on agent phone calls) | None (agent manually registers shortage) | None (trains naively on truncated zeros) | LightGBM detector (all-hours Macro $F_1 = 0.7193$, tuned cash-stockout recall $0.5846$) |
 | Censored Demand Reconstruction | None | None | None | None (systematic downward bias) | Regressive recovery over clean operational hours |
 | Capital Planning Nature | Static (yesterday's average × buffer) | Ad-hoc top-up during work hours | Peer search during work hours | Point forecast mean / median | Morning day-ahead quantile calibration (80%, 90%, 95%) |
 | Operational Latency | 0 (but wrong amounts) | 1 to 3 hours physical travel delay | 30 to 90 min negotiation and travel | Batch daily | 07:00 AM plan delivery via SMS and web |
 | Hardware / Sensor Requirements | None | Phone calls | Mobile app and GPS matching | None | None (transaction warehouse log analysis) |
 | Handling Correlated Market Surges | Chronic depletion on salary/haat days | Distributors run dry or get overwhelmed | Peer agents are also empty (common shock trap) | Under-predicts recurring peaks | Area spatial features and calendar shock multipliers |
 | Explainability | N/A | Subjective field intuition | None | Black-box regression | Deterministic SHAP drivers in Bengali and English |
-| Stock-Out Rate in Evaluation | 18.10% (1.57% under matched capital) | > 10% in high-volume hours | Dependent on local network liquidity | ~8-12% under-forecast failures | 0.20% (98.9% stock-out reduction) |
+| Stock-Out Rate in Evaluation | 1.40% (0.33% under capital-matched replay) | > 10% in high-volume hours | Dependent on local network liquidity | ~8-12% under-forecast failures | 0.06% (81.8% stock-out reduction under identical capital) |
 
 ## Comparison of alternatives
 
