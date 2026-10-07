@@ -6,8 +6,10 @@ import type {
   AreaRiskResponse,
   AreaLostDemandResponse,
   AreaAgentRisk,
+  AreaImpactResponse,
+  AreaImpactAgent,
 } from "@/lib/types";
-import { getAreas, getAreaRisk, getAreaLostDemand, ApiError } from "@/lib/api";
+import { getAreas, getAreaRisk, getAreaLostDemand, getAreaImpact, ApiError } from "@/lib/api";
 import { DEMO_DATE, DEMO_WEEK } from "@/lib/mock-data";
 import { STRINGS, formatBDT } from "@/lib/strings";
 import { useLang } from "@/lib/lang";
@@ -21,6 +23,7 @@ import {
   ArrowDown,
   AlertTriangle,
   TrendingDown,
+  TrendingUp,
   Lock,
 } from "lucide-react";
 import {
@@ -64,6 +67,12 @@ export default function AreaPage() {
   // Sorting state: default by stockout_prob_habit descending
   const [sortField, setSortField] = useState<SortField>("stockout_prob_habit");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  // Business Impact states
+  const [impactDays, setImpactDays] = useState<7 | 30>(30);
+  const [impactData, setImpactData] = useState<AreaImpactResponse | null>(null);
+  const [impactSortField, setImpactSortField] = useState<"agent_id" | "confirmed_stockout_hours" | "estimated_missed_amount" | "estimated_lost_commission">("estimated_missed_amount");
+  const [impactSortDirection, setImpactSortDirection] = useState<SortDirection>("desc");
 
   // Check user session
   useEffect(() => {
@@ -152,6 +161,47 @@ export default function AreaPage() {
       setSortDirection("desc");
     }
   };
+
+  // Load area business impact from server
+  useEffect(() => {
+    async function loadImpact() {
+      if (!selectedAreaId) return;
+      try {
+        const data = await getAreaImpact(selectedAreaId, impactDays);
+        setImpactData(data);
+      } catch (err) {
+        console.warn("Failed to load area impact", err);
+      }
+    }
+    loadImpact();
+  }, [selectedAreaId, impactDays]);
+
+  const handleImpactSort = (field: "agent_id" | "confirmed_stockout_hours" | "estimated_missed_amount" | "estimated_lost_commission") => {
+    if (impactSortField === field) {
+      setImpactSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setImpactSortField(field);
+      setImpactSortDirection("desc");
+    }
+  };
+
+  const sortedImpactAgents = useMemo(() => {
+    if (!impactData?.agents) return [];
+    return [...impactData.agents].sort((a, b) => {
+      let cmp = 0;
+      if (impactSortField === "agent_id") {
+        cmp = a.agent_id.localeCompare(b.agent_id);
+      } else if (impactSortField === "confirmed_stockout_hours") {
+        cmp = a.confirmed_stockout_hours - b.confirmed_stockout_hours;
+      } else if (impactSortField === "estimated_missed_amount") {
+        cmp = a.estimated_missed_amount - b.estimated_missed_amount;
+      } else if (impactSortField === "estimated_lost_commission") {
+        cmp = a.estimated_lost_commission - b.estimated_lost_commission;
+      }
+      return impactSortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [impactData, impactSortField, impactSortDirection]);
+
 
   // Sorted agents
   const sortedAgents = useMemo(() => {
@@ -275,7 +325,228 @@ export default function AreaPage() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 animate-fade-in">
+        <>
+          {/* Area Business Impact Section */}
+          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4 animate-fade-in" aria-label={t.areaImpactHeading}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-100 tracking-tight">
+                    {t.areaImpactHeading}
+                  </h2>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-950/60 text-teal-300 border border-teal-800/60">
+                    {selectedAreaId}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {t.areaImpactSubheading}
+                </p>
+              </div>
+
+              {/* Period toggle */}
+              <div className="flex items-center gap-1 bg-slate-900 rounded-full p-1 border border-slate-800 self-start sm:self-center">
+                <button
+                  type="button"
+                  onClick={() => setImpactDays(7)}
+                  className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
+                    impactDays === 7
+                      ? "bg-teal-500 text-slate-950 shadow-sm"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  {t.period7Days}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImpactDays(30)}
+                  className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
+                    impactDays === 30
+                      ? "bg-teal-500 text-slate-950 shadow-sm"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  {t.period30Days}
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Summary Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {/* Card 1: Total estimated lost cash-out BDT */}
+              <div className="p-3.5 bg-navy-900/90 rounded-xl border border-slate-800/80 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400">{t.totalLostCashoutBdt}</span>
+                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-950/40 text-amber-300 border border-amber-800/50">
+                    {t.badgeEstimated}
+                  </span>
+                </div>
+                <div className="text-lg font-bold text-teal-400 tabular-nums">
+                  ৳ {formatBDT(impactData?.total_lost_cashout_bdt ?? 0)}
+                </div>
+              </div>
+
+              {/* Card 2: Total estimated lost commission */}
+              <div className="p-3.5 bg-navy-900/90 rounded-xl border border-slate-800/80 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400">{t.totalLostCommissionBdt}</span>
+                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-950/40 text-amber-300 border border-amber-800/50">
+                    {t.badgeEstimated}
+                  </span>
+                </div>
+                <div className="text-lg font-bold text-amber-400 tabular-nums">
+                  ৳ {formatBDT(impactData?.total_lost_commission_bdt ?? 0)}
+                </div>
+              </div>
+
+              {/* Card 3: Confirmed stock-out hours */}
+              <div className="p-3.5 bg-navy-900/90 rounded-xl border border-slate-800/80 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400">{t.areaConfirmedStockouts}</span>
+                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-teal-950/60 text-teal-300 border border-teal-800/60">
+                    {t.badgeConfirmed}
+                  </span>
+                </div>
+                <div className="text-lg font-bold text-slate-100 tabular-nums">
+                  {impactData?.confirmed_stockout_hours ?? 0} {lang === "bn" ? "ঘণ্টা" : "hrs"}
+                </div>
+              </div>
+
+              {/* Card 4: Agents reporting count */}
+              <div className="p-3.5 bg-navy-900/90 rounded-xl border border-slate-800/80 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400">{t.agentsReportingCount}</span>
+                  <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-teal-950/60 text-teal-300 border border-teal-800/60">
+                    {t.badgeConfirmed}
+                  </span>
+                </div>
+                <div className="text-lg font-bold text-slate-100 tabular-nums">
+                  {impactData?.agents_reporting ?? 0} {lang === "bn" ? "জন" : "agents"}
+                </div>
+              </div>
+            </div>
+
+            {/* Own-Area Agents Table */}
+            <div className="space-y-2 pt-1">
+              <h3 className="text-sm font-bold text-slate-200">
+                {t.agentImpactTableTitle}
+              </h3>
+
+              <div className="overflow-x-auto rounded-xl border border-slate-800">
+                <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr className="bg-navy-900/90 border-b border-slate-800 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                      <th className="py-2.5 px-3">
+                        <button
+                          type="button"
+                          onClick={() => handleImpactSort("agent_id")}
+                          className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
+                        >
+                          <span>{t.colAgentId}</span>
+                          {impactSortField === "agent_id" ? (
+                            impactSortDirection === "asc" ? <ArrowUp className="w-3 h-3 text-teal-400" /> : <ArrowDown className="w-3 h-3 text-teal-400" />
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3 text-slate-500" />
+                          )}
+                        </button>
+                      </th>
+                      <th className="py-2.5 px-3">
+                        <button
+                          type="button"
+                          onClick={() => handleImpactSort("confirmed_stockout_hours")}
+                          className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
+                        >
+                          <span>{t.colConfirmedStockoutHours}</span>
+                          <span className="text-[9px] font-normal lowercase px-1 rounded bg-teal-950/60 text-teal-300 ml-1">
+                            {t.badgeConfirmed}
+                          </span>
+                          {impactSortField === "confirmed_stockout_hours" ? (
+                            impactSortDirection === "asc" ? <ArrowUp className="w-3 h-3 text-teal-400" /> : <ArrowDown className="w-3 h-3 text-teal-400" />
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3 text-slate-500" />
+                          )}
+                        </button>
+                      </th>
+                      <th className="py-2.5 px-3">
+                        <button
+                          type="button"
+                          onClick={() => handleImpactSort("estimated_missed_amount")}
+                          className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
+                        >
+                          <span>{t.colEstimatedMissedAmount}</span>
+                          <span className="text-[9px] font-normal lowercase px-1 rounded bg-amber-950/40 text-amber-300 ml-1">
+                            {t.badgeEstimated}
+                          </span>
+                          {impactSortField === "estimated_missed_amount" ? (
+                            impactSortDirection === "asc" ? <ArrowUp className="w-3 h-3 text-teal-400" /> : <ArrowDown className="w-3 h-3 text-teal-400" />
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3 text-slate-500" />
+                          )}
+                        </button>
+                      </th>
+                      <th className="py-2.5 px-3">
+                        <button
+                          type="button"
+                          onClick={() => handleImpactSort("estimated_lost_commission")}
+                          className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
+                        >
+                          <span>{t.colEstimatedLostCommission}</span>
+                          <span className="text-[9px] font-normal lowercase px-1 rounded bg-amber-950/40 text-amber-300 ml-1">
+                            {t.badgeEstimated}
+                          </span>
+                          {impactSortField === "estimated_lost_commission" ? (
+                            impactSortDirection === "asc" ? <ArrowUp className="w-3 h-3 text-teal-400" /> : <ArrowDown className="w-3 h-3 text-teal-400" />
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3 text-slate-500" />
+                          )}
+                        </button>
+                      </th>
+                      <th className="py-2.5 px-3 text-right">
+                        <span>{t.colPlanAdoption}</span>
+                        <span className="text-[9px] font-normal lowercase px-1 rounded bg-teal-950/60 text-teal-300 ml-1">
+                          {t.badgeConfirmed}
+                        </span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {sortedImpactAgents.map((ag) => (
+                      <tr
+                        key={ag.agent_id}
+                        className={`transition-colors hover:bg-slate-800/40 ${
+                          ag.needs_liquidity_support ? "border-l-2 border-l-red-500 bg-red-950/15" : ""
+                        }`}
+                      >
+                        <td className="py-3 px-3 font-bold text-slate-100 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span>{ag.agent_id}</span>
+                            {ag.needs_liquidity_support && (
+                              <span className="text-[10px] font-semibold text-red-400 bg-red-950/40 px-1.5 py-0.5 rounded border border-red-900/50">
+                                {t.top5LiquidityNeedBadge}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 tabular-nums text-slate-300 whitespace-nowrap">
+                          {ag.confirmed_stockout_hours} {lang === "bn" ? "ঘণ্টা" : "hrs"}
+                        </td>
+                        <td className="py-3 px-3 tabular-nums font-semibold text-teal-400 whitespace-nowrap">
+                          ৳ {formatBDT(ag.estimated_missed_amount)}
+                        </td>
+                        <td className="py-3 px-3 tabular-nums font-medium text-amber-300 whitespace-nowrap">
+                          ৳ {formatBDT(ag.estimated_lost_commission)}
+                        </td>
+                        <td className="py-3 px-3 tabular-nums text-right font-medium text-slate-300 whitespace-nowrap">
+                          {ag.plan_adoption}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 animate-fade-in">
           <div className="lg:col-span-2 bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
               <div>
@@ -582,7 +853,8 @@ export default function AreaPage() {
             </div>
           </div>
         </div>
-      )}
+      </>
+    )}
     </div>
   );
 }

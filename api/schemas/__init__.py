@@ -15,6 +15,8 @@ from api.schemas.area import (
     AreaRiskResponse,
     AreaLostDemandItem,
     AreaLostDemandResponse,
+    AreaImpactAgentItem,
+    AreaImpactResponse,
 )
 from api.schemas.metrics import MetricsResponse
 
@@ -33,5 +35,7 @@ __all__ = [
     "AreaRiskResponse",
     "AreaLostDemandItem",
     "AreaLostDemandResponse",
+    "AreaImpactAgentItem",
+    "AreaImpactResponse",
     "MetricsResponse",
 ]

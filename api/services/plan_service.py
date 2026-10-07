@@ -238,3 +238,78 @@ def get_confirmations(
     records.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
     return records
 
+
+def get_area_impact(area_id: str, days: int = 30) -> dict:
+    """Aggregate artifacts and stored confirmations server-side for area business impact."""
+    agents_meta = load_artifact("agents.json")
+    area_agents = [a["agent_id"] for a in agents_meta if a.get("area_id") == area_id]
+    if not area_agents:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"area {area_id} not found")
+
+    lost_demand_doc = ensure_lost_demand("2026-W40")
+    ld_agents = lost_demand_doc.get("agents", {})
+
+    confs = get_confirmations(area_id=area_id, days=days)
+    confs_by_agent: Dict[str, List[dict]] = {}
+    for c in confs:
+        aid = c.get("agent_id")
+        if aid:
+            confs_by_agent.setdefault(aid, []).append(c)
+
+    scale = (days / 7.0) if days != 7 else 1.0
+
+    agent_items = []
+    total_lost_cashout = 0.0
+    total_lost_comm = 0.0
+    total_confirmed_stockout_hours = 0
+    agents_reporting_count = len(confs_by_agent)
+
+    for aid in area_agents:
+        ld = ld_agents.get(aid, {"lost_count": 0.0, "lost_amount": 0.0, "lost_commission": 0.0})
+        agent_lost_amt = round(float(ld.get("lost_amount", 0.0)) * scale, 2)
+        agent_lost_comm = round(float(ld.get("lost_commission", 0.0)) * scale, 2)
+        total_lost_cashout += agent_lost_amt
+        total_lost_comm += agent_lost_comm
+
+        agent_confs = confs_by_agent.get(aid, [])
+        agent_stockout_hrs = 0
+        yes_count = 0
+        for c in agent_confs:
+            if c.get("cash_ran_out"):
+                fh = c.get("from_hour")
+                th = c.get("to_hour")
+                if fh is not None and th is not None:
+                    agent_stockout_hrs += max(1, th - fh)
+                else:
+                    agent_stockout_hrs += 1
+            if c.get("kept_recommended_cash") == "yes":
+                yes_count += 1
+
+        total_confirmed_stockout_hours += agent_stockout_hrs
+        plan_adoption = f"{round(yes_count / len(agent_confs) * 100)}%" if agent_confs else "—"
+
+        agent_items.append({
+            "agent_id": aid,
+            "confirmed_stockout_hours": agent_stockout_hrs,
+            "estimated_missed_amount": agent_lost_amt,
+            "estimated_lost_commission": agent_lost_comm,
+            "plan_adoption": plan_adoption,
+            "needs_liquidity_support": False,
+        })
+
+    agent_items.sort(key=lambda x: (x["estimated_missed_amount"], x["confirmed_stockout_hours"]), reverse=True)
+    for idx, item in enumerate(agent_items):
+        if idx < 5:
+            item["needs_liquidity_support"] = True
+
+    return {
+        "area_id": area_id,
+        "days": days,
+        "total_lost_cashout_bdt": round(total_lost_cashout, 2),
+        "total_lost_commission_bdt": round(total_lost_comm, 2),
+        "confirmed_stockout_hours": total_confirmed_stockout_hours,
+        "agents_reporting": agents_reporting_count,
+        "agents": agent_items,
+    }
+
+

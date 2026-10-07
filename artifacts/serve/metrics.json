@@ -1,77 +1,20 @@
 {
- "business_sim_metrics": {
-  "test_days": [
-   60,
-   90
-  ],
-  "total_true_demand_bdt": 352735370.0,
-  "habit_policy": {
-   "lost_bdt": 4883947.0,
-   "lost_pct": 1.4
-  },
-  "cashready_policy": {
-   "lost_bdt": 73235.0,
-   "lost_pct": 0.01
-  },
-  "lost_commission_bdt": {
-   "habit": 87642.0,
-   "cashready": 635.0
-  },
-  "commission_saved_bdt": 88177.0,
-  "opening_comparison": {
-   "habit_mean_opening": 40047.0,
-   "cashready_mean_opening": 83750.0,
-   "opening_ratio": 2.091
-  },
-  "same_capital_comparison": {
-   "total_opening_cash": {
-    "baseline": 732345121.0,
-    "cashready": 732345121.0,
-    "difference": 0.0
-   },
-   "stockout_hours": {
-    "baseline": 362,
-    "cashready": 12,
-    "difference": -350
-   },
-   "completed_cashouts_bdt": {
-    "baseline": 351568239.2,
-    "cashready": 352685002.0,
-    "difference": 1116762.8
-   },
-   "lost_cashout_pct": {
-    "baseline": 0.33,
-    "cashready": 0.01,
-    "difference": -0.32
-   },
-   "agent_commission_bdt": {
-    "baseline": 6328228.31,
-    "cashready": 6348330.04,
-    "difference": 20101.73
-   },
-   "avg_idle_cash_bdt": {
-    "baseline": 77954.33,
-    "cashready": 77749.67,
-    "difference": -204.66
-   },
-   "rebalance_trips": {
-    "baseline": 362,
-    "cashready": 12,
-    "difference": -350
-   },
-   "rebalance_cost_bdt": {
-    "baseline": 36200.0,
-    "cashready": 1200.0,
-    "difference": -35000.0
-   },
-   "habit_lost_pct": 0.33,
-   "cashready_lost_pct": 0.01,
-   "habit_mean_opening_scaled": 81372.0
-  },
-  "idle_cash_at_close_bdt": {
-   "habit_mean": 39275.0,
-   "habit_scaled_mean": 77954.0,
-   "cashready_mean": 77750.0
+ "forecast_metrics": {
+  "p50_mae_bdt": 1999.8,
+  "naive_mae_bdt": 3006.0,
+  "observed_target_mae_bdt": 2004.8,
+  "p50_pinball": 999.9,
+  "naive_pinball_p50": 1503.0,
+  "observed_target_pinball_p50": 1002.4,
+  "pinball_mean": 651.3,
+  "naive_pinball_mean": 1503.0,
+  "observed_target_pinball_mean": 1002.4,
+  "coverage_p10_p90": 0.8503,
+  "target_coverage": 0.8,
+  "mae_by_area_type": {
+   "peri_urban": 2314.8,
+   "rural": 1644.6,
+   "urban_market": 2873.5
   }
  },
  "detector_metrics": {
@@ -220,40 +163,97 @@
    }
   }
  },
- "forecast_metrics": {
-  "p50_mae_bdt": 1996.3,
-  "naive_mae_bdt": 3006.0,
-  "observed_target_mae_bdt": 2004.8,
-  "p50_pinball": 998.1,
-  "naive_pinball_p50": 1503.0,
-  "observed_target_pinball_p50": 1002.4,
-  "pinball_mean": 649.8,
-  "naive_pinball_mean": 1503.0,
-  "observed_target_pinball_mean": 1002.4,
-  "coverage_p10_p90": 0.8393,
-  "target_coverage": 0.8,
-  "mae_by_area_type": {
-   "peri_urban": 2310.8,
-   "rural": 1640.7,
-   "urban_market": 2872.3
-  }
- },
  "recovery_metrics": {
   "amount_mae_pct": {
    "naive_observed": 71.87,
    "mean_correction": 69.74,
-   "cashready_recovery": 61.84
+   "cashready_recovery": 66.32
   },
   "count_mae_pct": {
    "naive_observed": 63.52,
    "mean_correction": 61.75,
-   "cashready_recovery": 48.63
+   "cashready_recovery": 53.44
   },
   "censored_hours": 3463,
-  "total_estimated_lost_bdt": 8472199.78,
+  "total_estimated_lost_bdt": 5210455.33,
   "total_true_lost_bdt": 17098350.0,
   "demand_shift_area_weeks": 6,
-  "recovery_gated_hours": 3336,
-  "estimated_loss_in_normal_hours_pct": 41.31
+  "recovery_gated_hours": 4897,
+  "estimated_loss_in_normal_hours_pct": 47.51
+ },
+ "business_sim_metrics": {
+  "test_days": [
+   60,
+   90
+  ],
+  "total_true_demand_bdt": 352735370.0,
+  "habit_policy": {
+   "lost_bdt": 4883947.0,
+   "lost_pct": 1.4
+  },
+  "cashready_policy": {
+   "lost_bdt": 439589.0,
+   "lost_pct": 0.06
+  },
+  "lost_commission_bdt": {
+   "habit": 87642.0,
+   "cashready": 3807.0
+  },
+  "commission_saved_bdt": 85561.0,
+  "opening_comparison": {
+   "habit_mean_opening": 40047.0,
+   "cashready_mean_opening": 83917.0,
+   "opening_ratio": 2.095
+  },
+  "same_capital_comparison": {
+   "total_opening_cash": {
+    "baseline": 732648015.0,
+    "cashready": 732648015.0,
+    "difference": 0.0
+   },
+   "stockout_hours": {
+    "baseline": 362,
+    "cashready": 63,
+    "difference": -299
+   },
+   "completed_cashouts_bdt": {
+    "baseline": 351568874.6,
+    "cashready": 352539663.4,
+    "difference": 970788.8
+   },
+   "lost_cashout_pct": {
+    "baseline": 0.33,
+    "cashready": 0.06,
+    "difference": -0.27
+   },
+   "agent_commission_bdt": {
+    "baseline": 6328239.74,
+    "cashready": 6345713.94,
+    "difference": 17474.2
+   },
+   "avg_idle_cash_bdt": {
+    "baseline": 77987.97,
+    "cashready": 77820.2,
+    "difference": -167.77
+   },
+   "rebalance_trips": {
+    "baseline": 362,
+    "cashready": 63,
+    "difference": -299
+   },
+   "rebalance_cost_bdt": {
+    "baseline": 36200.0,
+    "cashready": 6300.0,
+    "difference": -29900.0
+   },
+   "habit_lost_pct": 0.33,
+   "cashready_lost_pct": 0.06,
+   "habit_mean_opening_scaled": 81405.0
+  },
+  "idle_cash_at_close_bdt": {
+   "habit_mean": 39275.0,
+   "habit_scaled_mean": 77988.0,
+   "cashready_mean": 77820.0
+  }
  }
 }

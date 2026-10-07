@@ -125,3 +125,37 @@ def test_confirmation_persistence():
     assert "timestamp" in last_record
     assert "model_version" in last_record
     assert "agent_id" in last_record
+
+
+def test_area_impact_endpoint(unauthed_client):
+    agent_headers = {"Authorization": "Bearer demo-agent-token"}  # Agent T0039
+    manager_headers = {"Authorization": "Bearer demo-manager-token"}  # Manager Area A01
+    admin_headers = {"Authorization": "Bearer demo-admin-token"}
+
+    # Agent forbidden
+    r_agent = unauthed_client.get("/areas/A01/impact", headers=agent_headers)
+    assert r_agent.status_code == 403
+
+    # Manager forbidden from other area
+    r_mgr_other = unauthed_client.get("/areas/A02/impact", headers=manager_headers)
+    assert r_mgr_other.status_code == 403
+
+    # Manager allowed on own area
+    r_mgr_own = unauthed_client.get("/areas/A01/impact?days=30", headers=manager_headers)
+    assert r_mgr_own.status_code == 200
+    data = r_mgr_own.json()
+    assert data["area_id"] == "A01"
+    assert "total_lost_cashout_bdt" in data
+    assert "total_lost_commission_bdt" in data
+    assert "confirmed_stockout_hours" in data
+    assert "agents_reporting" in data
+    assert len(data["agents"]) > 0
+
+    # Exactly 5 (or max available) flagged for liquidity support
+    top5_count = sum(1 for a in data["agents"] if a["needs_liquidity_support"])
+    assert top5_count == min(5, len(data["agents"]))
+
+    # Admin allowed
+    r_admin = unauthed_client.get("/areas/A02/impact?days=7", headers=admin_headers)
+    assert r_admin.status_code == 200
+

@@ -7,12 +7,14 @@ from api.schemas import (
     AreaRiskResponse,
     AreaLostDemandResponse,
     StockoutConfirmationResponse,
+    AreaImpactResponse,
 )
 from api.services.plan_service import (
     load_artifact,
     ensure_area_risk,
     ensure_lost_demand,
     get_confirmations,
+    get_area_impact,
 )
 
 router = APIRouter(prefix="/areas", tags=["Areas"], dependencies=[Depends(verify_api_key)])
@@ -98,4 +100,26 @@ def list_area_confirmations(
 
     results = get_confirmations(area_id=area_id, days=days)
     return [StockoutConfirmationResponse(**r) for r in results]
+
+
+@router.get("/{area_id}/impact", response_model=AreaImpactResponse, summary="Area business impact aggregated server-side")
+def get_area_business_impact(
+    area_id: Annotated[str, FPath(max_length=32, pattern=r"^[A-Za-z0-9_-]+$")],
+    days: Annotated[int, Query(ge=1, le=90)] = 30,
+    current_user: AuthUser = Depends(get_current_user),
+) -> AreaImpactResponse:
+    if current_user.role == "agent":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: agent cannot access area impact",
+        )
+    if current_user.role == "manager" and current_user.area_id != area_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Forbidden: manager cannot access area {area_id}",
+        )
+
+    res = get_area_impact(area_id=area_id, days=days)
+    return AreaImpactResponse(**res)
+
 

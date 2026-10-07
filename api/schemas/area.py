@@ -30,3 +30,23 @@ class AreaLostDemandItem(BaseModel):
 class AreaLostDemandResponse(BaseModel):
     week: str = Field(..., description="ISO week identifier (YYYY-Www)", examples=["2026-W40"])
     areas: Dict[str, AreaLostDemandItem] = Field(..., description="Aggregated unserved demand mapped by area ID")
+
+
+class AreaImpactAgentItem(BaseModel):
+    agent_id: str = Field(..., description="Unique agent identifier", examples=["T0000"])
+    confirmed_stockout_hours: int = Field(..., description="Confirmed stock-out hours from agent feedback", examples=[2])
+    estimated_missed_amount: float = Field(..., description="Model-estimated missed cash-out amount (BDT)", examples=[18500.0])
+    estimated_lost_commission: float = Field(..., description="Model-estimated lost commission (BDT)", examples=[333.0])
+    plan_adoption: str = Field(..., description="Plan adoption rate or status", examples=["100%"])
+    needs_liquidity_support: bool = Field(..., description="Whether agent is in top 5 needing liquidity support", examples=[True])
+
+
+class AreaImpactResponse(BaseModel):
+    area_id: str = Field(..., description="Area identifier", examples=["A01"])
+    days: int = Field(..., description="Time window in days (7 or 30)", examples=[30])
+    total_lost_cashout_bdt: float = Field(..., description="Total estimated lost cash-out in BDT")
+    total_lost_commission_bdt: float = Field(..., description="Total estimated lost agent commission in BDT")
+    confirmed_stockout_hours: int = Field(..., description="Total confirmed stock-out hours across all area agents")
+    agents_reporting: int = Field(..., description="Number of agents who submitted feedback in the period")
+    agents: List[AreaImpactAgentItem] = Field(..., description="List of own-area agents with impact metrics")
+
