@@ -6,6 +6,9 @@ __pycache__/
 
 # Node
 node_modules/
+.next/
+web/.next/
+web/node_modules/
 
 # Secrets
 .env
