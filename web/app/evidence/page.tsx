@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import type { MetricsResponse } from "@/lib/types";
-import { getMetrics } from "@/lib/api";
+import { getMetrics, ApiError } from "@/lib/api";
 import { STRINGS, formatBDT } from "@/lib/strings";
 import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
@@ -15,6 +16,8 @@ import {
   Info,
   Award,
   Layers,
+  Scale,
+  FlaskConical,
 } from "lucide-react";
 import {
   BarChart,
@@ -31,6 +34,23 @@ export default function EvidencePage() {
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isForbidden, setIsForbidden] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/auth/session");
+        if (res.ok) {
+          const s = await res.json();
+          setUserRole(s.role);
+        }
+      } catch {
+        // ignore
+      }
+    }
+    checkSession();
+  }, []);
 
   useEffect(() => {
     let isCancelled = false;
@@ -38,6 +58,7 @@ export default function EvidencePage() {
     async function loadMetrics() {
       setLoading(true);
       setError(false);
+      setIsForbidden(false);
       try {
         const data = await getMetrics();
         if (!isCancelled) {
@@ -46,7 +67,11 @@ export default function EvidencePage() {
         }
       } catch (err: unknown) {
         if (!isCancelled) {
-          setError(true);
+          if (err instanceof ApiError && (err.isForbidden || err.isUnauthorized)) {
+            setIsForbidden(true);
+          } else {
+            setError(true);
+          }
           setLoading(false);
         }
       }
@@ -110,7 +135,23 @@ export default function EvidencePage() {
 
       <MockDataBanner />
 
-      {error ? (
+      {userRole === "agent" || userRole === "manager" || isForbidden ? (
+        <div className="max-w-md mx-auto my-12 p-6 bg-navy-850 rounded-2xl border border-slate-800 shadow-soft text-center space-y-4">
+          <div className="w-12 h-12 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+            <ShieldAlert className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-slate-100">{t.adminOnlyRestrictedTitle}</h2>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">{t.adminOnlyRestrictedDesc}</p>
+          </div>
+          <Link
+            href="/login"
+            className="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-navy-950 font-semibold text-xs transition-colors"
+          >
+            {t.adminOnlyLoginAction}
+          </Link>
+        </div>
+      ) : error ? (
         <ErrorState onRetry={() => setMetrics(null)} />
       ) : loading || !metrics ? (
         <div className="space-y-4 sm:space-y-6">
@@ -195,6 +236,232 @@ export default function EvidencePage() {
                   ৳ {formatBDT(metrics.business_sim_metrics.commission_saved_bdt)}
                 </span>
               </p>
+            </div>
+          </section>
+
+          {/* Section: Same capital comparison (Admin / Evidence) */}
+          {metrics.business_sim_metrics.same_capital_comparison && (
+            <section
+              className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6 space-y-4"
+              aria-label={t.sameCapitalHeading}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3 sm:pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-2">
+                      <Scale className="w-5 h-5 text-teal-400" />
+                      <span>{t.sameCapitalHeading}</span>
+                    </h2>
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-teal-950/60 text-teal-300 border border-teal-800/50 shrink-0">
+                      {t.sameCapitalBadge}
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                    {t.sameCapitalDesc}
+                  </p>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+                      <th className="py-2.5 px-3 font-semibold">{t.colMetric}</th>
+                      <th className="py-2.5 px-3 font-semibold text-right">{t.colBaseline}</th>
+                      <th className="py-2.5 px-3 font-semibold text-right text-teal-400">{t.colCashReady}</th>
+                      <th className="py-2.5 px-3 font-semibold text-right">{t.colDifference}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60">
+                    {/* Row 1: Total opening cash */}
+                    <tr className="hover:bg-navy-900/40">
+                      <td className="py-2.5 px-3 font-medium text-slate-200">{t.rowTotalOpeningCash}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-300 tabular-nums">
+                        ৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.total_opening_cash?.baseline ?? 0)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-300 font-medium tabular-nums">
+                        ৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.total_opening_cash?.cashready ?? 0)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-slate-400 font-semibold tabular-nums">
+                        ৳ 0
+                      </td>
+                    </tr>
+                    {/* Row 2: Stockout hours */}
+                    <tr className="hover:bg-navy-900/40">
+                      <td className="py-2.5 px-3 font-medium text-slate-200">{t.rowStockoutHours}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-300 tabular-nums">
+                        {metrics.business_sim_metrics.same_capital_comparison.stockout_hours?.baseline ?? 0} {lang === "en" ? "hrs" : "ঘণ্টা"}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-300 font-medium tabular-nums">
+                        {metrics.business_sim_metrics.same_capital_comparison.stockout_hours?.cashready ?? 0} {lang === "en" ? "hrs" : "ঘণ্টা"}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-400 font-semibold tabular-nums">
+                        {metrics.business_sim_metrics.same_capital_comparison.stockout_hours?.difference ?? 0} {lang === "en" ? "hrs" : "ঘণ্টা"}
+                      </td>
+                    </tr>
+                    {/* Row 3: Completed cash-outs */}
+                    <tr className="hover:bg-navy-900/40">
+                      <td className="py-2.5 px-3 font-medium text-slate-200">{t.rowCompletedCashouts}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-300 tabular-nums">
+                        ৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.completed_cashouts_bdt?.baseline ?? 0)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-300 font-medium tabular-nums">
+                        ৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.completed_cashouts_bdt?.cashready ?? 0)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-400 font-semibold tabular-nums">
+                        +৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.completed_cashouts_bdt?.difference ?? 0)}
+                      </td>
+                    </tr>
+                    {/* Row 4: Lost cash-out % */}
+                    <tr className="hover:bg-navy-900/40">
+                      <td className="py-2.5 px-3 font-medium text-slate-200">{t.rowLostCashoutPct}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-300 tabular-nums">
+                        {(metrics.business_sim_metrics.same_capital_comparison.lost_cashout_pct?.baseline ?? 0).toFixed(2)}%
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-300 font-medium tabular-nums">
+                        {(metrics.business_sim_metrics.same_capital_comparison.lost_cashout_pct?.cashready ?? 0).toFixed(2)}%
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-400 font-semibold tabular-nums">
+                        {(metrics.business_sim_metrics.same_capital_comparison.lost_cashout_pct?.difference ?? 0).toFixed(2)} pp
+                      </td>
+                    </tr>
+                    {/* Row 5: Agent commission */}
+                    <tr className="hover:bg-navy-900/40">
+                      <td className="py-2.5 px-3 font-medium text-slate-200">{t.rowAgentCommission}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-300 tabular-nums">
+                        ৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.agent_commission_bdt?.baseline ?? 0)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-300 font-medium tabular-nums">
+                        ৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.agent_commission_bdt?.cashready ?? 0)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-400 font-semibold tabular-nums">
+                        +৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.agent_commission_bdt?.difference ?? 0)}
+                      </td>
+                    </tr>
+                    {/* Row 6: Average idle cash */}
+                    <tr className="hover:bg-navy-900/40">
+                      <td className="py-2.5 px-3 font-medium text-slate-200">{t.rowAvgIdleCash}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-300 tabular-nums">
+                        ৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.avg_idle_cash_bdt?.baseline ?? 0)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-300 font-medium tabular-nums">
+                        ৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.avg_idle_cash_bdt?.cashready ?? 0)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-slate-400 font-semibold tabular-nums">
+                        {metrics.business_sim_metrics.same_capital_comparison.avg_idle_cash_bdt?.difference && metrics.business_sim_metrics.same_capital_comparison.avg_idle_cash_bdt.difference < 0 ? "-" : "+"}
+                        ৳ {formatBDT(Math.abs(metrics.business_sim_metrics.same_capital_comparison.avg_idle_cash_bdt?.difference ?? 0))}
+                      </td>
+                    </tr>
+                    {/* Row 7: Rebalancing trips */}
+                    <tr className="hover:bg-navy-900/40">
+                      <td className="py-2.5 px-3 font-medium text-slate-200">{t.rowRebalanceTrips}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-300 tabular-nums">
+                        {metrics.business_sim_metrics.same_capital_comparison.rebalance_trips?.baseline ?? 0} {lang === "en" ? "trips" : "বার"}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-300 font-medium tabular-nums">
+                        {metrics.business_sim_metrics.same_capital_comparison.rebalance_trips?.cashready ?? 0} {lang === "en" ? "trips" : "বার"}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-400 font-semibold tabular-nums">
+                        {metrics.business_sim_metrics.same_capital_comparison.rebalance_trips?.difference ?? 0} {lang === "en" ? "trips" : "বার"}
+                      </td>
+                    </tr>
+                    {/* Row 8: Rebalancing cost */}
+                    <tr className="hover:bg-navy-900/40">
+                      <td className="py-2.5 px-3 font-medium text-slate-200">{t.rowRebalanceCost}</td>
+                      <td className="py-2.5 px-3 text-right text-slate-300 tabular-nums">
+                        ৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.rebalance_cost_bdt?.baseline ?? 0)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-300 font-medium tabular-nums">
+                        ৳ {formatBDT(metrics.business_sim_metrics.same_capital_comparison.rebalance_cost_bdt?.cashready ?? 0)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right text-teal-400 font-semibold tabular-nums">
+                        -৳ {formatBDT(Math.abs(metrics.business_sim_metrics.same_capital_comparison.rebalance_cost_bdt?.difference ?? 0))}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* Section: Pilot Plan (Static card) */}
+          <section
+            className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6 space-y-4"
+            aria-label={t.pilotPlanHeading}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3 sm:pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-2">
+                    <FlaskConical className="w-5 h-5 text-teal-400" />
+                    <span>{t.pilotPlanHeading}</span>
+                  </h2>
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-teal-300 border border-teal-800/50 shrink-0">
+                    {t.pilotPlanBadge}
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                  {lang === "en"
+                    ? "Empirical randomized control trial (RCT) protocol to validate CashReady in real field operations."
+                    : "মাঠপর্যায়ে ক্যাশরেডি মূল্যায়নের জন্য পরিকল্পিত নিয়ন্ত্রিত ট্রায়াল প্রটোকল।"}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+              <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 space-y-1">
+                <span className="text-[11px] font-semibold uppercase text-teal-400 tracking-wider">
+                  {t.pilotPlanDuration}
+                </span>
+                <p className="text-xs sm:text-sm text-slate-200 font-medium">
+                  {t.pilotPlanDurationVal}
+                </p>
+              </div>
+
+              <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 space-y-1">
+                <span className="text-[11px] font-semibold uppercase text-teal-400 tracking-wider">
+                  {t.pilotPlanPairing}
+                </span>
+                <p className="text-xs sm:text-sm text-slate-200 font-medium">
+                  {t.pilotPlanPairingVal}
+                </p>
+              </div>
+
+              <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 space-y-1">
+                <span className="text-[11px] font-semibold uppercase text-teal-400 tracking-wider">
+                  {t.pilotPlanRandomization}
+                </span>
+                <p className="text-xs sm:text-sm text-slate-200 font-medium">
+                  {t.pilotPlanRandomizationVal}
+                </p>
+              </div>
+
+              <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 space-y-1">
+                <span className="text-[11px] font-semibold uppercase text-teal-400 tracking-wider">
+                  {t.pilotPlanMetrics}
+                </span>
+                <p className="text-xs sm:text-sm text-slate-200 font-medium">
+                  {t.pilotPlanMetricsVal}
+                </p>
+              </div>
+
+              <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 space-y-1">
+                <span className="text-[11px] font-semibold uppercase text-teal-400 tracking-wider">
+                  {t.pilotPlanAnalysis}
+                </span>
+                <p className="text-xs sm:text-sm text-slate-200 font-medium">
+                  {t.pilotPlanAnalysisVal}
+                </p>
+              </div>
+
+              <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-amber-900/40 bg-amber-950/10 space-y-1">
+                <span className="text-[11px] font-semibold uppercase text-amber-400 tracking-wider">
+                  {t.pilotPlanGuardrails}
+                </span>
+                <p className="text-xs sm:text-sm text-amber-200/90 font-medium">
+                  {t.pilotPlanGuardrailsVal}
+                </p>
+              </div>
             </div>
           </section>
 
