@@ -93,23 +93,23 @@ export default function EvidencePage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm">
                 <BarChart3 className="w-4 h-4" />
               </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                 {t.evidenceHeading}
               </h1>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0">
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shrink-0">
                 {t.evidenceBadge}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1.5 max-w-3xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1.5 max-w-3xl leading-relaxed">
               {t.evidenceSubheading} {t.evidenceSubheading2}
             </p>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/15 to-teal-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-bold self-start sm:self-auto shrink-0 shadow-sm">
-            <Award className="w-4 h-4 text-emerald-400" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/15 to-teal-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold self-start sm:self-auto shrink-0 shadow-sm">
+            <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>AI DEV FEST 2026 • Track 05</span>
           </div>
         </div>
@@ -131,10 +131,10 @@ export default function EvidencePage() {
       ) : (
         <div className="space-y-4 sm:space-y-6 animate-fade-in">
           {/* Simulation Disclaimer Alert */}
-          <div className="card-soft flex items-start gap-2.5 text-xs text-slate-300">
-            <Info className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="card-soft flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+            <Info className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-white block">
+              <span className="font-semibold text-slate-900 dark:text-white block">
                 {t.simulationDisclaimerNotice}
               </span>
             </div>
@@ -142,82 +142,96 @@ export default function EvidencePage() {
 
           {/* 4 Top Executive KPI Cards */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" aria-label={t.evalEvidenceTitle}>
+            {/* Card 1: Stock-out Detector F1 */}
             <div className="card-soft flex flex-col justify-between hover:border-emerald-500/30 transition-all">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
                   {t.kpiDetectorF1}
                 </span>
-                <div className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
+                <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums">
                   {metrics.detector_metrics.f1_macro?.toFixed(2) ?? "0.79"}
                 </div>
               </div>
-              <p className="text-xs text-slate-400 mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 pt-2.5 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
                 <span>{t.kpiLightgbm}</span>
-                <span className="text-emerald-400 font-bold">vs HMM 0.66</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">vs HMM 0.66</span>
               </p>
             </div>
 
+            {/* Card 2: Calibration Coverage */}
             <div className="card-soft flex flex-col justify-between hover:border-emerald-500/30 transition-all">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">
                   {t.kpiCalibration}
                 </span>
-                <div className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
+                <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums">
                   {(metrics.forecast_metrics.coverage_p10_p90 * 100).toFixed(1)}%
                 </div>
               </div>
-              <p className="text-xs text-slate-400 mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 pt-2.5 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
                 <span>{t.kpiCoverage}</span>
-                <span className="text-emerald-400 font-bold">{t.kpiTarget80}</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">{t.kpiTarget80}</span>
               </p>
             </div>
 
-            <div className="card-soft flex flex-col justify-between border-emerald-300/80 bg-emerald-50/70 dark:border-emerald-500/25 dark:bg-gradient-to-b dark:from-navy-850/90 dark:to-emerald-950/20 hover:border-emerald-500/40 transition-all">
+            {/* Card 3: Lost Customer Demand (Polished, no muddy gradient, clear comparison) */}
+            <div className="card-soft flex flex-col justify-between hover:border-emerald-500/30 transition-all">
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-emerald-900/80 dark:text-slate-400 uppercase tracking-wider">
-                    {t.kpiLostDemand}
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    {lang === "en" ? "Lost Demand" : "হারানো চাহিদা"}
                   </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-navy-900/80 dark:text-slate-400 dark:border-white/[0.08]">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 dark:bg-navy-900/80 dark:text-slate-400 dark:border-white/[0.08] shrink-0">
                     {t.simulationDisclaimer}
                   </span>
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight tabular-nums">
-                    {metrics.business_sim_metrics.cashready_policy.lost_pct.toFixed(1)}%
-                  </span>
-                  <span className="text-xs sm:text-sm font-semibold text-slate-400 line-through dark:text-slate-500 tabular-nums">
-                    {metrics.business_sim_metrics.habit_policy.lost_pct.toFixed(1)}%
-                  </span>
+                <div className="flex items-baseline justify-between gap-2 mt-1">
+                  <div>
+                    <span className="text-3xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight tabular-nums">
+                      {metrics.business_sim_metrics.cashready_policy.lost_pct.toFixed(1)}%
+                    </span>
+                    <span className="text-[11px] font-semibold text-emerald-700/80 dark:text-emerald-400/80 block -mt-0.5">
+                      CashReady
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs sm:text-sm font-bold text-slate-400 dark:text-slate-500 line-through tabular-nums block">
+                      {metrics.business_sim_metrics.habit_policy.lost_pct.toFixed(1)}%
+                    </span>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium block">
+                      {lang === "en" ? "Habit" : "অভ্যাস"}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <p className="text-xs text-emerald-900/70 dark:text-slate-400 mt-3 pt-2.5 border-t border-emerald-200/80 dark:border-white/[0.06] flex items-center justify-between">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 pt-2.5 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
                 <span>{t.kpiVsHabit}</span>
-                <span className="text-emerald-700 font-black dark:text-emerald-400">
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold tabular-nums">
                   {`−${(metrics.business_sim_metrics.habit_policy.lost_pct - metrics.business_sim_metrics.cashready_policy.lost_pct).toFixed(1)} pp ${lang === "en" ? "reduction" : "হ্রাস"}`}
                 </span>
               </p>
             </div>
 
+            {/* Card 4: Preserved Commission */}
             <div className="card-soft flex flex-col justify-between hover:border-emerald-500/30 transition-all">
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     {t.kpiCommissionSaved}
                   </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 dark:bg-navy-900/80 dark:text-slate-400 dark:border-white/[0.08]">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 dark:bg-navy-900/80 dark:text-slate-400 dark:border-white/[0.08] shrink-0">
                     {t.simulationDisclaimer}
                   </span>
                 </div>
-                <div className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
+                <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums mt-1">
                   {lang === "en"
                     ? `৳ ${(metrics.business_sim_metrics.commission_saved_bdt / 1_000_000).toFixed(2)}M`
                     : `৳ ${(metrics.business_sim_metrics.commission_saved_bdt / 100_000).toFixed(1)} লক্ষ`}
                 </div>
               </div>
-              <p className="text-xs text-slate-400 mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-3 pt-2.5 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
                 <span>{t.kpiTotalSaved}</span>
-                <span className="text-emerald-400 font-bold tabular-nums">
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold tabular-nums">
                   ৳ {formatBDT(metrics.business_sim_metrics.commission_saved_bdt)}
                 </span>
               </p>
@@ -226,14 +240,14 @@ export default function EvidencePage() {
 
           {/* 3 Core Empirical Proofs (Rigorous scientific validation) */}
           <section className="card-soft space-y-4" aria-label="Empirical Proofs">
-            <div className="border-b border-white/[0.06] pb-3">
-              <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <div className="border-b border-slate-200/80 dark:border-white/[0.06] pb-3">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>{lang === "en" ? "3 Core Empirical Proofs" : "৩টি প্রধান পরীক্ষামূলক প্রমাণ"}</span>
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
                   {lang === "en" ? "Rigorous Benchmark" : "বৈজ্ঞানিক মানদণ্ড"}
                 </span>
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
                 {lang === "en"
                   ? "Comparing CashReady against standard heuristics and causal baselines on the held-out test partition."
                   : "লুকানো টেস্ট ডেটায় প্রচলিত নিয়ম ও বেসলাইনের বিপরীতে ক্যাশরেডির তুলনামূলক পারফরম্যান্স।"}
@@ -242,7 +256,7 @@ export default function EvidencePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
               {/* Proof 1: Forecast vs Naive */}
-              <div className="p-4 rounded-2xl bg-white border border-slate-200/90 dark:bg-navy-950/80 dark:border-white/[0.06] flex flex-col justify-between shadow-sm">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 dark:bg-navy-900/60 dark:border-white/[0.06] flex flex-col justify-between shadow-sm">
                 <div>
                   <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
                     {lang === "en" ? "1. Forecast Accuracy vs Causal Naive" : "১. পূর্বাভাস নির্ভুলতা বনাম ক্যাজুয়াল বেসলাইন"}
@@ -259,7 +273,7 @@ export default function EvidencePage() {
                     {lang === "en" ? "P50 MAE vs Same Hour Last Week (Lag7)" : "P50 MAE বনাম গত সপ্তাহের একই ঘণ্টার চাহিদা"}
                   </div>
                 </div>
-                <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-3 pt-2.5 border-t border-slate-100 dark:border-white/[0.06] leading-relaxed">
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-3 pt-2.5 border-t border-slate-200/80 dark:border-white/[0.06] leading-relaxed">
                   {lang === "en"
                     ? `Quantile LightGBM reduces mean absolute error by ৳${formatBDT(metrics.forecast_metrics.naive_mae_bdt - metrics.forecast_metrics.p50_mae_bdt)} per agent-hour over trailing heuristics.`
                     : `ক্যাজুয়াল ৭-দিনের ল্যাগ বেসলাইনের তুলনায় ক্যাশরেডি প্রতি ঘণ্টায় গড়ে ৳${formatBDT(metrics.forecast_metrics.naive_mae_bdt - metrics.forecast_metrics.p50_mae_bdt)} ত্রুটি কমায়।`}
@@ -267,7 +281,7 @@ export default function EvidencePage() {
               </div>
 
               {/* Proof 2: Equal Capital (Same Capital) test */}
-              <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 dark:bg-navy-950/80 dark:border-white/[0.06] flex flex-col justify-between shadow-sm">
+              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 dark:bg-navy-900/60 dark:border-emerald-500/20 flex flex-col justify-between shadow-sm">
                 <div>
                   <div className="text-xs font-bold text-emerald-800 dark:text-emerald-400 mb-1">
                     {lang === "en" ? "2. Controlled Capital Benchmark" : "২. একই পুঁজিতে নিয়ন্ত্রণ পরীক্ষা"}
@@ -276,7 +290,7 @@ export default function EvidencePage() {
                     <span className="text-2xl font-black text-emerald-700 dark:text-emerald-400 tabular-nums">
                       {metrics.business_sim_metrics.cashready_policy.lost_pct.toFixed(2)}%
                     </span>
-                    <span className="text-xs text-emerald-600/70 line-through dark:text-slate-500 tabular-nums">
+                    <span className="text-xs text-slate-400 dark:text-slate-500 line-through tabular-nums">
                       {(metrics.business_sim_metrics.same_capital_comparison?.habit_lost_pct ?? 1.67).toFixed(2)}%
                     </span>
                   </div>
@@ -284,7 +298,7 @@ export default function EvidencePage() {
                     {lang === "en" ? "Lost Demand at Identical Liquidity" : "একই পরিমাণ দৈনিক নগদ পুঁজিতে ঘাটতি"}
                   </div>
                 </div>
-                <p className="text-[11px] text-emerald-900/80 dark:text-slate-400 mt-3 pt-2.5 border-t border-emerald-200/60 dark:border-white/[0.06] leading-relaxed">
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-3 pt-2.5 border-t border-slate-200/80 dark:border-white/[0.06] leading-relaxed">
                   {lang === "en"
                     ? "When habit buffers are scaled to use the exact same total cash, habit still loses 3.5× more customer demand due to misallocation."
                     : "অভ্যাসগত প্ল্যানকে সমপরিমাণ মোট পুঁজিতে স্কেল করলেও ভুল বণ্টনের কারণে অভ্যাসে ৩.৫ গুণ বেশি চাহিদা নষ্ট হয়।"}
@@ -292,7 +306,7 @@ export default function EvidencePage() {
               </div>
 
               {/* Proof 3: Cash Stockout Detector F1 */}
-              <div className="p-4 rounded-2xl bg-white border border-slate-200/90 dark:bg-navy-950/80 dark:border-white/[0.06] flex flex-col justify-between shadow-sm">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 dark:bg-navy-900/60 dark:border-white/[0.06] flex flex-col justify-between shadow-sm">
                 <div>
                   <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
                     {lang === "en" ? "3. True Cash Stock-Out F1" : "৩. আসল নগদ ঘাটতি শনাক্তকরণ F1"}
@@ -309,7 +323,7 @@ export default function EvidencePage() {
                     {lang === "en" ? "Minority Class Detection F1" : "ক্যাশ ঘাটতি ক্লাসের সুনির্দিষ্ট F1 স্কোর"}
                   </div>
                 </div>
-                <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-3 pt-2.5 border-t border-slate-100 dark:border-white/[0.06] leading-relaxed">
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-3 pt-2.5 border-t border-slate-200/80 dark:border-white/[0.06] leading-relaxed">
                   {lang === "en"
                     ? "Heuristics and standard HMM fail to isolate cash depletion from digital shifts. CashReady's supervised gradient booster achieves 0.38 F1 on this rare state."
                     : "প্রচলিত নিয়ম ও HMM ক্যাশ ঘাটতি শনাক্তে ব্যর্থ হয়। ক্যাশরেডি বিরল ক্যাশ ঘাটতি ক্লাসে সর্বোচ্চ ৩ গুণ বেশি F1 অর্জন করে।"}
@@ -320,14 +334,14 @@ export default function EvidencePage() {
 
           {/* Charts Section */}
           <section className="card-soft space-y-4 sm:space-y-6" aria-label={t.whyTrustHeading}>
-            <div className="border-b border-white/[0.06] pb-3 sm:pb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight flex items-center gap-2">
+            <div className="border-b border-slate-200/80 dark:border-white/[0.06] pb-3 sm:pb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                 <span>{t.whyTrustHeading}</span>
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-navy-900 text-slate-300 border border-white/[0.08]">
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 dark:bg-navy-900 dark:text-slate-300 border border-slate-200 dark:border-white/[0.08]">
                   {t.evalEvidenceTitle}
                 </span>
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
                 {t.evalEvidenceDesc}
               </p>
             </div>
@@ -336,10 +350,10 @@ export default function EvidencePage() {
               {/* Chart A: Recovery comparison */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs sm:text-sm font-bold text-white">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                     {t.recoveryChartTitle}
                   </h3>
-                  <span className="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-navy-900 text-emerald-400 border border-emerald-500/20">
+                  <span className="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                     {t.recoveryCaption}
                   </span>
                 </div>

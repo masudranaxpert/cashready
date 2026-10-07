@@ -40,7 +40,7 @@ export function WelcomeIntro() {
     const t = setTimeout(() => {
       setIsVisible(false);
       setIsFadingOut(false);
-    }, 450);
+    }, 250);
     timerRef.current.push(t);
   }, [clearAllTimers]);
 
@@ -55,19 +55,19 @@ export function WelcomeIntro() {
     const reduced = mediaQuery.matches;
     setIsReducedMotion(reduced);
 
-    // Stage progression timings:
-    // Stage 0 (Brand): 0.0s - 0.8s
-    // Stage 1 (Personal Welcome): 0.8s - 1.8s
-    // Stage 2 (Product Message): 1.8s - 3.4s (Line 2 at 2.5s)
-    // Stage 3 (Value Proposition): 3.4s - 4.4s
-    // Stage 4 (Final Transition): 4.4s - 5.0s
-    // Complete dismissal: 5.0s
-    const t1 = setTimeout(() => setStage(1), reduced ? 350 : 850);
-    const t2 = setTimeout(() => setStage(2), reduced ? 750 : 1850);
-    const t2Sub = setTimeout(() => setMessagePart2Visible(true), reduced ? 950 : 2550);
-    const t3 = setTimeout(() => setStage(3), reduced ? 1350 : 3450);
-    const t4 = setTimeout(() => setStage(4), reduced ? 1750 : 4450);
-    const tDismiss = setTimeout(() => dismissIntro(), reduced ? 2150 : 5150);
+    // Fast, crisp cinematic stage progression:
+    // Stage 0 (Brand): 0.0s - 0.55s
+    // Stage 1 (Personal Welcome): 0.55s - 1.20s
+    // Stage 2 (Product Message): 1.20s - 2.00s (Line 2 at 1.55s)
+    // Stage 3 (Value Proposition): 2.00s - 2.65s
+    // Stage 4 (Final Transition): 2.65s - 3.00s
+    // Complete dismissal: ~3.05s
+    const t1 = setTimeout(() => setStage(1), reduced ? 250 : 550);
+    const t2 = setTimeout(() => setStage(2), reduced ? 500 : 1200);
+    const t2Sub = setTimeout(() => setMessagePart2Visible(true), reduced ? 650 : 1550);
+    const t3 = setTimeout(() => setStage(3), reduced ? 900 : 2000);
+    const t4 = setTimeout(() => setStage(4), reduced ? 1150 : 2650);
+    const tDismiss = setTimeout(() => dismissIntro(), reduced ? 1400 : 3050);
 
     timerRef.current = [t1, t2, t2Sub, t3, t4, tDismiss];
   }, [clearAllTimers, dismissIntro]);
@@ -121,7 +121,7 @@ export function WelcomeIntro() {
       style={{
         backgroundColor: isDark ? "#060A14" : "#F8FAFC",
       }}
-      className={`fixed inset-0 z-[100] flex items-center justify-center select-none cursor-pointer overflow-hidden transition-all duration-500 ease-out ${
+      className={`fixed inset-0 z-[100] flex items-center justify-center select-none cursor-pointer overflow-hidden transition-all duration-250 ease-out ${
         isFadingOut
           ? "opacity-0 scale-[1.02] pointer-events-none"
           : "opacity-100 scale-100 pointer-events-auto"
@@ -226,7 +226,7 @@ export function WelcomeIntro() {
               {isBn ? "আপনার গ্রাহকরা আজ প্রস্তুত।" : "Your customers are ready."}
             </div>
             <div
-              className={`text-lg sm:text-xl md:text-2xl font-bold text-emerald-700 dark:text-emerald-400 tracking-tight transition-all duration-500 ${
+              className={`text-lg sm:text-xl md:text-2xl font-bold text-emerald-700 dark:text-emerald-400 tracking-tight transition-all duration-250 ${
                 messagePart2Visible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-2 pointer-events-none"

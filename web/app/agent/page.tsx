@@ -29,7 +29,7 @@ import {
   Calendar,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
+  HelpCircle,
   ShieldCheck,
   TrendingDown,
   Quote,
@@ -540,7 +540,7 @@ export default function AgentPage() {
           {plan && !loading && (
             <section className="card-soft space-y-3" aria-label={t.feedbackHeading}>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <HelpCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>{t.feedbackHeading}</span>
               </h3>
 
