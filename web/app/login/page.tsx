@@ -152,14 +152,6 @@ export default function LoginPage() {
             </div>
           </button>
         </div>
-
-        <div className="mt-8 pt-5 border-t border-slate-200 dark:border-white/[0.08] text-center">
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            {lang === "bn"
-              ? "🔒 টোকেন সার্ভার-সাইড httpOnly কুকিতে সংরক্ষিত থাকে এবং ব্রাউজার ক্লায়েন্ট স্ক্রিপ্টে কখনো উন্মুক্ত হয় না।"
-              : "🔒 Security: Credentials are stored in httpOnly secure cookies and never exposed to client-side JavaScript."}
-          </p>
-        </div>
       </div>
     </div>
   );

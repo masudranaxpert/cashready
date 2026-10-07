@@ -264,9 +264,6 @@ export default function EvidencePage() {
                     <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                       {t.sameCapitalHeading}
                     </h2>
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30 shrink-0">
-                      {t.sameCapitalBadge}
-                    </span>
                   </div>
                   <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                     {t.sameCapitalDesc}
@@ -482,9 +479,6 @@ export default function EvidencePage() {
             <div className="border-b border-slate-200 dark:border-white/[0.06] pb-3">
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span>{lang === "en" ? "3 Core Empirical Proofs" : "৩টি প্রধান পরীক্ষামূলক প্রমাণ"}</span>
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
-                  {lang === "en" ? "Rigorous Benchmark" : "বৈজ্ঞানিক মানদণ্ড"}
-                </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                 {lang === "en"
@@ -684,9 +678,6 @@ export default function EvidencePage() {
             <div className="border-b border-slate-200 dark:border-white/[0.06] pb-3 sm:pb-4">
               <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                 <span>{t.whyTrustHeading}</span>
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
-                  {t.evalEvidenceTitle}
-                </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                 {t.evalEvidenceDesc}
