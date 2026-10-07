@@ -70,7 +70,24 @@ def get_agent_plan(
     if isinstance(res.get("opening_cash"), dict):
         by_level = res["opening_cash"]
         res["opening_cash_by_level"] = by_level
-        res["opening_cash"] = by_level.get(risk, by_level.get("0.9", 60000))
+        chosen_cash = by_level.get(risk, by_level.get("0.9", 60000))
+        res["opening_cash"] = chosen_cash
+
+        # Ensure advisory message figures match the selected risk level opening cash
+        import re
+        formatted_chosen = f"{chosen_cash:,}"
+        if "message_bn" in res and isinstance(res["message_bn"], str):
+            res["message_bn"] = re.sub(
+                r"(আজ সকালে\s+)([\d,০-৯]+)(\s+টাকা)",
+                rf"\g<1>{formatted_chosen}\3",
+                res["message_bn"],
+            )
+        if "message_en" in res and isinstance(res["message_en"], str):
+            res["message_en"] = re.sub(
+                r"(Keep\s+)([\d,]+)(\s+BDT)",
+                rf"\g<1>{formatted_chosen}\3",
+                res["message_en"],
+            )
     return {"date": date, "agent_id": agent_id, **res}
 
 

@@ -168,10 +168,28 @@ export async function getAgentPlan(
           ? (res.opening_cash as Record<string, number>)[risk]
           : res.opening_cash;
       const opening_cash = (byLevel?.[risk] ?? Number(rawOpening)) || 60000;
+      const formattedCash = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Math.round(opening_cash));
+
+      let message_bn = res.message_bn;
+      let message_en = res.message_en;
+      if (message_bn) {
+        message_bn = message_bn.replace(
+          /(আজ সকালে\s+)([\d,০-৯]+)(\s+টাকা)/,
+          `$1${formattedCash}$3`
+        );
+      }
+      if (message_en) {
+        message_en = message_en.replace(
+          /(Keep\s+)([\d,]+)(\s+BDT)/,
+          `$1${formattedCash}$3`
+        );
+      }
 
       return {
         ...res,
         opening_cash,
+        message_bn,
+        message_en,
         selected_risk: risk,
       };
     } catch (err) {

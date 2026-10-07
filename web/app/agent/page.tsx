@@ -661,7 +661,14 @@ export default function AgentPage() {
                   <div className="flex gap-2.5 items-start">
                     <Quote className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-1 opacity-90" />
                     <p className="text-[15px] sm:text-[16px] text-slate-800 dark:text-slate-200 leading-relaxed font-normal">
-                      {lang === "en" && plan.message_en ? plan.message_en : plan.message_bn}
+                      {(() => {
+                        const raw = lang === "en" && plan.message_en ? plan.message_en : plan.message_bn;
+                        const formatted = formatBDT(plan.opening_cash);
+                        if (lang === "en") {
+                          return raw.replace(/(Keep\s+)([\d,]+)(\s+BDT)/, `$1${formatted}$3`);
+                        }
+                        return raw.replace(/(আজ সকালে\s+)([\d,০-৯]+)(\s+টাকা)/, `$1${formatted}$3`);
+                      })()}
                     </p>
                   </div>
                 </div>
