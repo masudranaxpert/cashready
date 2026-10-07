@@ -14,7 +14,7 @@ services:
       - ARTIFACTS_DIR=/app/artifacts/serve
       - FRONTEND_ORIGIN=*
       - FRONTEND_ORIGINS=*
-      - ENV=development
+      - ENV=production
       - USERS_FILE=/app/config/demo_users.json
       - API_KEY=${API_KEY:-}
     healthcheck:
