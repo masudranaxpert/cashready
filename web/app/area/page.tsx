@@ -7,11 +7,12 @@ import type {
   AreaLostDemandResponse,
   AreaAgentRisk,
 } from "@/lib/types";
-import { getAreas, getAreaRisk, getAreaLostDemand } from "@/lib/api";
+import { getAreas, getAreaRisk, getAreaLostDemand, ApiError } from "@/lib/api";
 import { DEMO_DATE, DEMO_WEEK } from "@/lib/mock-data";
 import { STRINGS, formatBDT } from "@/lib/strings";
 import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
+import { MockDataBanner } from "@/components/MockDataBanner";
 import {
   Calendar,
   MapPin,
@@ -20,6 +21,7 @@ import {
   ArrowDown,
   AlertTriangle,
   TrendingDown,
+  Lock,
 } from "lucide-react";
 import {
   BarChart,
@@ -49,15 +51,39 @@ export default function AreaPage() {
   const [selectedAreaId, setSelectedAreaId] = useState<string>("A01");
   const [selectedDate, setSelectedDate] = useState<string>(getTodayIsoDate);
 
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [lockedAreaId, setLockedAreaId] = useState<string | null>(null);
+
   const [riskData, setRiskData] = useState<AreaRiskResponse | null>(null);
   const [lostDemandData, setLostDemandData] = useState<AreaLostDemandResponse | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Sorting state: default by stockout_prob_habit descending
   const [sortField, setSortField] = useState<SortField>("stockout_prob_habit");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  // Check user session
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/auth/session");
+        if (res.ok) {
+          const s = await res.json();
+          setUserRole(s.role);
+          if (s.role === "manager" && s.id) {
+            setLockedAreaId(s.id);
+            setSelectedAreaId(s.id);
+          }
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+    checkSession();
+  }, []);
 
   // Load areas list
   useEffect(() => {
@@ -84,6 +110,7 @@ export default function AreaPage() {
     async function loadData() {
       setLoading(true);
       setError(false);
+      setErrorMessage(null);
 
       try {
         const [riskRes, lostRes] = await Promise.all([
@@ -98,6 +125,9 @@ export default function AreaPage() {
         }
       } catch (err: unknown) {
         if (!isCancelled) {
+          if (err instanceof ApiError && err.isForbidden) {
+            setErrorMessage("আপনার এই তথ্য দেখার অনুমতি নেই / You don't have access to this resource");
+          }
           setError(true);
           setLoading(false);
         }
@@ -155,8 +185,20 @@ export default function AreaPage() {
 
   const currentArea = areas.find((a) => a.area_id === selectedAreaId);
 
+  if (userRole === "agent") {
+    return (
+      <div className="max-w-lg mx-auto py-12 text-center">
+        <ErrorState
+          message="আপনার এই তথ্য দেখার অনুমতি নেই / You don't have access to this resource"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+      <MockDataBanner />
+
       <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5" aria-label={t.areaViewBadge}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
@@ -174,20 +216,25 @@ export default function AreaPage() {
           </div>
 
           <div className="flex flex-col min-[480px]:flex-row items-stretch min-[480px]:items-center gap-2.5">
-            <div className="flex items-center gap-2 bg-slate-900 rounded-full px-3.5 py-2 border border-slate-800">
-              <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+            <div className={`flex items-center gap-2 bg-slate-900 rounded-full px-3.5 py-2 border border-slate-800 ${userRole === "manager" ? "opacity-90" : ""}`}>
+              {userRole === "manager" ? (
+                <Lock className="w-4 h-4 text-teal-400 shrink-0" />
+              ) : (
+                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+              )}
               <label htmlFor="area-select" className="sr-only">
                 {t.areaSelectorLabel}
               </label>
               <select
                 id="area-select"
+                disabled={userRole === "manager"}
                 value={selectedAreaId}
                 onChange={(e) => setSelectedAreaId(e.target.value)}
-                className="bg-transparent text-xs sm:text-sm font-semibold text-slate-200 border-none focus:outline-none cursor-pointer w-full"
+                className={`bg-transparent text-xs sm:text-sm font-semibold text-slate-200 border-none focus:outline-none w-full ${userRole === "manager" ? "cursor-default" : "cursor-pointer"}`}
               >
                 {areas.map((a) => (
                   <option key={a.area_id} value={a.area_id} className="bg-navy-900 text-slate-200">
-                    {a.area_id} ({a.area_type})
+                    {a.area_id} ({a.area_type}){userRole === "manager" ? " - Locked" : ""}
                   </option>
                 ))}
               </select>
@@ -213,7 +260,10 @@ export default function AreaPage() {
       </section>
 
       {error ? (
-        <ErrorState onRetry={() => setSelectedAreaId(selectedAreaId)} />
+        <ErrorState
+          message={errorMessage || undefined}
+          onRetry={() => setSelectedAreaId(selectedAreaId)}
+        />
       ) : loading ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <div className="lg:col-span-2 space-y-3">

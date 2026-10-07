@@ -6,6 +6,7 @@ import { getMetrics } from "@/lib/api";
 import { STRINGS, formatBDT } from "@/lib/strings";
 import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
+import { MockDataBanner } from "@/components/MockDataBanner";
 import {
   ShieldAlert,
   RotateCcw,
@@ -106,6 +107,8 @@ export default function EvidencePage() {
           </div>
         </div>
       </section>
+
+      <MockDataBanner />
 
       {error ? (
         <ErrorState onRetry={() => setMetrics(null)} />

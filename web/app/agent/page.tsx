@@ -13,12 +13,14 @@ import {
   getAgentPlan,
   getAgentLostDemand,
   submitAgentFeedback,
+  ApiError,
 } from "@/lib/api";
 import { DEMO_DATE, DEMO_WEEK } from "@/lib/mock-data";
 import { STRINGS, formatBDT } from "@/lib/strings";
 import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
-import { Search, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
+import { MockDataBanner } from "@/components/MockDataBanner";
+import { Search, Calendar, CheckCircle2, AlertCircle, Lock } from "lucide-react";
 
 function getTodayIsoDate(): string {
   const d = new Date();
@@ -36,11 +38,15 @@ export default function AgentPage() {
   const [selectedDate, setSelectedDate] = useState<string>(getTodayIsoDate);
   const [riskLevel, setRiskLevel] = useState<RiskLevel>("0.9");
 
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [lockedAgentId, setLockedAgentId] = useState<string | null>(null);
+
   const [plan, setPlan] = useState<AgentPlan | null>(null);
   const [lostDemand, setLostDemand] = useState<AgentLostDemand | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Search filter for agent dropdown
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -49,6 +55,26 @@ export default function AgentPage() {
   // Feedback states
   const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "submitting" | "success" | "demo" | "error">("idle");
   const [feedbackAnswer, setFeedbackAnswer] = useState<boolean | null>(null);
+
+  // Check user session
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/auth/session");
+        if (res.ok) {
+          const s = await res.json();
+          setUserRole(s.role);
+          if (s.role === "agent" && s.id) {
+            setLockedAgentId(s.id);
+            setSelectedAgentId(s.id);
+          }
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+    checkSession();
+  }, []);
 
   // Fetch agents list once
   useEffect(() => {
@@ -75,6 +101,7 @@ export default function AgentPage() {
     async function loadData() {
       setLoading(true);
       setError(false);
+      setErrorMessage(null);
       // Reset feedback on agent or date change
       setFeedbackStatus("idle");
       setFeedbackAnswer(null);
@@ -92,6 +119,9 @@ export default function AgentPage() {
         }
       } catch (err: unknown) {
         if (!isCancelled) {
+          if (err instanceof ApiError && err.isForbidden) {
+            setErrorMessage("আপনার এই তথ্য দেখার অনুমতি নেই / You don't have access to this resource");
+          }
           setError(true);
           setLoading(false);
         }
@@ -142,6 +172,8 @@ export default function AgentPage() {
 
   return (
     <div className="max-w-md mx-auto space-y-3.5 sm:space-y-4 w-full">
+      <MockDataBanner />
+
       <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-3.5 sm:p-4 space-y-3" aria-label={t.agentSelectorLabel}>
         <div className="flex items-center justify-between gap-2 min-w-0">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
@@ -168,15 +200,28 @@ export default function AgentPage() {
         </div>
 
         <div className="relative">
-          <label htmlFor="agent-search" className="block text-xs font-medium text-slate-400 mb-1">
-            {t.agentSelectCount(agents.length)}
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label htmlFor="agent-search" className="block text-xs font-medium text-slate-400">
+              {userRole === "agent"
+                ? (lang === "bn" ? "আপনার এজেন্ট আইডি (নির্ধারিত)" : "Your Agent ID (Locked)")
+                : t.agentSelectCount(agents.length)}
+            </label>
+            {userRole === "agent" && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-400 bg-teal-950/60 px-2 py-0.5 rounded-full border border-teal-800/60">
+                <Lock className="w-3 h-3" />
+                <span>{lang === "bn" ? "লকড" : "Locked"}</span>
+              </span>
+            )}
+          </div>
           <div className="relative">
             <button
               type="button"
               id="agent-search"
+              disabled={userRole === "agent"}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full min-h-[44px] px-3.5 py-2 text-left bg-slate-900/90 hover:bg-slate-900 rounded-xl border border-slate-700/70 flex items-center justify-between text-sm transition-colors text-slate-200"
+              className={`w-full min-h-[44px] px-3.5 py-2 text-left bg-slate-900/90 rounded-xl border border-slate-700/70 flex items-center justify-between text-sm transition-colors text-slate-200 ${
+                userRole === "agent" ? "cursor-default opacity-90" : "hover:bg-slate-900"
+              }`}
               aria-haspopup="listbox"
               aria-expanded={isDropdownOpen}
             >
@@ -186,10 +231,14 @@ export default function AgentPage() {
                   {currentAgent ? `• ${currentAgent.area_id} (${currentAgent.area_type})` : ""}
                 </span>
               </div>
-              <Search className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
+              {userRole === "agent" ? (
+                <Lock className="w-4 h-4 text-teal-400 shrink-0 ml-2" />
+              ) : (
+                <Search className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
+              )}
             </button>
 
-            {isDropdownOpen && (
+            {isDropdownOpen && userRole !== "agent" && (
               <div className="absolute top-full left-0 right-0 mt-1.5 bg-navy-850 rounded-2xl shadow-soft-lg border border-slate-700 z-50 p-2 max-h-64 overflow-y-auto">
                 <div className="p-1 mb-1">
                   <input
@@ -237,7 +286,10 @@ export default function AgentPage() {
       </section>
 
       {error ? (
-        <ErrorState onRetry={() => setSelectedAgentId(selectedAgentId)} />
+        <ErrorState
+          message={errorMessage || undefined}
+          onRetry={() => setSelectedAgentId(selectedAgentId)}
+        />
       ) : loading || !plan ? (
         <div className="space-y-3.5 sm:space-y-4">
           <Skeleton className="h-64 w-full" />
