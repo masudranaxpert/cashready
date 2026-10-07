@@ -47,7 +47,7 @@ export function LangToggle({ compact = false }: { compact?: boolean }) {
   const { lang, setLang } = useLang();
   return (
     <div
-      className="inline-flex items-center rounded-full bg-navy-900/80 border border-white/[0.08] p-0.5 shadow-sm"
+      className="inline-flex items-center rounded-full bg-slate-100 dark:bg-navy-900/80 border border-slate-200 dark:border-white/[0.08] p-0.5 shadow-sm"
       role="group"
       aria-label="Language selection"
     >
@@ -59,8 +59,8 @@ export function LangToggle({ compact = false }: { compact?: boolean }) {
           aria-pressed={lang === l}
           className={`px-3 py-1.5 sm:py-1 rounded-full text-xs font-bold transition-all duration-150 active:scale-95 min-h-[36px] flex items-center justify-center ${
             lang === l
-              ? "bg-emerald-400 dark:bg-emerald-400 light:bg-emerald-500 text-slate-950 dark:text-slate-950 light:text-white shadow-sm"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 shadow-sm"
+              : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
           }`}
         >
           {l === "bn" ? "বাং" : "EN"}
