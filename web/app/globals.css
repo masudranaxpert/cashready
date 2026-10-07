@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,46 +6,176 @@
 
 @layer base {
   :root {
-    --background: #0B1120;
+    --background: #060A14;
     --foreground: #F8FAFC;
+    --card-bg: rgba(16, 23, 42, 0.85);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --focus-ring: #10B981;
+  }
+
+  html.light {
+    --background: #F8FAFC;
+    --foreground: #0F172A;
+    --card-bg: #FFFFFF;
+    --card-border: #E2E8F0;
+    --focus-ring: #059669;
+    color-scheme: light;
+  }
+
+  html.dark {
+    --background: #060A14;
+    --foreground: #F8FAFC;
+    --card-bg: rgba(16, 23, 42, 0.85);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --focus-ring: #10B981;
+    color-scheme: dark;
   }
 
   html {
     overflow-x: hidden;
+    scroll-behavior: smooth;
   }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-hind-siliguri), 'Hind Siliguri', system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', var(--font-hind-siliguri), 'Hind Siliguri', system-ui, -apple-system, sans-serif;
     font-size: 16px;
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 200ms ease, color 200ms ease;
   }
 
-  /* Accessible focus ring */
+  /* Bengali typography enhancement per /better-typography */
+  :lang(bn) {
+    line-height: 1.68;
+    letter-spacing: 0.01em;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  html.dark body {
+    background-image:
+      radial-gradient(1000px 500px at 50% -80px, rgba(16, 185, 129, 0.09), transparent 70%),
+      radial-gradient(600px 400px at 95% 15%, rgba(14, 165, 233, 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  html.light body {
+    background-image:
+      radial-gradient(1000px 500px at 50% -80px, rgba(16, 185, 129, 0.05), transparent 70%),
+      radial-gradient(600px 400px at 95% 15%, rgba(14, 165, 233, 0.03), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  /* Accessible focus ring per /better-accessibility */
   *:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px #0B1120, 0 0 0 4px #14B8A6;
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Numerical stability */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
 
 @layer components {
-  /* Subtle, restrained dark card */
+
+  /* Subtle, restrained dark & light card */
   .card-soft {
-    @apply bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5;
+    @apply backdrop-blur-xl rounded-2xl p-4 sm:p-5 transition-all duration-200;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+  }
+
+  html.dark .card-soft {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  }
+
+  html.light .card-soft {
+    background-color: #FFFFFF !important;
+    border-color: #E2E8F0 !important;
+    box-shadow: 0 2px 12px -2px rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+  }
+
+  /* Hero highlighted fintech card */
+  .card-hero {
+    @apply backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 transition-all duration-200;
+  }
+
+  html.dark .card-hero {
+    background: linear-gradient(180deg, rgba(16, 23, 42, 0.95) 0%, rgba(10, 15, 29, 0.9) 100%);
+    border: 1px solid rgba(20, 184, 166, 0.35);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45), 0 0 30px -4px rgba(16, 185, 129, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  }
+
+  html.light .card-hero {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    box-shadow: 0 8px 30px -4px rgba(16, 185, 129, 0.12), 0 2px 6px -1px rgba(15, 23, 42, 0.05);
   }
 
   /* Primary action button */
   .btn-primary {
-    @apply inline-flex items-center justify-center min-h-[44px] px-6 py-2.5 rounded-full bg-slate-100 hover:bg-white text-slate-950 font-semibold text-base transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center min-h-[44px] px-6 py-2.5 rounded-full font-bold text-sm sm:text-base transition-transform duration-100 active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  html.dark .btn-primary {
+    background-color: #34D399;
+    color: #060A14;
+    box-shadow: 0 0 25px -4px rgba(16, 185, 129, 0.4);
+  }
+
+  html.dark .btn-primary:hover {
+    background-color: #6EE7B7;
+  }
+
+  html.light .btn-primary {
+    background-color: #059669;
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px -2px rgba(5, 150, 105, 0.35);
+  }
+
+  html.light .btn-primary:hover {
+    background-color: #047857;
   }
 
   /* Secondary subtle button */
   .btn-secondary {
-    @apply inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-full bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700 text-slate-200 font-medium text-base transition-transform duration-100 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center min-h-[44px] px-5 py-2.5 rounded-full font-medium text-sm sm:text-base transition-transform duration-100 active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  html.dark .btn-secondary {
+    background-color: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(51, 65, 85, 0.8);
+    color: #E2E8F0;
+  }
+
+  html.dark .btn-secondary:hover {
+    background-color: rgba(51, 65, 85, 0.8);
+  }
+
+  html.light .btn-secondary {
+    background-color: #F1F5F9;
+    border: 1px solid #CBD5E1;
+    color: #1E293B;
+  }
+
+  html.light .btn-secondary:hover {
+    background-color: #E2E8F0;
   }
 
   /* Mobile safe-area spacing utilities */
@@ -56,10 +186,121 @@
   .safe-page-pad {
     padding-bottom: max(9rem, calc(7.5rem + env(safe-area-inset-bottom, 0px)));
   }
+
+  /* --- Complete Light Mode Theme Overrides --- */
+  html.light header {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border-bottom-color: #E2E8F0 !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  html.light nav.fixed {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-color: #CBD5E1 !important;
+    box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.15) !important;
+  }
+
+  /* Catch-all opacity and background variants for light mode */
+  html.light [class*="bg-navy-950"] {
+    background-color: #F8FAFC !important;
+  }
+
+  html.light [class*="bg-navy-900"] {
+    background-color: #F1F5F9 !important;
+  }
+
+  html.light [class*="bg-navy-850"] {
+    background-color: #FFFFFF !important;
+  }
+
+  html.light [class*="bg-navy-800"],
+  html.light [class*="bg-slate-800"] {
+    background-color: #E2E8F0 !important;
+  }
+
+  html.light [class*="bg-emerald-950"] {
+    background-color: rgba(16, 185, 129, 0.08) !important;
+  }
+
+  /* High-contrast typography in Light Mode (WCAG AAA) */
+  html.light .btn-primary,
+  html.light [class*="bg-emerald-600"],
+  html.light [class*="bg-emerald-700"],
+  html.light [class*="bg-amber-600"],
+  html.light [class*="bg-rose-600"] {
+    color: #FFFFFF !important;
+  }
+
+  html.light .btn-primary *,
+  html.light [class*="bg-emerald-600"] *,
+  html.light [class*="bg-emerald-700"] *,
+  html.light [class*="bg-amber-600"] *,
+  html.light [class*="bg-rose-600"] * {
+    color: #FFFFFF !important;
+  }
+
+  html.light .text-white:not(.btn-primary):not([class*="bg-emerald-6"]):not([class*="bg-emerald-7"]):not([class*="bg-amber-6"]):not([class*="bg-rose-6"]) {
+    color: #0F172A !important;
+  }
+
+  html.light .text-slate-100 {
+    color: #0F172A !important;
+  }
+
+  html.light .text-slate-200 {
+    color: #1E293B !important;
+  }
+
+  html.light .text-slate-300 {
+    color: #334155 !important;
+  }
+
+  html.light .text-slate-400 {
+    color: #475569 !important;
+  }
+
+  html.light .text-slate-500 {
+    color: #64748B !important;
+  }
+
+  html.light .text-emerald-300,
+  html.light .text-emerald-400 {
+    color: #047857 !important;
+  }
+
+  html.light .text-rose-300,
+  html.light .text-rose-400 {
+    color: #BE123C !important;
+  }
+
+  html.light .text-amber-300,
+  html.light .text-amber-400 {
+    color: #B45309 !important;
+  }
+
+  /* Light mode borders */
+  html.light [class*="border-white"] {
+    border-color: #E2E8F0 !important;
+  }
+
+  html.light [class*="border-slate-700"],
+  html.light [class*="border-slate-800"] {
+    border-color: #CBD5E1 !important;
+  }
+
+  html.light input[type="date"],
+  html.light input[type="text"] {
+    color: #0F172A !important;
+    background-color: #FFFFFF !important;
+    color-scheme: light !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+
+  *,
+  ::before,
+  ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

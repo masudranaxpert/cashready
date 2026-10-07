@@ -35,15 +35,15 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-lg bg-navy-850/90 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-soft-xl">
+      <div className="w-full max-w-lg card-soft p-6 sm:p-8 shadow-soft-xl border border-slate-200 dark:border-white/[0.08]">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-400 mb-4 shadow-soft">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-600 dark:text-teal-400 mb-4 shadow-soft">
             <Lock className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-100">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
             {lang === "bn" ? "ভূমিকা নির্বাচন করুন (লগইন)" : "Select Demo Role (Sign In)"}
           </h1>
-          <p className="text-sm text-slate-400 mt-2 max-w-md mx-auto">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 max-w-md mx-auto">
             {lang === "bn"
               ? "CashReady রোল-বেসড অ্যাক্সেস কন্ট্রোল সমর্থন করে। বিচারক বা নির্দিষ্ট ব্যবহারকারী হিসেবে এক ক্লিকে প্রবেশ করুন।"
               : "CashReady enforces role-scoped security. Sign in with one click as an evaluator, territory manager, or retail agent."}
@@ -65,7 +65,7 @@ export default function LoginPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-lg">
-                      {lang === "bn" ? "বিচারক / অ্যাডমিন (Judge / Admin)" : "Judge / Admin (Full Access)"}
+                      {lang === "bn" ? "অ্যাডমিন (Admin)" : "Admin (Full Access)"}
                     </span>
                     <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-white/20 text-white uppercase tracking-wider">
                       {lang === "bn" ? "প্রস্তাবিত" : "Full Access"}
@@ -92,18 +92,18 @@ export default function LoginPage() {
           <button
             onClick={() => handleLogin("manager")}
             disabled={loadingRole !== null}
-            className="w-full bg-slate-800/80 hover:bg-slate-750 border border-slate-700/80 hover:border-slate-600 text-slate-200 rounded-xl p-4 text-left transition-all duration-150 shadow-soft active:scale-[0.99] disabled:opacity-50"
+            className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-navy-900/80 dark:hover:bg-navy-900 border border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/[0.15] text-slate-800 dark:text-slate-200 rounded-xl p-4 text-left transition-all duration-150 shadow-sm active:scale-[0.99] disabled:opacity-50 cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                <div className="p-2 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="font-semibold text-base text-slate-100">
+                  <span className="font-semibold text-base text-slate-900 dark:text-slate-100">
                     {lang === "bn" ? "এরিয়া ম্যানেজার (Area Manager - A01)" : "Area Manager (A01 - Urban)"}
                   </span>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     {lang === "bn"
                       ? "শুধুমাত্র A01 এরিয়ার ক্লাস্টার রিস্ক ও নিজস্ব এজেন্ট তালিকা দেখার অনুমতি"
                       : "Scoped strictly to Area A01 agents and cluster shortfall risk"}
@@ -112,7 +112,7 @@ export default function LoginPage() {
               </div>
               <div>
                 {loadingRole === "manager" ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-teal-400" />
+                  <Loader2 className="w-5 h-5 animate-spin text-teal-500" />
                 ) : (
                   <ArrowRight className="w-4 h-4 text-slate-400" />
                 )}
@@ -124,18 +124,18 @@ export default function LoginPage() {
           <button
             onClick={() => handleLogin("agent")}
             disabled={loadingRole !== null}
-            className="w-full bg-slate-800/80 hover:bg-slate-750 border border-slate-700/80 hover:border-slate-600 text-slate-200 rounded-xl p-4 text-left transition-all duration-150 shadow-soft active:scale-[0.99] disabled:opacity-50"
+            className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-navy-900/80 dark:hover:bg-navy-900 border border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/[0.15] text-slate-800 dark:text-slate-200 rounded-xl p-4 text-left transition-all duration-150 shadow-sm active:scale-[0.99] disabled:opacity-50 cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   <UserCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="font-semibold text-base text-slate-100">
+                  <span className="font-semibold text-base text-slate-900 dark:text-slate-100">
                     {lang === "bn" ? "MFS এজেন্ট (Agent - T0039)" : "MFS Agent (T0039)"}
                   </span>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     {lang === "bn"
                       ? "শুধুমাত্র নিজস্ব সকালের ক্যাশ প্ল্যান ও SHAP ব্যাখ্যা দেখার অনুমতি"
                       : "Scoped strictly to Agent T0039 liquidity plan and feedback"}
@@ -144,7 +144,7 @@ export default function LoginPage() {
               </div>
               <div>
                 {loadingRole === "agent" ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-teal-400" />
+                  <Loader2 className="w-5 h-5 animate-spin text-teal-500" />
                 ) : (
                   <ArrowRight className="w-4 h-4 text-slate-400" />
                 )}
@@ -153,8 +153,8 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <div className="mt-8 pt-5 border-t border-slate-800 text-center">
-          <p className="text-xs text-slate-500">
+        <div className="mt-8 pt-5 border-t border-slate-200 dark:border-white/[0.08] text-center">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {lang === "bn"
               ? "🔒 টোকেন সার্ভার-সাইড httpOnly কুকিতে সংরক্ষিত থাকে এবং ব্রাউজার ক্লায়েন্ট স্ক্রিপ্টে কখনো উন্মুক্ত হয় না।"
               : "🔒 Security: Credentials are stored in httpOnly secure cookies and never exposed to client-side JavaScript."}

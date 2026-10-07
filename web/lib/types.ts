@@ -77,11 +77,13 @@ export interface AreaLostDemandResponse {
 
 export interface MetricsResponse {
   detector_metrics: {
-    rule?: { f1_macro: number; f1_cash_stockout: number };
-    hmm?: { f1_macro: number; f1_cash_stockout: number };
-    lgbm?: { f1_macro: number; f1_cash_stockout: number };
+    rule?: { f1_macro: number; f1_cash_stockout: number; f1_macro_all?: number; f1_cash_stockout_all?: number };
+    hmm?: { f1_macro: number; f1_cash_stockout: number; f1_macro_all?: number; f1_cash_stockout_all?: number };
+    lgbm?: { f1_macro: number; f1_cash_stockout: number; f1_macro_all?: number; f1_cash_stockout_all?: number };
     f1_macro?: number;
     f1_cash_stockout?: number;
+    f1_macro_all?: number;
+    f1_cash_stockout_all?: number;
     best?: string;
   };
   recovery_metrics: {

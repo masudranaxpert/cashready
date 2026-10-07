@@ -162,6 +162,17 @@ type Dict = {
   adminOnlyRestrictedDesc: string;
   adminOnlyLoginAction: string;
 
+  recallProgressionHeading: string;
+  recallProgressionBadge: string;
+  recallProgressionDesc: string;
+  colStage: string;
+  colRuleThreshold: string;
+  colPrecisionVal: string;
+  colRecallVal: string;
+  colF1Val: string;
+  colTPVal: string;
+  colNotesVal: string;
+
   // Step 2: Confirmation form
   confirmationFormTitle: string;
   confirmationFormDesc: string;
@@ -377,6 +388,17 @@ const BN: Dict = {
   adminOnlyRestrictedDesc: "মডেল মূল্যায়ন মেট্রিক্স, ক্যাপিটাল কম্প্যারিজন এবং পাইলট প্ল্যান শুধুমাত্র বিচারক ও অ্যাডমিনের জন্য সংরক্ষিত।",
   adminOnlyLoginAction: "অ্যাডমিন হিসেবে লগইন করুন",
 
+  recallProgressionHeading: "ক্যাশ স্টক-আউট রিকল ও অ্যাকুরেসি উন্নয়ন",
+  recallProgressionBadge: "মডেল পারফরম্যান্স অগ্রগতি",
+  recallProgressionDesc: "টেম্পোরাল ড্রডাউন ও পারসিস্টেন্স ফিচার এবং ভ্যালিডেশন টিউনিংয়ের মাধ্যমে ক্যাশ স্টক-আউট রিকলের ধাপভিত্তিক অগ্রগতি।",
+  colStage: "মডেল ধাপ / সংস্করণ",
+  colRuleThreshold: "সিদ্ধান্তের নিয়ম / থ্রেশহোল্ড",
+  colPrecisionVal: "প্রিসিশন",
+  colRecallVal: "রিকল",
+  colF1Val: "F1 স্কোর",
+  colTPVal: "সঠিক শনাক্ত (TP)",
+  colNotesVal: "ফলাফল ও নোটস",
+
   // Step 2: Confirmation form
   confirmationFormTitle: "দৈনিক নগদ ও স্টক-আউট রিপোর্ট",
   confirmationFormDesc: "আজকের প্রকৃত ক্যাশ অবস্থা নিশ্চিত করুন (মডেলের পূর্বাভাস যাচাইয়ে সহায়তা করবে)",
@@ -508,7 +530,7 @@ const EN: Dict = {
   lostTransactionsLabel: "Lost transactions",
   chartTapHint: "Tap a bar in the chart to switch to that area.",
   evidenceBadge: "Evaluation-based evidence",
-  evidenceSubheading2: "All results are empirically measured against hidden ground truth in our 30-day evaluation.",
+  evidenceSubheading2: "All results are measured against hidden ground truth in our 30-day evaluation (assumed illustrative parameters; see cashready/config.py).",
   kpiDetectorF1: "Stock-out detector F1",
   kpiLightgbm: "LightGBM model",
   kpiCalibration: "Forecast calibration (P10-P90)",
@@ -519,7 +541,7 @@ const EN: Dict = {
   kpiCommissionSaved: "Commission saved (30 days)",
   kpiTotalSaved: "Total savings",
   evalEvidenceTitle: "Evaluation evidence",
-  evalEvidenceDesc: "Empirical benchmarks comparing model accuracy against baseline heuristics.",
+  evalEvidenceDesc: "Rigorous benchmarks comparing model accuracy against baseline heuristics (assumed illustrative parameters; see cashready/config.py).",
   errorLevel: "Error level",
   chartSummary: "Chart summary",
   meanDeviationBdt: "Mean deviation (BDT)",
@@ -590,6 +612,17 @@ const EN: Dict = {
   adminOnlyRestrictedTitle: "Admin Access Required",
   adminOnlyRestrictedDesc: "Model verification metrics, capital-matched evaluation, and trial designs are restricted to judges and administrators.",
   adminOnlyLoginAction: "Log in as Admin",
+
+  recallProgressionHeading: "Cash Stock-Out Recall Progression",
+  recallProgressionBadge: "Model Evaluation Lift",
+  recallProgressionDesc: "Step-by-step recall and detection progression from temporal features and validation-tuned operating points.",
+  colStage: "Stage / Model Variant",
+  colRuleThreshold: "Decision Rule / Threshold",
+  colPrecisionVal: "Precision",
+  colRecallVal: "Recall",
+  colF1Val: "F1 Score",
+  colTPVal: "True Positives (TP)",
+  colNotesVal: "Key Findings & Notes",
 
   // Step 2: Confirmation form
   confirmationFormTitle: "Daily Stock-Out Confirmation",
