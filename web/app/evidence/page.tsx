@@ -14,6 +14,7 @@ import {
   Info,
   Award,
   Layers,
+  Cpu,
 } from "lucide-react";
 import {
   BarChart,
@@ -122,6 +123,16 @@ export default function EvidencePage() {
         </div>
       ) : (
         <div className="space-y-4 sm:space-y-6 animate-fade-in">
+          {/* Simulation Disclaimer Alert */}
+          <div className="flex items-start gap-2.5 p-3.5 bg-navy-850 rounded-2xl border border-slate-800 text-xs text-slate-300">
+            <Info className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-semibold text-slate-200 block">
+                {t.simulationDisclaimerNotice}
+              </span>
+            </div>
+          </div>
+
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" aria-label={t.evalEvidenceTitle}>
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
@@ -155,9 +166,14 @@ export default function EvidencePage() {
 
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
-                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
-                  {t.kpiLostDemand}
-                </span>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                    {t.kpiLostDemand}
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60">
+                    {t.simulationDisclaimer}
+                  </span>
+                </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-teal-400 tracking-tight tabular-nums">
                     {metrics.business_sim_metrics.cashready_policy.lost_pct.toFixed(1)}%
@@ -177,9 +193,14 @@ export default function EvidencePage() {
 
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
               <div>
-                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
-                  {t.kpiCommissionSaved}
-                </span>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                    {t.kpiCommissionSaved}
+                  </span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60">
+                    {t.simulationDisclaimer}
+                  </span>
+                </div>
                 <div className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight tabular-nums">
                   {lang === "en"
                     ? `৳ ${(metrics.business_sim_metrics.commission_saved_bdt / 1_000_000).toFixed(2)}M`
@@ -432,6 +453,47 @@ export default function EvidencePage() {
                     )}
                   </p>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Model & Pipeline Transparency */}
+          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6 space-y-4" aria-label={t.modelTransparencyTitle}>
+            <div className="border-b border-slate-800 pb-3">
+              <h3 className="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-2">
+                <Cpu className="w-4 h-4 text-teal-400" />
+                <span>{t.modelTransparencyTitle}</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                {lang === "en"
+                  ? "Production machine learning specifications and feature governance."
+                  : "মেশিন লার্নিং পাইপলাইনের প্রযুক্তিগত স্পেসিফিকেশন ও তথ্য স্বচ্ছতা।"}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-xs">
+              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800">
+                <span className="text-slate-400 block">{t.modelVersion}</span>
+                <span className="font-bold text-slate-200 text-sm mt-0.5 block">LightGBM v2.1</span>
+                <span className="text-[10px] text-slate-500">Supervised Quantile Regressor</span>
+              </div>
+
+              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800">
+                <span className="text-slate-400 block">{t.dataVersion}</span>
+                <span className="font-bold text-slate-200 text-sm mt-0.5 block">Strict Day-Ahead Causal</span>
+                <span className="text-[10px] text-slate-500">T-1 Evening Lags (No leakage)</span>
+              </div>
+
+              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800">
+                <span className="text-slate-400 block">{t.explainabilityMethod}</span>
+                <span className="font-bold text-slate-200 text-sm mt-0.5 block">TreeExplainer SHAP</span>
+                <span className="text-[10px] text-slate-500">Deterministic Bilingual Output</span>
+              </div>
+
+              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800">
+                <span className="text-slate-400 block">{t.lastUpdated}</span>
+                <span className="font-bold text-teal-400 text-sm mt-0.5 block">2026-10-02 (DEMO_DATE)</span>
+                <span className="text-[10px] text-slate-500">114,110 evaluated agent-hours</span>
               </div>
             </div>
           </section>
