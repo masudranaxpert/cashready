@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type {
   Agent,
@@ -68,6 +68,18 @@ export default function AgentPage() {
   // Search filter for agent dropdown
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isDropdownOpen) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isDropdownOpen]);
 
   // Structured Confirmation states
   const [cashRanOut, setCashRanOut] = useState<boolean>(false);
@@ -264,7 +276,7 @@ export default function AgentPage() {
         <div className="lg:col-span-5 lg:order-2 space-y-4">
           {/* Agent & Date Selector */}
           <section
-            className={`card-soft space-y-3.5 relative transition-all ${isDropdownOpen ? "z-50" : "z-20"}`}
+            className={`card-soft space-y-3.5 relative transition-all ${isDropdownOpen ? "z-[100]" : "z-10"}`}
             aria-label={t.agentSelectorLabel}
           >
             <div className="flex items-center justify-between gap-2 min-w-0 pb-1 border-b border-slate-200 dark:border-white/[0.06]">
@@ -296,7 +308,7 @@ export default function AgentPage() {
               </div>
             </div>
 
-            <div className={`relative ${isDropdownOpen ? "z-50" : "z-10"}`}>
+            <div ref={dropdownRef} className="relative">
               <div className="flex items-center justify-between mb-1.5">
                 <label htmlFor="agent-search" className="block text-xs font-semibold text-slate-600 dark:text-slate-400">
                   {userRole === "agent"
@@ -311,84 +323,75 @@ export default function AgentPage() {
                 )}
               </div>
 
-              <div className={`relative ${isDropdownOpen ? "z-50" : "z-10"}`}>
-                <button
-                  type="button"
-                  id="agent-search"
-                  disabled={userRole === "agent"}
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className={`w-full min-h-[44px] px-3.5 py-2 text-left bg-slate-100/90 hover:bg-slate-100 dark:bg-navy-900/90 dark:hover:bg-navy-900 rounded-xl border border-slate-200 dark:border-white/[0.1] hover:border-emerald-500/40 flex items-center justify-between text-sm transition-all text-slate-800 dark:text-slate-200 shadow-sm ${
-                    userRole === "agent" ? "cursor-default opacity-90" : ""
-                  }`}
-                  aria-haspopup="listbox"
-                  aria-expanded={isDropdownOpen}
-                >
-                  <div className="flex items-center gap-2.5 truncate min-w-0">
-                    <span className="font-extrabold text-slate-900 dark:text-white shrink-0 tracking-wide">
-                      {currentAgent?.agent_id ?? selectedAgentId}
-                    </span>
-                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold truncate">
-                      {currentAgent ? `• ${currentAgent.area_id} (${currentAgent.area_type})` : ""}
-                    </span>
-                  </div>
-                  {userRole === "agent" ? (
-                    <Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 ml-2" />
-                  ) : (
-                    <Search className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
-                  )}
-                </button>
-
-                {isDropdownOpen && userRole !== "agent" && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setIsDropdownOpen(false)}
-                      aria-hidden="true"
-                    />
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-navy-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-white/[0.12] z-50 p-2.5 max-h-72 overflow-y-auto">
-                      <div className="p-1 mb-2">
-                        <input
-                          type="text"
-                          placeholder={t.agentSelectorPlaceholder}
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-white/[0.1] rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                          autoFocus
-                        />
-                      </div>
-                      <ul role="listbox" className="space-y-1">
-                        {filteredAgents.map((ag) => (
-                          <li key={ag.agent_id}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedAgentId(ag.agent_id);
-                                setIsDropdownOpen(false);
-                                setSearchQuery("");
-                              }}
-                              className={`w-full min-h-[44px] px-3 py-2 text-left text-xs rounded-xl flex items-center justify-between transition-colors ${
-                                ag.agent_id === selectedAgentId
-                                  ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-500/30"
-                                  : "hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
-                              }`}
-                              role="option"
-                              aria-selected={ag.agent_id === selectedAgentId}
-                            >
-                              <span className="font-bold text-slate-900 dark:text-white">{ag.agent_id}</span>
-                              <span className="text-slate-500 dark:text-slate-400 text-[11px]">
-                                {ag.area_id} • {ag.area_type}
-                              </span>
-                            </button>
-                          </li>
-                        ))}
-                        {filteredAgents.length === 0 && (
-                          <li className="px-3 py-2 text-xs text-slate-500 text-center">{t.noAgentMatch}</li>
-                        )}
-                      </ul>
-                    </div>
-                  </>
+              <button
+                type="button"
+                id="agent-search"
+                disabled={userRole === "agent"}
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className={`w-full min-h-[44px] px-3.5 py-2 text-left bg-slate-100/90 hover:bg-slate-100 dark:bg-navy-900/90 dark:hover:bg-navy-900 rounded-xl border border-slate-200 dark:border-white/[0.1] hover:border-emerald-500/40 flex items-center justify-between text-sm transition-all text-slate-800 dark:text-slate-200 shadow-sm ${
+                  userRole === "agent" ? "cursor-default opacity-90" : ""
+                }`}
+                aria-haspopup="listbox"
+                aria-expanded={isDropdownOpen}
+              >
+                <div className="flex items-center gap-2.5 truncate min-w-0">
+                  <span className="font-extrabold text-slate-900 dark:text-white shrink-0 tracking-wide">
+                    {currentAgent?.agent_id ?? selectedAgentId}
+                  </span>
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold truncate">
+                    {currentAgent ? `• ${currentAgent.area_id} (${currentAgent.area_type})` : ""}
+                  </span>
+                </div>
+                {userRole === "agent" ? (
+                  <Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 ml-2" />
+                ) : (
+                  <Search className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
                 )}
-              </div>
+              </button>
+
+              {isDropdownOpen && userRole !== "agent" && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-navy-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-white/[0.12] z-50 p-2.5 max-h-72 overflow-y-auto">
+                  <div className="p-1 mb-2">
+                    <input
+                      type="text"
+                      placeholder={t.agentSelectorPlaceholder}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-white/[0.1] rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      autoFocus
+                    />
+                  </div>
+                  <ul role="listbox" className="space-y-1">
+                    {filteredAgents.map((ag) => (
+                      <li key={ag.agent_id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedAgentId(ag.agent_id);
+                            setIsDropdownOpen(false);
+                            setSearchQuery("");
+                          }}
+                          className={`w-full min-h-[44px] px-3 py-2 text-left text-xs rounded-xl flex items-center justify-between transition-colors ${
+                            ag.agent_id === selectedAgentId
+                              ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-500/30"
+                              : "hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
+                          }`}
+                          role="option"
+                          aria-selected={ag.agent_id === selectedAgentId}
+                        >
+                          <span className="font-bold text-slate-900 dark:text-white">{ag.agent_id}</span>
+                          <span className="text-slate-500 dark:text-slate-400 text-[11px]">
+                            {ag.area_id} • {ag.area_type}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                    {filteredAgents.length === 0 && (
+                      <li className="px-3 py-2 text-xs text-slate-500 text-center">{t.noAgentMatch}</li>
+                    )}
+                  </ul>
+                </div>
+              )}
             </div>
           </section>
 
