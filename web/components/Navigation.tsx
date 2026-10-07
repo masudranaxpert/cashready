@@ -42,8 +42,8 @@ export function Navigation() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       setSession({ authenticated: false, role: null, id: null });
-      router.push("/login");
-      router.refresh();
+      try { window.sessionStorage.removeItem("cashready_welcome_shown"); } catch {}
+      window.location.href = "/login";
     } catch (err) {
       console.error("Logout failed:", err);
     }

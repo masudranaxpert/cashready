@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { ShieldCheck, UserCheck, MapPin, ArrowRight, Loader2, Lock } from "lucide-react";
 import { useLang } from "@/lib/lang";
 
 export default function LoginPage() {
-  const router = useRouter();
   const { lang } = useLang();
   const [loadingRole, setLoadingRole] = useState<string | null>(null);
 
   const handleLogin = async (role: "admin" | "manager" | "agent") => {
+    if (loadingRole) return;
     setLoadingRole(role);
     try {
       const res = await fetch("/api/auth/login", {
@@ -19,16 +18,10 @@ export default function LoginPage() {
         body: JSON.stringify({ role }),
       });
       if (res.ok) {
-        if (role === "manager") {
-          router.push("/area");
-        } else {
-          router.push("/agent");
-        }
-        router.refresh();
+        window.location.href = role === "manager" ? "/area" : "/agent";
       }
     } catch (err) {
       console.error("Login failed:", err);
-    } finally {
       setLoadingRole(null);
     }
   };
