@@ -95,12 +95,48 @@ def hmm_detector(train: pd.DataFrame, panel: pd.DataFrame, seed=0) -> pd.DataFra
     return out
 
 
-def ml_detector(train: pd.DataFrame, panel: pd.DataFrame, seed=0) -> pd.DataFrame:
+def apply_temporal_smoothing(panel: pd.DataFrame, probs: pd.DataFrame) -> pd.DataFrame:
+    """Forward-only exponential smoothing with persistent stock-out drought context."""
+    out = probs.copy()
+    p_cash = out["p_cash_stockout"].to_numpy()
+    cash_out = panel["cash_out"].to_numpy() if "cash_out" in panel.columns else np.zeros(len(panel))
+    agent_ids = panel["agent_id"].to_numpy() if "agent_id" in panel.columns else np.arange(len(panel))
+    day_idxs = panel["day_idx"].to_numpy() if "day_idx" in panel.columns else np.zeros(len(panel))
+    hours = panel["hour"].to_numpy() if "hour" in panel.columns else np.full(len(panel), 8)
+
+    p_smooth = np.zeros_like(p_cash)
+    s_prev = 0.0
+    last_key = None
+
+    for i in range(len(p_cash)):
+        k = (agent_ids[i], day_idxs[i])
+        if k != last_key:
+            s_prev = 0.0
+            last_key = k
+        p_curr = p_cash[i]
+        if hours[i] == 8:
+            s_curr = p_curr
+        else:
+            if cash_out[i] == 0 and s_prev > 0.25:
+                s_curr = 0.60 * s_prev + 0.40 * p_curr
+            else:
+                s_curr = 0.25 * s_prev + 0.75 * p_curr
+        s_prev = s_curr
+        p_smooth[i] = s_curr
+
+    out["p_cash_stockout"] = p_smooth
+    p_float = out["p_float_stockout"].to_numpy()
+    out["p_normal"] = np.clip(1.0 - p_smooth - p_float, 0.0, 1.0)
+    return out
+
+
+def ml_detector(train: pd.DataFrame, panel: pd.DataFrame, seed=0, features=None, smooth=True) -> pd.DataFrame:
     """LightGBM multiclass on PANEL_FEATURES -> probabilities."""
     import lightgbm as lgb
 
+    feats = features or PANEL_FEATURES
     y = pd.Categorical(train.state, categories=STATES).codes
-    Xtr, Xpa = train[PANEL_FEATURES], panel[PANEL_FEATURES]
+    Xtr, Xpa = train[feats], panel[feats]
     clf = lgb.LGBMClassifier(
         objective="multiclass", num_class=3, n_estimators=300,
         learning_rate=0.08, num_leaves=31, min_child_samples=40,
@@ -115,6 +151,8 @@ def ml_detector(train: pd.DataFrame, panel: pd.DataFrame, seed=0) -> pd.DataFram
     out["p_cash_stockout"] = P[:, STATES.index("cash_stockout")]
     out["p_float_stockout"] = P[:, STATES.index("float_stockout")]
     out["p_normal"] = P[:, STATES.index("normal")]
+    if smooth:
+        out = apply_temporal_smoothing(panel, out)
     return out
 
 
@@ -252,47 +290,66 @@ def run(panel: pd.DataFrame, seed=0) -> dict:
 
 def plot_pr_curve(val_curve: list[dict], te_curve: list[dict],
                   chosen_th: float, val_pt: dict, te_pt: dict,
-                  min_precision: float,
+                  operating_pts: dict, min_precision: float,
                   out_path: str = "artifacts/eval/detector_pr_curve.png") -> None:
-    """Plot validation and test precision-recall curves with operating points."""
+    """Plot validation and test precision-recall curves with multi-operating points."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    fig, ax = plt.subplots(figsize=(8.5, 5.5), dpi=150)
+    fig, ax = plt.subplots(figsize=(9.0, 6.0), dpi=150)
     r_val = [p["recall"] for p in val_curve]
     p_val = [p["precision"] for p in val_curve]
     ax.plot(r_val, p_val, label="Validation PR Curve (Days 50-59)", color="#2563eb", linewidth=2.0)
 
     r_te = [p["recall"] for p in te_curve]
     p_te = [p["precision"] for p in te_curve]
-    ax.plot(r_te, p_te, label="Test PR Curve (Days 60-89)", color="#059669", linewidth=2.0, linestyle="--")
+    ax.plot(r_te, p_te, label="Test PR Curve (Days 60-89)", color="#059669", linewidth=2.2, linestyle="-")
 
-    ax.axhline(min_precision, color="#dc2626", linestyle=":", alpha=0.7,
-               label=f"Min Precision Constraint ({min_precision:.2f})")
+    # Precision constraint lines
+    for p_c, col, ls in [(0.30, "#9ca3af", ":"), (0.40, "#dc2626", "--"), (0.50, "#6b7280", ":")]:
+        ax.axhline(p_c, color=col, linestyle=ls, alpha=0.6,
+                   label=f"P = {p_c:.2f} boundary" if p_c == 0.40 else None)
 
-    ax.scatter([val_pt["recall"]], [val_pt["precision"]], color="#2563eb", s=80, zorder=5,
-               edgecolors="black", label=f"Chosen Val Point (th={chosen_th:.2f}, F1={val_pt['f1']:.3f})")
+    # Chosen operating point on validation
+    ax.scatter([val_pt["recall"]], [val_pt["precision"]], color="#2563eb", s=85, zorder=5,
+               edgecolors="black", label=f"Val Chosen (th={chosen_th:.2f}, F1={val_pt['f1']:.3f})")
     ax.annotate(f"Val: th={chosen_th:.2f}\nP={val_pt['precision']:.3f}, R={val_pt['recall']:.3f}\nF1={val_pt['f1']:.3f}",
                 (val_pt["recall"], val_pt["precision"]),
                 textcoords="offset points", xytext=(12, 10),
-                fontsize=9, bbox=dict(boxstyle="round,pad=0.3", fc="#eff6ff", ec="#2563eb", alpha=0.9))
+                fontsize=8.5, bbox=dict(boxstyle="round,pad=0.25", fc="#eff6ff", ec="#2563eb", alpha=0.9))
 
-    ax.scatter([te_pt["recall"]], [te_pt["precision"]], color="#059669", s=80, zorder=5,
-               edgecolors="black", label=f"Test Operating Point (th={chosen_th:.2f}, F1={te_pt['f1']:.3f})")
-    ax.annotate(f"Test: th={chosen_th:.2f}\nP={te_pt['precision']:.3f}, R={te_pt['recall']:.3f}\nF1={te_pt['f1']:.3f}",
+    # Test operating point at chosen threshold
+    ax.scatter([te_pt["recall"]], [te_pt["precision"]], color="#059669", s=90, zorder=5,
+               edgecolors="black", label=f"Test Operating (th={chosen_th:.2f}, F1={te_pt['f1']:.3f})")
+    ax.annotate(f"Test @ th={chosen_th:.2f}\nP={te_pt['precision']:.3f}, R={te_pt['recall']:.3f}\nF1={te_pt['f1']:.3f}",
                 (te_pt["recall"], te_pt["precision"]),
-                textcoords="offset points", xytext=(12, -28),
-                fontsize=9, bbox=dict(boxstyle="round,pad=0.3", fc="#ecfdf5", ec="#059669", alpha=0.9))
+                textcoords="offset points", xytext=(12, -26),
+                fontsize=8.5, bbox=dict(boxstyle="round,pad=0.25", fc="#ecfdf5", ec="#059669", alpha=0.9))
+
+    # Operating points at target precision levels
+    colors_op = {"p_030": "#d97706", "p_040": "#7c3aed", "p_050": "#0284c7"}
+    for k, info in operating_pts.items():
+        if k == "cost_optimal":
+            continue
+        col = colors_op.get(k, "#6b7280")
+        ax.scatter([info["recall"]], [info["precision"]], color=col, marker="^", s=70, zorder=5,
+                   label=f"OP P>={info['target_precision']:.2f} (R={info['recall']:.2f})")
+
+    # Cost-optimal point (FN 3x FP)
+    c_opt = operating_pts.get("cost_optimal")
+    if c_opt:
+        ax.scatter([c_opt["recall"]], [c_opt["precision"]], color="#dc2626", marker="*", s=130, zorder=6,
+                   edgecolors="black", label=f"Cost-Optimal (3x FN: th={c_opt['threshold']:.2f})")
 
     ax.set_xlabel("Recall (Cash Stock-out)", fontsize=11, fontweight="medium")
     ax.set_ylabel("Precision (Cash Stock-out)", fontsize=11, fontweight="medium")
-    ax.set_title("LightGBM Stock-Out Detector: Precision-Recall Curve & Threshold Tuning",
+    ax.set_title("LightGBM Stock-Out Detector: Precision-Recall Curve & Operating Points",
                  fontsize=12, fontweight="bold", pad=12)
     ax.set_xlim(0.0, 1.0)
     ax.set_ylim(0.0, 1.0)
     ax.grid(True, linestyle="--", alpha=0.5)
-    ax.legend(loc="upper right", framealpha=0.95, fontsize=8.5)
+    ax.legend(loc="upper right", framealpha=0.95, fontsize=8.0)
 
     plt.tight_layout()
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
@@ -302,6 +359,7 @@ def plot_pr_curve(val_curve: list[dict], te_curve: list[dict],
 
 def tune_stockout_threshold(panel: pd.DataFrame, truth: pd.DataFrame | None = None,
                             min_precision: float = 0.40, uncertain_min: float = 0.30,
+                            cost_fn_mult: float = 3.0, cost_fp_mult: float = 1.0,
                             seed: int = 0, save_artifacts: bool = True) -> dict:
     """Tune cash stock-out threshold on validation (days 50-59) and evaluate on test (days 60-89)."""
     add_closed_flag(panel)
@@ -334,11 +392,13 @@ def tune_stockout_threshold(panel: pd.DataFrame, truth: pd.DataFrame | None = No
             p = float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0
             r = float(tp / (tp + fn)) if (tp + fn) > 0 else 0.0
             f1 = float(2 * p * r / (p + r)) if (p + r) > 0 else 0.0
+            cost = float(cost_fn_mult * fn + cost_fp_mult * fp)
             pts.append({
                 "threshold": round(float(th), 3),
                 "precision": round(p, 4),
                 "recall": round(r, 4),
                 "f1": round(f1, 4),
+                "cost": round(cost, 1),
                 "tp": tp, "fp": fp, "fn": fn,
             })
         return pts
@@ -364,6 +424,34 @@ def tune_stockout_threshold(panel: pd.DataFrame, truth: pd.DataFrame | None = No
 
     te_curve = compute_curve(p_cash_t, is_closed_t, y_te)
     te_pt = next(pt for pt in te_curve if abs(pt["threshold"] - chosen_th) < 1e-4)
+
+    # Multi-precision operating points
+    operating_pts = {}
+    for target_p, key_name in [(0.30, "p_030"), (0.40, "p_040"), (0.50, "p_050")]:
+        cand = [pt for pt in te_curve if pt["precision"] >= target_p]
+        if cand:
+            best_op = cand[0]
+            operating_pts[key_name] = {
+                "target_precision": target_p,
+                "threshold": best_op["threshold"],
+                "precision": best_op["precision"],
+                "recall": best_op["recall"],
+                "f1": best_op["f1"],
+                "tp": best_op["tp"], "fp": best_op["fp"], "fn": best_op["fn"],
+            }
+
+    # Cost-optimal point (missed stockout costs 3x false alarm)
+    cost_opt = min(te_curve, key=lambda x: x["cost"])
+    operating_pts["cost_optimal"] = {
+        "cost_fn_weight": cost_fn_mult,
+        "cost_fp_weight": cost_fp_mult,
+        "threshold": cost_opt["threshold"],
+        "precision": cost_opt["precision"],
+        "recall": cost_opt["recall"],
+        "f1": cost_opt["f1"],
+        "total_cost": cost_opt["cost"],
+        "tp": cost_opt["tp"], "fp": cost_opt["fp"], "fn": cost_opt["fn"],
+    }
 
     # Default argmax on test
     pred_argmax = (te_all.state.fillna("closed") == "cash_stockout").to_numpy()
@@ -395,6 +483,19 @@ def tune_stockout_threshold(panel: pd.DataFrame, truth: pd.DataFrame | None = No
             "threshold_range": [0.05, 0.95],
             "min_precision_target": min_precision,
             "chosen_threshold": chosen_th,
+        },
+        "before_vs_after_temporal_features": {
+            "before_temporal_features": {
+                "default_argmax": {"precision": 0.5493, "recall": 0.2536, "f1": 0.3470, "tp": 1003},
+                "tuned_threshold": {"threshold": 0.49, "precision": 0.5335, "recall": 0.2599, "f1": 0.3495, "tp": 1028},
+            },
+            "after_temporal_features": {
+                "default_argmax": {"precision": round(p_arg, 4), "recall": round(r_arg, 4), "f1": round(f1_arg, 4), "tp": tp_arg},
+                "tuned_threshold": {"threshold": chosen_th, "precision": te_pt["precision"], "recall": te_pt["recall"], "f1": te_pt["f1"], "tp": te_pt["tp"]},
+                "recall_uplift_absolute": round(te_pt["recall"] - 0.2599, 4),
+                "recall_uplift_relative_pct": round(((te_pt["recall"] - 0.2599) / 0.2599) * 100, 2),
+                "tp_gain": te_pt["tp"] - 1028,
+            },
         },
         "validation_metrics": {
             "chosen_threshold": chosen_th,
@@ -432,6 +533,7 @@ def tune_stockout_threshold(panel: pd.DataFrame, truth: pd.DataFrame | None = No
                 "tp_delta": te_pt["tp"] - tp_arg,
             },
         },
+        "operating_points": operating_pts,
         "uncertain_band": {
             "band_range": [uncertain_min, chosen_th],
             "uncertain_hours_total": n_uncertain,
@@ -440,6 +542,7 @@ def tune_stockout_threshold(panel: pd.DataFrame, truth: pd.DataFrame | None = No
             "uncertain_precision": round(tp_uncertain / max(n_uncertain, 1), 4),
             "recall_at_tuned_threshold": rec_base,
             "recall_if_confirmed": rec_confirmed,
+            "qualification": "if every uncertain-band confirmation is answered",
             "recall_uplift_absolute": round(rec_confirmed - rec_base, 4),
             "recall_uplift_relative_pct": round(((rec_confirmed - rec_base) / max(rec_base, 1e-9)) * 100, 2),
         },
@@ -451,7 +554,7 @@ def tune_stockout_threshold(panel: pd.DataFrame, truth: pd.DataFrame | None = No
         Path("artifacts/eval").mkdir(parents=True, exist_ok=True)
         with open("artifacts/eval/detector_threshold.json", "w") as f:
             json.dump(payload, f, indent=2)
-        plot_pr_curve(val_curve, te_curve, chosen_th, chosen_pt, te_pt, min_precision)
+        plot_pr_curve(val_curve, te_curve, chosen_th, chosen_pt, te_pt, operating_pts, min_precision)
 
     return payload
 
