@@ -16,7 +16,6 @@ export function WelcomeIntro() {
   // 2: Product Message (Part 1 & 2)
   // 3: Value Proposition
   // 4: Final Transition
-  // 5: Complete (Fading out)
   const [stage, setStage] = useState<number>(0);
   const [messagePart2Visible, setMessagePart2Visible] = useState<boolean>(false);
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -36,76 +35,82 @@ export function WelcomeIntro() {
     try {
       window.sessionStorage.setItem(STORAGE_KEY, "1");
     } catch {
-      // sessionStorage might be restricted in some privacy modes
+      // sessionStorage might be restricted
     }
     const t = setTimeout(() => {
       setIsVisible(false);
+      setIsFadingOut(false);
     }, 450);
     timerRef.current.push(t);
   }, [clearAllTimers]);
 
+  const playIntro = useCallback(() => {
+    clearAllTimers();
+    setIsFadingOut(false);
+    setStage(0);
+    setMessagePart2Visible(false);
+    setIsVisible(true);
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const reduced = mediaQuery.matches;
+    setIsReducedMotion(reduced);
+
+    // Stage progression timings:
+    // Stage 0 (Brand): 0.0s - 0.8s
+    // Stage 1 (Personal Welcome): 0.8s - 1.8s
+    // Stage 2 (Product Message): 1.8s - 3.4s (Line 2 at 2.5s)
+    // Stage 3 (Value Proposition): 3.4s - 4.4s
+    // Stage 4 (Final Transition): 4.4s - 5.0s
+    // Complete dismissal: 5.0s
+    const t1 = setTimeout(() => setStage(1), reduced ? 350 : 850);
+    const t2 = setTimeout(() => setStage(2), reduced ? 750 : 1850);
+    const t2Sub = setTimeout(() => setMessagePart2Visible(true), reduced ? 950 : 2550);
+    const t3 = setTimeout(() => setStage(3), reduced ? 1350 : 3450);
+    const t4 = setTimeout(() => setStage(4), reduced ? 1750 : 4450);
+    const tDismiss = setTimeout(() => dismissIntro(), reduced ? 2150 : 5150);
+
+    timerRef.current = [t1, t2, t2Sub, t3, t4, tDismiss];
+  }, [clearAllTimers, dismissIntro]);
+
   useEffect(() => {
-    // Check if previously shown in this session
+    // Listen for custom replay event from header navigation or anywhere in app
+    const handleReplay = () => {
+      playIntro();
+    };
+    window.addEventListener("cashready:replay-intro", handleReplay);
+
+    // Initial check: if ?intro=1 is in URL or not yet shown in this session, play intro
+    let forceIntro = false;
     try {
-      const alreadyShown = window.sessionStorage.getItem(STORAGE_KEY);
-      if (alreadyShown === "1") {
-        return;
-      }
+      const params = new URLSearchParams(window.location.search);
+      forceIntro = params.get("intro") === "1";
+    } catch {
+      // Ignore URL parsing errors
+    }
+
+    let alreadyShown = false;
+    try {
+      alreadyShown = window.sessionStorage.getItem(STORAGE_KEY) === "1";
     } catch {
       // Ignore storage errors
     }
 
-    // Check reduced motion preference
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setIsReducedMotion(mediaQuery.matches);
-
-    setIsVisible(true);
-
-    const reduced = mediaQuery.matches;
-
-    // Orchestrate smooth stages:
-    // Stage 0: 0.0s - 0.8s
-    // Stage 1: 0.8s - 1.8s
-    // Stage 2: 1.8s - 3.4s (Line 1 at 1.8s, Line 2 at 2.6s)
-    // Stage 3: 3.4s - 4.4s
-    // Stage 4: 4.4s - 5.0s
-    // Dismiss: 5.0s
-    const t1 = setTimeout(() => {
-      setStage(1);
-    }, reduced ? 400 : 850);
-
-    const t2 = setTimeout(() => {
-      setStage(2);
-    }, reduced ? 900 : 1850);
-
-    const t2Sub = setTimeout(() => {
-      setMessagePart2Visible(true);
-    }, reduced ? 1100 : 2550);
-
-    const t3 = setTimeout(() => {
-      setStage(3);
-    }, reduced ? 1500 : 3450);
-
-    const t4 = setTimeout(() => {
-      setStage(4);
-    }, reduced ? 1900 : 4450);
-
-    const tDismiss = setTimeout(() => {
-      dismissIntro();
-    }, reduced ? 2300 : 5150);
-
-    timerRef.current = [t1, t2, t2Sub, t3, t4, tDismiss];
+    if (forceIntro || !alreadyShown) {
+      playIntro();
+    }
 
     return () => {
+      window.removeEventListener("cashready:replay-intro", handleReplay);
       clearAllTimers();
     };
-  }, [clearAllTimers, dismissIntro]);
+  }, [clearAllTimers, playIntro]);
 
   if (!isVisible) {
     return null;
   }
 
   const isBn = lang === "bn";
+  const isDark = theme === "dark";
 
   return (
     <div
@@ -113,23 +118,26 @@ export function WelcomeIntro() {
       aria-modal="true"
       aria-label={isBn ? "CashReady স্বাগতম বার্তা" : "CashReady Welcome Introduction"}
       onClick={dismissIntro}
-      className={`fixed inset-0 z-50 flex items-center justify-center select-none cursor-pointer overflow-hidden transition-all duration-500 ease-out ${
+      style={{
+        backgroundColor: isDark ? "#060A14" : "#F8FAFC",
+      }}
+      className={`fixed inset-0 z-[100] flex items-center justify-center select-none cursor-pointer overflow-hidden transition-all duration-500 ease-out ${
         isFadingOut
           ? "opacity-0 scale-[1.02] pointer-events-none"
-          : "opacity-100 scale-100"
+          : "opacity-100 scale-100 pointer-events-auto"
       } ${
-        theme === "light"
-          ? "bg-slate-50/95 text-slate-900"
-          : "bg-navy-950/98 text-white"
+        isDark
+          ? "text-white"
+          : "text-slate-900"
       }`}
     >
       {/* Subtle ambient fintech glow backdrop */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] sm:w-[680px] h-[480px] sm:h-[680px] rounded-full bg-gradient-to-tr from-emerald-500/15 via-teal-500/10 to-transparent blur-3xl pointer-events-none transition-all duration-700"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] sm:w-[680px] h-[480px] sm:h-[680px] rounded-full bg-gradient-to-tr from-emerald-500/20 via-teal-500/15 to-transparent blur-3xl pointer-events-none transition-all duration-700"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 bg-[radial-gradient(#10B981_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] pointer-events-none"
+        className="absolute inset-0 bg-[radial-gradient(#10B981_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.04] pointer-events-none"
         aria-hidden="true"
       />
 
@@ -142,9 +150,9 @@ export function WelcomeIntro() {
             dismissIntro();
           }}
           className={`group flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border transition-all duration-150 active:scale-95 ${
-            theme === "light"
-              ? "bg-white/80 border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-white shadow-sm"
-              : "bg-navy-900/80 border-white/[0.08] text-slate-400 hover:text-white hover:bg-navy-850 shadow-sm"
+            isDark
+              ? "bg-slate-900/90 border-white/[0.12] text-slate-300 hover:text-white hover:bg-slate-800 shadow-md"
+              : "bg-white/95 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-white shadow-sm"
           }`}
           aria-label={isBn ? "স্বাগতম বার্তা এড়িয়ে যান" : "Skip welcome intro"}
         >
@@ -296,7 +304,9 @@ export function WelcomeIntro() {
                   ? "w-6 bg-emerald-500"
                   : stage > stepIdx
                   ? "w-2 bg-emerald-500/40"
-                  : "w-2 bg-slate-300 dark:bg-white/20"
+                  : isDark
+                  ? "w-2 bg-white/20"
+                  : "w-2 bg-slate-300"
               }`}
             />
           ))}

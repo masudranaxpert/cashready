@@ -8,7 +8,7 @@ import { ThemeToggle } from "@/lib/theme";
 
 export function Navigation() {
   const pathname = usePathname();
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   const navItems = [
     { href: "/agent", label: t.navAgent, icon: UserCheck },
@@ -23,8 +23,12 @@ export function Navigation() {
           <div className="flex items-center gap-3">
             <Link
               href="/agent"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("cashready:replay-intro"));
+              }}
               className="group flex items-center gap-2.5 transition-transform duration-150 active:scale-[0.98]"
               aria-label="CashReady home"
+              title={lang === "bn" ? "স্বাগতম বার্তা দেখতে ক্লিক করুন" : "Click to view Welcome Intro"}
             >
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-slate-950 font-black text-lg shadow-glow-emerald/40 shadow-sm border border-emerald-300/40 group-hover:scale-105 transition-transform">
                 ৳
@@ -66,6 +70,15 @@ export function Navigation() {
                 );
               })}
             </nav>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("cashready:replay-intro"))}
+              className="min-h-[44px] min-w-[44px] sm:min-h-[36px] sm:min-w-[36px] p-2 rounded-full flex items-center justify-center transition-all duration-150 active:scale-95 bg-navy-900/80 border border-white/[0.1] hover:border-emerald-500/40 text-emerald-400 hover:text-emerald-300 shadow-sm"
+              title={lang === "bn" ? "স্বাগতম বার্তা পুনরায় দেখুন" : "Replay Welcome Intro"}
+              aria-label={lang === "bn" ? "স্বাগতম বার্তা পুনরায় দেখুন" : "Replay Welcome Intro"}
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
             <ThemeToggle />
             <LangToggle />
           </div>
