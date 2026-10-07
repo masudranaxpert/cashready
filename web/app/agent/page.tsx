@@ -263,7 +263,10 @@ export default function AgentPage() {
         {/* Sidebar / Top on Mobile (col-span-5) */}
         <div className="lg:col-span-5 lg:order-2 space-y-4">
           {/* Agent & Date Selector */}
-          <section className="card-soft space-y-3.5" aria-label={t.agentSelectorLabel}>
+          <section
+            className={`card-soft space-y-3.5 relative transition-all ${isDropdownOpen ? "z-50" : "z-20"}`}
+            aria-label={t.agentSelectorLabel}
+          >
             <div className="flex items-center justify-between gap-2 min-w-0 pb-1 border-b border-slate-200 dark:border-white/[0.06]">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
@@ -293,7 +296,7 @@ export default function AgentPage() {
               </div>
             </div>
 
-            <div className="relative">
+            <div className={`relative ${isDropdownOpen ? "z-50" : "z-10"}`}>
               <div className="flex items-center justify-between mb-1.5">
                 <label htmlFor="agent-search" className="block text-xs font-semibold text-slate-600 dark:text-slate-400">
                   {userRole === "agent"
@@ -308,7 +311,7 @@ export default function AgentPage() {
                 )}
               </div>
 
-              <div className="relative">
+              <div className={`relative ${isDropdownOpen ? "z-50" : "z-10"}`}>
                 <button
                   type="button"
                   id="agent-search"
@@ -336,54 +339,61 @@ export default function AgentPage() {
                 </button>
 
                 {isDropdownOpen && userRole !== "agent" && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-navy-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-white/[0.12] z-[100] p-2.5 max-h-72 overflow-y-auto">
-                    <div className="p-1 mb-2">
-                      <input
-                        type="text"
-                        placeholder={t.agentSelectorPlaceholder}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-white/[0.1] rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                        autoFocus
-                      />
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setIsDropdownOpen(false)}
+                      aria-hidden="true"
+                    />
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-navy-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-white/[0.12] z-50 p-2.5 max-h-72 overflow-y-auto">
+                      <div className="p-1 mb-2">
+                        <input
+                          type="text"
+                          placeholder={t.agentSelectorPlaceholder}
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-white/[0.1] rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          autoFocus
+                        />
+                      </div>
+                      <ul role="listbox" className="space-y-1">
+                        {filteredAgents.map((ag) => (
+                          <li key={ag.agent_id}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedAgentId(ag.agent_id);
+                                setIsDropdownOpen(false);
+                                setSearchQuery("");
+                              }}
+                              className={`w-full min-h-[44px] px-3 py-2 text-left text-xs rounded-xl flex items-center justify-between transition-colors ${
+                                ag.agent_id === selectedAgentId
+                                  ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-500/30"
+                                  : "hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
+                              }`}
+                              role="option"
+                              aria-selected={ag.agent_id === selectedAgentId}
+                            >
+                              <span className="font-bold text-slate-900 dark:text-white">{ag.agent_id}</span>
+                              <span className="text-slate-500 dark:text-slate-400 text-[11px]">
+                                {ag.area_id} • {ag.area_type}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                        {filteredAgents.length === 0 && (
+                          <li className="px-3 py-2 text-xs text-slate-500 text-center">{t.noAgentMatch}</li>
+                        )}
+                      </ul>
                     </div>
-                    <ul role="listbox" className="space-y-1">
-                      {filteredAgents.map((ag) => (
-                        <li key={ag.agent_id}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedAgentId(ag.agent_id);
-                              setIsDropdownOpen(false);
-                              setSearchQuery("");
-                            }}
-                            className={`w-full min-h-[44px] px-3 py-2 text-left text-xs rounded-xl flex items-center justify-between transition-colors ${
-                              ag.agent_id === selectedAgentId
-                                ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-500/30"
-                                : "hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
-                            }`}
-                            role="option"
-                            aria-selected={ag.agent_id === selectedAgentId}
-                          >
-                            <span className="font-bold text-slate-900 dark:text-white">{ag.agent_id}</span>
-                            <span className="text-slate-500 dark:text-slate-400 text-[11px]">
-                              {ag.area_id} • {ag.area_type}
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                      {filteredAgents.length === 0 && (
-                        <li className="px-3 py-2 text-xs text-slate-500 text-center">{t.noAgentMatch}</li>
-                      )}
-                    </ul>
-                  </div>
+                  </>
                 )}
               </div>
             </div>
           </section>
 
           {/* Structured Confirmation Form Card */}
-          <section className="card-soft space-y-3.5" aria-label={t.confirmationFormTitle}>
+          <section className="card-soft space-y-3.5 relative z-0" aria-label={t.confirmationFormTitle}>
             <div className="flex items-start sm:items-center justify-between gap-3 pb-2.5 border-b border-slate-200 dark:border-white/[0.06]">
               <div className="min-w-0 flex-1">
                 <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
