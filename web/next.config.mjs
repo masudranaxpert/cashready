@@ -9,6 +9,22 @@ const nextConfig = {
         source: "/api-backend/:path*",
         destination: `${internalUrl}/:path*`,
       },
+      {
+        source: "/docs",
+        destination: `${internalUrl}/docs`,
+      },
+      {
+        source: "/docs/:path*",
+        destination: `${internalUrl}/docs/:path*`,
+      },
+      {
+        source: "/openapi.json",
+        destination: `${internalUrl}/openapi.json`,
+      },
+      {
+        source: "/redoc",
+        destination: `${internalUrl}/redoc`,
+      },
     ];
   },
 };

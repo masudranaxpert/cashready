@@ -68,19 +68,19 @@ export function WelcomeIntro() {
     const reduced = mediaQuery.matches;
     setIsReducedMotion(reduced);
 
-    // Stage progression timings:
-    // Stage 0 (Brand): 0.0s - 0.8s
-    // Stage 1 (Personal Welcome): 0.8s - 1.8s
-    // Stage 2 (Product Message): 1.8s - 3.4s (Line 2 at 2.5s)
-    // Stage 3 (Value Proposition): 3.4s - 4.4s
-    // Stage 4 (Final Transition): 4.4s - 5.0s
-    // Complete dismissal: 5.0s
-    const t1 = setTimeout(() => setStage(1), reduced ? 350 : 850);
-    const t2 = setTimeout(() => setStage(2), reduced ? 750 : 1850);
-    const t2Sub = setTimeout(() => setMessagePart2Visible(true), reduced ? 950 : 2550);
-    const t3 = setTimeout(() => setStage(3), reduced ? 1350 : 3450);
-    const t4 = setTimeout(() => setStage(4), reduced ? 1750 : 4450);
-    const tDismiss = setTimeout(() => dismissIntro(), reduced ? 2150 : 5150);
+    // Fast, crisp cinematic stage progression (~3s):
+    // Stage 0 (Brand): 0.0s - 0.55s
+    // Stage 1 (Personal Welcome): 0.55s - 1.20s
+    // Stage 2 (Product Message): 1.20s - 2.00s (Line 2 at 1.55s)
+    // Stage 3 (Value Proposition): 2.00s - 2.65s
+    // Stage 4 (Final Transition): 2.65s - 3.00s
+    // Complete dismissal: ~3.05s
+    const t1 = setTimeout(() => setStage(1), reduced ? 250 : 550);
+    const t2 = setTimeout(() => setStage(2), reduced ? 500 : 1200);
+    const t2Sub = setTimeout(() => setMessagePart2Visible(true), reduced ? 650 : 1550);
+    const t3 = setTimeout(() => setStage(3), reduced ? 900 : 2000);
+    const t4 = setTimeout(() => setStage(4), reduced ? 1150 : 2650);
+    const tDismiss = setTimeout(() => dismissIntro(), reduced ? 1400 : 3050);
 
     timerRef.current = [t1, t2, t2Sub, t3, t4, tDismiss];
   }, [clearAllTimers, dismissIntro]);
