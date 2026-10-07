@@ -22,10 +22,15 @@ export function Navigation() {
           <div className="flex items-center gap-3">
             <Link
               href="/agent"
-              className="font-bold text-xl tracking-tight text-slate-100 hover:text-teal-300 transition-colors"
+              className="flex items-center gap-2 group"
               aria-label="CashReady home"
             >
-              CashReady
+              <span className="font-bold text-xl tracking-tight text-slate-100 group-hover:text-teal-300 transition-colors">
+                CashReady
+              </span>
+              <span className="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-950/60 text-teal-300 border border-teal-800/50">
+                upay AI Planner
+              </span>
             </Link>
           </div>
 
