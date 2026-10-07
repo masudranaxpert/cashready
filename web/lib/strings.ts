@@ -158,6 +158,7 @@ type Dict = {
   peakShortageWarning: string;
 
   feedbackStockoutQuestion: string;
+  feedbackUsefulQuestion: string;
   stockoutYes: string;
   stockoutNo: string;
   stockoutNotSure: string;
@@ -348,6 +349,7 @@ const BN: Dict = {
   peakShortageWarning: "এই সময়ে ক্যাশ ঘাটতির সর্বোচ্চ ঝুঁকি রয়েছে",
 
   feedbackStockoutQuestion: "আজকে কি সত্যিই ক্যাশ শেষ হয়েছিল?",
+  feedbackUsefulQuestion: "এই পরামর্শ কি কাজের ছিল?",
   stockoutYes: "হ্যাঁ",
   stockoutNo: "না",
   stockoutNotSure: "নিশ্চিত নই",
@@ -537,6 +539,7 @@ const EN: Dict = {
   peakShortageWarning: "Peak shortage risk expected around this window",
 
   feedbackStockoutQuestion: "Was there actually a stock-out today?",
+  feedbackUsefulQuestion: "Was this recommendation useful?",
   stockoutYes: "Yes",
   stockoutNo: "No",
   stockoutNotSure: "Not Sure",

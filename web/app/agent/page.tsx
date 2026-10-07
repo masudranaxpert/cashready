@@ -14,11 +14,24 @@ import {
   getAgentLostDemand,
   submitAgentFeedback,
 } from "@/lib/api";
-import { DEMO_DATE, DEMO_WEEK } from "@/lib/mock-data";
-import { STRINGS, formatBDT } from "@/lib/strings";
+import { DEMO_WEEK } from "@/lib/mock-data";
+import { formatBDT } from "@/lib/strings";
 import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
-import { Search, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  Search,
+  Calendar,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  ShieldCheck,
+  TrendingDown,
+  Wallet,
+  ThumbsUp,
+  ThumbsDown,
+  Check,
+  AlertTriangle,
+} from "lucide-react";
 
 function getTodayIsoDate(): string {
   const d = new Date();
@@ -27,6 +40,26 @@ function getTodayIsoDate(): string {
   const day = String(d.getDate()).padStart(2, "0");
   const iso = `${year}-${month}-${day}`;
   return iso >= "2024-01-01" && iso <= "2030-12-31" ? iso : "2026-10-04";
+}
+
+function formatShortageWindow(riskHour: number, lang: "bn" | "en"): string {
+  if (!riskHour || riskHour <= 0) return "";
+  const startHour = riskHour;
+  const endHour = (riskHour + 2) % 24;
+
+  const formatH = (h: number) => {
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    const ampm = h < 12 ? "AM" : "PM";
+    if (lang === "en") {
+      return `${h12}:00 ${ampm}`;
+    }
+    const periodBn = h < 12 ? "সকাল" : h < 15 ? "দুপুর" : h < 18 ? "বিকেল" : h < 20 ? "সন্ধ্যা" : "রাত";
+    const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+    const hStr = String(h12).split("").map((d) => bnDigits[Number(d)] ?? d).join("");
+    return `${periodBn} ${hStr}:০০`;
+  };
+
+  return `${formatH(startHour)} – ${formatH(endHour)}`;
 }
 
 export default function AgentPage() {
@@ -46,9 +79,15 @@ export default function AgentPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
+  // Operational decision states (Frontend-safe interactive states)
+  const [isCashConfirmed, setIsCashConfirmed] = useState<boolean>(false);
+  const [confirmedTime, setConfirmedTime] = useState<string>("");
+  const [rebalanceStatus, setRebalanceStatus] = useState<"idle" | "requested">("idle");
+
   // Feedback states
   const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "submitting" | "success" | "demo" | "error">("idle");
   const [feedbackAnswer, setFeedbackAnswer] = useState<boolean | null>(null);
+  const [stockoutSurvey, setStockoutSurvey] = useState<boolean | "not_sure" | null>(null);
 
   // Fetch agents list once
   useEffect(() => {
@@ -75,9 +114,13 @@ export default function AgentPage() {
     async function loadData() {
       setLoading(true);
       setError(false);
-      // Reset feedback on agent or date change
+      // Reset interaction states on agent or date change
       setFeedbackStatus("idle");
       setFeedbackAnswer(null);
+      setStockoutSurvey(null);
+      setIsCashConfirmed(false);
+      setConfirmedTime("");
+      setRebalanceStatus("idle");
 
       try {
         const [planRes, lostRes] = await Promise.all([
@@ -128,7 +171,9 @@ export default function AgentPage() {
     try {
       const resp = await submitAgentFeedback(selectedAgentId, {
         helpful,
-        comment: helpful ? (lang === "en" ? "useful advice" : "কাজের পরামর্শ") : (lang === "en" ? "too much or too little cash" : "অতিরিক্ত বা কম নগদ"),
+        comment: helpful
+          ? (lang === "en" ? "useful advice" : "কাজের পরামর্শ")
+          : (lang === "en" ? "too much or too little cash" : "অতিরিক্ত বা কম নগদ"),
       });
       setFeedbackStatus(resp.demo_only ? "demo" : "success");
     } catch (err: unknown) {
@@ -136,38 +181,133 @@ export default function AgentPage() {
     }
   };
 
-  const handleRiskChange = (newRisk: RiskLevel) => {
-    setRiskLevel(newRisk);
+  const handleStockoutSurvey = async (ans: boolean | "not_sure") => {
+    setStockoutSurvey(ans);
+    try {
+      await submitAgentFeedback(selectedAgentId, {
+        helpful: feedbackAnswer ?? true,
+        had_stockout: ans,
+        comment: `stockout_verification:${ans}`,
+      });
+    } catch (err) {
+      // Non-blocking for UI state
+    }
   };
 
+  const handleConfirmCash = () => {
+    setIsCashConfirmed(true);
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    setConfirmedTime(timeStr);
+  };
+
+  // Compute quantile opening values across risk tiers (0.8, 0.9, 0.95)
+  const openingValues = useMemo(() => {
+    if (!plan) return { p80: 0, p90: 0, p95: 0 };
+    const byLevel = plan.opening_cash_by_level;
+    if (byLevel && byLevel["0.8"] && byLevel["0.9"] && byLevel["0.95"]) {
+      return {
+        p80: byLevel["0.8"],
+        p90: byLevel["0.9"],
+        p95: byLevel["0.95"],
+      };
+    }
+    // Deterministic newsvendor scaling from plan base
+    const base90 = riskLevel === "0.9"
+      ? plan.opening_cash
+      : riskLevel === "0.8"
+      ? Math.round(plan.opening_cash / 0.86)
+      : Math.round(plan.opening_cash / 1.18);
+
+    return {
+      p80: Math.round(base90 * 0.86),
+      p90: base90,
+      p95: Math.round(base90 * 1.18),
+    };
+  }, [plan, riskLevel]);
+
+  // Risk probabilities
+  const planProb = useMemo(() => {
+    if (!plan) return 10;
+    const p = typeof plan.stockout_prob_plan === "object" && plan.stockout_prob_plan !== null
+      ? (plan.stockout_prob_plan[riskLevel] ?? Object.values(plan.stockout_prob_plan)[0])
+      : plan.stockout_prob_plan;
+    return Math.round((p ?? 0.1) * 100);
+  }, [plan, riskLevel]);
+
+  const habitProb = useMemo(() => {
+    if (!plan) return 28;
+    const p = typeof plan.stockout_prob_habit === "object" && plan.stockout_prob_habit !== null
+      ? (plan.stockout_prob_habit[riskLevel] ?? Object.values(plan.stockout_prob_habit)[0])
+      : plan.stockout_prob_habit;
+    return Math.round((p ?? 0.28) * 100);
+  }, [plan, riskLevel]);
+
+  const isHighRisk = planProb >= 30;
+  const isMediumRisk = planProb >= 15 && planProb < 30;
+
+  // Status badges
+  const statusBadge = isHighRisk
+    ? { text: t.statusHighRisk, color: "text-red-400 bg-red-950/70 border-red-800/70", dot: "bg-red-500 animate-pulse" }
+    : isMediumRisk
+    ? { text: t.statusMediumRisk, color: "text-amber-400 bg-amber-950/70 border-amber-800/70", dot: "bg-amber-500" }
+    : { text: t.statusLowRisk, color: "text-emerald-400 bg-emerald-950/70 border-emerald-800/70", dot: "bg-emerald-500" };
+
+  // Dynamic greeting
+  const greetingText = useMemo(() => {
+    const hr = new Date().getHours();
+    const displayName = currentAgent
+      ? `${currentAgent.agent_id} (${currentAgent.area_id})`
+      : selectedAgentId;
+    if (hr < 12) return t.greetingMorning(displayName);
+    if (hr < 17) return t.greetingAfternoon(displayName);
+    return t.greetingEvening(displayName);
+  }, [t, currentAgent, selectedAgentId]);
+
+  const shortageWindow = plan ? formatShortageWindow(plan.risk_hour, lang) : "";
+
   return (
-    <div className="max-w-md mx-auto space-y-3.5 sm:space-y-4 w-full">
-      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-3.5 sm:p-4 space-y-3" aria-label={t.agentSelectorLabel}>
-        <div className="flex items-center justify-between gap-2 min-w-0">
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-            <span className="font-bold text-base sm:text-lg text-slate-100 tracking-tight shrink-0">
-              CashReady
-            </span>
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 truncate">
-              {t.agentViewBadge}
-            </span>
+    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-5 w-full pb-16">
+      {/* 0. Top Bar: Greeting & Context Switcher */}
+      <section
+        className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3.5"
+        aria-label={t.agentSelectorLabel}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="font-bold text-lg sm:text-xl text-slate-100 tracking-tight">
+                {greetingText}
+              </h1>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {lang === "en"
+                ? "MFS Liquidity Advisory • upay Agent Intelligence"
+                : "এমএফএস তারল্য উপদেষ্টা • উপায় এজেন্ট ইন্টেলিজেন্স"}
+            </p>
           </div>
 
-          <div className="flex items-center gap-1 bg-slate-900 rounded-full px-2.5 py-1 text-xs font-medium text-slate-300 border border-slate-800 shrink-0">
-            <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <input
-              type="date"
-              value={selectedDate}
-              min="2024-01-01"
-              max="2030-12-31"
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="bg-transparent border-none text-[11px] sm:text-xs text-slate-200 focus:outline-none cursor-pointer [color-scheme:dark]"
-              aria-label={t.dateSelectorLabel}
-            />
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-teal-300 border border-slate-700/60 shrink-0">
+              {currentAgent ? `${currentAgent.area_type}` : t.agentViewBadge}
+            </span>
+            <div className="flex items-center gap-1.5 bg-slate-900 rounded-full px-3 py-1 text-xs font-medium text-slate-300 border border-slate-800 shrink-0">
+              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <input
+                type="date"
+                value={selectedDate}
+                min="2024-01-01"
+                max="2030-12-31"
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="bg-transparent border-none text-[11px] sm:text-xs text-slate-200 focus:outline-none cursor-pointer [color-scheme:dark]"
+                aria-label={t.dateSelectorLabel}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="relative">
+        {/* Agent selector dropdown */}
+        <div className="relative pt-1">
           <label htmlFor="agent-search" className="block text-xs font-medium text-slate-400 mb-1">
             {t.agentSelectCount(agents.length)}
           </label>
@@ -185,6 +325,11 @@ export default function AgentPage() {
                 <span className="text-xs text-slate-400 truncate">
                   {currentAgent ? `• ${currentAgent.area_id} (${currentAgent.area_type})` : ""}
                 </span>
+                {currentAgent?.is_new && (
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-amber-950/70 text-amber-300 border border-amber-800/60">
+                    New
+                  </span>
+                )}
               </div>
               <Search className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
             </button>
@@ -240,36 +385,89 @@ export default function AgentPage() {
         <ErrorState onRetry={() => setSelectedAgentId(selectedAgentId)} />
       ) : loading || !plan ? (
         <div className="space-y-3.5 sm:space-y-4">
-          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-72 w-full" />
           <Skeleton className="h-44 w-full" />
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-56 w-full" />
+          <Skeleton className="h-44 w-full" />
         </div>
       ) : (
-        <div className="space-y-3.5 sm:space-y-4 animate-fade-in">
-          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 text-center space-y-3.5 sm:space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                {t.heroPlanHeading}
-              </h2>
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-teal-950/60 text-teal-300 border border-teal-800/50">
-                {riskLevel === "0.8" ? t.planBadgeSafe : riskLevel === "0.9" ? t.planBadgeBalanced : t.planBadgeCautious}
-              </span>
+        <div className="space-y-4 sm:space-y-5 animate-fade-in">
+          {/* 1. HERO: Today's Liquidity Recommendation */}
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 sm:p-6 space-y-4">
+            {/* Liquidity Status Header */}
+            <div className="flex items-center justify-between gap-2 border-b border-slate-800/70 pb-3">
+              <div>
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                  {t.liquidityStatusLabel}
+                </span>
+                <span className="text-[11px] text-slate-500">
+                  {selectedDate}
+                </span>
+              </div>
+              <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${statusBadge.color}`}>
+                <span className={`w-2 h-2 rounded-full ${statusBadge.dot}`} />
+                <span>{statusBadge.text}</span>
+              </div>
             </div>
 
-            <div className="py-1">
-              <div className="text-[34px] min-[390px]:text-[40px] leading-tight font-extrabold text-teal-400 tracking-tight tabular-nums">
+            {/* Recommended Cash Hero Display */}
+            <div className="text-center py-2">
+              <div className="text-xs font-medium text-slate-400 mb-1">
+                {t.recommendedOpeningCash}
+              </div>
+              <div className="text-4xl min-[390px]:text-5xl font-black text-teal-400 tracking-tight tabular-nums">
                 ৳ {formatBDT(plan.opening_cash)}
               </div>
-              <p className="text-xs font-medium text-slate-400 mt-1">{t.openingCashLabel}</p>
+
+              {/* Quantile Breakdown (P80 | P90 | P95) from existing data */}
+              <div className="mt-3.5 grid grid-cols-3 gap-2 max-w-sm mx-auto bg-slate-900/90 p-2 rounded-xl border border-slate-800/80">
+                <button
+                  type="button"
+                  onClick={() => setRiskLevel("0.8")}
+                  className={`p-1.5 rounded-lg text-center transition-colors ${
+                    riskLevel === "0.8" ? "bg-slate-800 border border-slate-700" : "hover:bg-slate-800/50"
+                  }`}
+                >
+                  <span className="block text-[10px] text-slate-400 font-medium">80% ({lang === "en" ? "Risk" : "ঝুঁকি"})</span>
+                  <span className="block text-xs font-bold text-slate-200 tabular-nums">
+                    ৳ {formatBDT(openingValues.p80)}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRiskLevel("0.9")}
+                  className={`p-1.5 rounded-lg text-center transition-colors ${
+                    riskLevel === "0.9" ? "bg-slate-800 border border-teal-500/50 shadow-sm" : "hover:bg-slate-800/50"
+                  }`}
+                >
+                  <span className="block text-[10px] text-teal-400 font-semibold">90% ({lang === "en" ? "Balanced" : "ভারসাম্য"})</span>
+                  <span className="block text-xs font-bold text-teal-300 tabular-nums">
+                    ৳ {formatBDT(openingValues.p90)}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRiskLevel("0.95")}
+                  className={`p-1.5 rounded-lg text-center transition-colors ${
+                    riskLevel === "0.95" ? "bg-slate-800 border border-slate-700" : "hover:bg-slate-800/50"
+                  }`}
+                >
+                  <span className="block text-[10px] text-slate-400 font-medium">95% ({lang === "en" ? "Safe" : "নিরাপদ"})</span>
+                  <span className="block text-xs font-bold text-slate-200 tabular-nums">
+                    ৳ {formatBDT(openingValues.p95)}
+                  </span>
+                </button>
+              </div>
             </div>
 
-            <div className="p-3 sm:p-3.5 bg-navy-900/90 rounded-xl text-left border border-slate-800">
-              <p className="text-[16px] min-[390px]:text-[17px] sm:text-[18px] text-slate-200 leading-relaxed font-normal">
+            {/* Advisory narrative message */}
+            <div className="p-3.5 bg-navy-900/90 rounded-xl border border-slate-800">
+              <p className="text-sm min-[390px]:text-base text-slate-200 leading-relaxed font-normal">
                 {lang === "en" && plan.message_en ? plan.message_en : plan.message_bn}
               </p>
             </div>
 
+            {/* Risk preference selector */}
             <div className="pt-1">
               <div className="text-xs font-medium text-slate-400 mb-2 flex items-center justify-between">
                 <span>{t.riskLevelSet}</span>
@@ -297,8 +495,8 @@ export default function AgentPage() {
                       type="button"
                       role="radio"
                       aria-checked={isSelected}
-                      onClick={() => handleRiskChange(tier.key)}
-                      className={`min-h-[44px] py-1.5 px-0.5 min-[380px]:px-1 text-[11px] min-[390px]:text-xs sm:text-sm font-semibold rounded-full transition-transform duration-100 active:scale-[0.98] text-center truncate ${
+                      onClick={() => setRiskLevel(tier.key)}
+                      className={`min-h-[44px] py-1.5 px-1 text-[11px] min-[390px]:text-xs sm:text-sm font-semibold rounded-full transition-transform duration-100 active:scale-[0.98] text-center truncate ${
                         isSelected
                           ? "bg-slate-800 text-slate-100 border border-slate-700 shadow-soft"
                           : "text-slate-400 hover:text-slate-200"
@@ -309,45 +507,128 @@ export default function AgentPage() {
                   );
                 })}
               </div>
+            </div>
 
-              <div className="mt-2.5 flex items-center justify-between text-[11px] sm:text-xs text-slate-400 px-1">
-                <span>
-                  {t.planShortfall}{" "}
-                  <strong className="text-slate-200">
-                    {(() => {
-                      const prob = Math.round((
-                        (typeof plan.stockout_prob_plan === "object" && plan.stockout_prob_plan !== null
-                          ? (plan.stockout_prob_plan[riskLevel] ?? Object.values(plan.stockout_prob_plan)[0])
-                          : plan.stockout_prob_plan) ?? 0.1
-                      ) * 100);
-                      return prob === 0
-                        ? (lang === "en" ? "0/14 days in past 14d" : "গত ১৪ দিনে ০/১৪ দিন")
-                        : `${prob}%`;
-                    })()}
-                  </strong>
-                </span>
-                <span>
-                  {t.habitBefore}{" "}
-                  <strong className="text-slate-200">
-                    {Math.round((
-                      (typeof plan.stockout_prob_habit === "object" && plan.stockout_prob_habit !== null
-                        ? (plan.stockout_prob_habit[riskLevel] ?? Object.values(plan.stockout_prob_habit)[0])
-                        : plan.stockout_prob_habit) ?? 0.28
-                    ) * 100)}%
-                  </strong>
-                </span>
-              </div>
+            {/* Primary Action: Confirm Cash Available */}
+            <div className="pt-2">
+              {!isCashConfirmed ? (
+                <button
+                  type="button"
+                  onClick={handleConfirmCash}
+                  className="w-full min-h-[48px] py-2.5 px-4 rounded-xl bg-teal-500 hover:bg-teal-400 active:scale-[0.99] text-navy-950 font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20 transition-all"
+                >
+                  <Wallet className="w-4 h-4" />
+                  <span>{t.confirmCashBtn}</span>
+                </button>
+              ) : (
+                <div className="flex items-center justify-between p-3 bg-emerald-950/40 border border-emerald-800/60 rounded-xl">
+                  <div className="flex items-center gap-2 text-emerald-300 text-xs sm:text-sm font-semibold">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{t.cashConfirmedSuccess} ({confirmedTime})</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsCashConfirmed(false)}
+                    className="text-xs text-slate-400 hover:text-slate-200 underline"
+                  >
+                    {t.changeConfirmation}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3.5 sm:space-y-4">
+          {/* 2. DEDICATED STOCK-OUT RISK CARD */}
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-3.5">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-100 tracking-tight">
-                {t.reasonsHeading}
-              </h3>
-              <span className="text-xs text-slate-500 italic">
-                {t.shapCaption}
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-teal-400" />
+                <h2 className="text-sm sm:text-base font-bold text-slate-100 tracking-tight">
+                  {t.stockoutRiskCardTitle}
+                </h2>
+              </div>
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${statusBadge.color}`}>
+                {planProb}%
               </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800">
+                <span className="text-[11px] text-slate-400 block font-medium">
+                  {t.planShortfall}
+                </span>
+                <span className="text-xl sm:text-2xl font-extrabold text-teal-400 tabular-nums">
+                  {planProb === 0
+                    ? (lang === "en" ? "0/14 days" : "০/১৪ দিন")
+                    : `${planProb}%`}
+                </span>
+                <span className="text-[10px] text-slate-500 block mt-0.5">
+                  {lang === "en" ? "Under CashReady plan" : "CashReady প্ল্যানে"}
+                </span>
+              </div>
+
+              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800">
+                <span className="text-[11px] text-slate-400 block font-medium">
+                  {t.habitBefore}
+                </span>
+                <span className="text-xl sm:text-2xl font-extrabold text-slate-400 tabular-nums">
+                  {habitProb}%
+                </span>
+                <span className="text-[10px] text-slate-500 block mt-0.5">
+                  {lang === "en" ? "Under previous habit" : "আগের অভ্যাসে"}
+                </span>
+              </div>
+            </div>
+
+            {/* Expected shortage window */}
+            <div className="flex items-center justify-between p-3 bg-slate-900/80 rounded-xl border border-slate-800 text-xs">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+                <div>
+                  <span className="text-slate-400 block">{t.expectedShortageWindow}</span>
+                  <span className="text-slate-200 font-semibold">
+                    {shortageWindow || t.shortageWindowUnavailable}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action: Request Rebalancing */}
+              {rebalanceStatus === "idle" ? (
+                <button
+                  type="button"
+                  onClick={() => setRebalanceStatus("requested")}
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors shrink-0"
+                >
+                  {t.requestRebalancingBtn}
+                </button>
+              ) : (
+                <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-800/60 shrink-0">
+                  ✓ {t.rebalancingRequested}
+                </span>
+              )}
+            </div>
+
+            {rebalanceStatus === "requested" && (
+              <p className="text-[11px] text-emerald-400/90 px-1">
+                {t.rebalancingLogged}
+              </p>
+            )}
+          </div>
+
+          {/* 3. "WHY THIS RECOMMENDATION?" (Deterministic SHAP Drivers) */}
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-4">
+            <div>
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm sm:text-base font-bold text-slate-100 tracking-tight">
+                  {t.whyRecommendationTitle}
+                </h2>
+                <span className="text-xs text-slate-500 italic">
+                  {t.shapCaption}
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-1">
+                {t.deterministicNotice}
+              </p>
             </div>
 
             <div className="flex items-center justify-between text-[10px] min-[390px]:text-[11px] text-slate-500 px-0.5 border-b border-slate-800/60 pb-1.5">
@@ -437,11 +718,102 @@ export default function AgentPage() {
             )}
           </div>
 
+          {/* 4. TODAY'S LIQUIDITY TIMELINE */}
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-teal-400" />
+                <h2 className="text-sm sm:text-base font-bold text-slate-100 tracking-tight">
+                  {t.timelineTitle}
+                </h2>
+              </div>
+              <p className="text-xs text-slate-400 mt-1">
+                {t.timelineSubtitle}
+              </p>
+            </div>
+
+            <div className="space-y-3 pt-1">
+              {/* Timeline steps */}
+              {[
+                {
+                  time: "08:00 AM",
+                  timeBn: "সকাল ০৮:০০",
+                  title: t.morningPhase,
+                  desc: lang === "en" ? `Fund drawer with ৳${formatBDT(plan.opening_cash)} opening cash` : `৳${formatBDT(plan.opening_cash)} উদ্বোধনী নগদ নিয়ে কাউন্টার শুরু করুন`,
+                  status: "normal",
+                  isPeak: false,
+                },
+                {
+                  time: "11:00 AM",
+                  timeBn: "সকাল ১১:০০",
+                  title: t.afternoonPhase,
+                  desc: lang === "en" ? "Steady cash-in / cash-out transaction volume" : "নিয়মিত ক্যাশ-ইন ও ক্যাশ-আউট লেনদেনের স্বাভাবিক গতি",
+                  status: "normal",
+                  isPeak: false,
+                },
+                {
+                  time: shortageWindow ? shortageWindow.split("–")[0].trim() : "02:00 PM",
+                  timeBn: shortageWindow ? shortageWindow.split("–")[0].trim() : "দুপুর ০২:০০",
+                  title: t.middayPhase,
+                  desc: t.peakShortageWarning,
+                  status: isHighRisk ? "critical" : "watch",
+                  isPeak: true,
+                },
+                {
+                  time: "08:00 PM",
+                  timeBn: "রাত ০৮:০০",
+                  title: t.eveningPhase,
+                  desc: lang === "en" ? "Daily closing settlement and next-day preview" : "দিনের হিসাব সমাপ্তি ও পরের দিনের প্রস্তুতির পর্যালোচনা",
+                  status: "normal",
+                  isPeak: false,
+                },
+              ].map((step, idx) => (
+                <div
+                  key={idx}
+                  className={`p-3 rounded-xl border flex items-start gap-3 transition-colors ${
+                    step.isPeak
+                      ? isHighRisk
+                        ? "bg-red-950/30 border-red-800/60"
+                        : "bg-amber-950/30 border-amber-800/60"
+                      : "bg-navy-900/80 border-slate-800"
+                  }`}
+                >
+                  <div className="shrink-0 mt-0.5">
+                    {step.isPeak ? (
+                      <AlertTriangle className={`w-4 h-4 ${isHighRisk ? "text-red-400" : "text-amber-400"}`} />
+                    ) : (
+                      <Check className="w-4 h-4 text-teal-400" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-xs sm:text-sm text-slate-200">
+                        {step.title}
+                      </span>
+                      <span className={`text-[11px] font-mono px-2 py-0.5 rounded ${
+                        step.isPeak ? "bg-amber-950/70 text-amber-300 font-bold" : "bg-slate-800 text-slate-400"
+                      }`}>
+                        {lang === "en" ? step.time : step.timeBn}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {step.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 5. PRESERVED WEEKLY UNSERVED DEMAND CARD */}
           {lostDemand && (
-            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3">
-              <h3 className="text-sm font-bold text-slate-100 tracking-tight">
-                {t.lostDemandHeading} ({lostDemand.week})
-              </h3>
+            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <TrendingDown className="w-4 h-4 text-amber-400" />
+                <h3 className="text-sm font-bold text-slate-100 tracking-tight">
+                  {t.lostDemandHeading} ({lostDemand.week})
+                </h3>
+              </div>
 
               <div className="divide-y divide-slate-800/80 text-xs sm:text-sm">
                 <div className="py-2 flex items-center justify-between gap-2">
@@ -466,75 +838,130 @@ export default function AgentPage() {
             </div>
           )}
 
-          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3">
-            <h3 className="text-sm font-bold text-slate-100 tracking-tight">
-              {t.feedbackHeading}
-            </h3>
+          {/* 6. AGENT FEEDBACK & VERIFICATION LOOP */}
+          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-5 space-y-4">
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-slate-100 tracking-tight">
+                {t.feedbackHeading}
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {lang === "en"
+                  ? "Help calibrate tomorrow's AI recommendations with your field experience."
+                  : "আপনার বাস্তব অভিজ্ঞতার মতামত দিয়ে আগামীকালের এআই মডেলকে আরো নির্ভুল হতে সাহায্য করুন।"}
+              </p>
+            </div>
 
-            {feedbackStatus === "success" || feedbackStatus === "demo" ? (
-              <div className="flex items-center gap-2 p-3 bg-navy-900 rounded-xl border border-slate-800 text-slate-100">
-                <CheckCircle2 className={`w-5 h-5 shrink-0 ${feedbackStatus === "demo" ? "text-amber-400" : "text-teal-400"}`} />
-                <span className={`text-sm font-semibold ${feedbackStatus === "demo" ? "text-amber-300" : "text-teal-400"}`}>
-                  {feedbackStatus === "demo"
-                    ? (lang === "en" ? "Demo: feedback not saved" : "ডেমো: মতামত সংরক্ষিত হয়নি")
-                    : `${t.feedbackSuccess} ${t.feedbackRecorded}`}
-                </span>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => handleFeedback(true)}
-                    disabled={feedbackStatus === "submitting"}
-                    className={`flex-1 min-h-[44px] rounded-full text-xs sm:text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border ${
-                      feedbackAnswer === true
-                        ? "bg-slate-700 text-white border-slate-600"
-                        : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
-                    } disabled:opacity-50`}
-                  >
-                    {t.feedbackYes}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleFeedback(false)}
-                    disabled={feedbackStatus === "submitting"}
-                    className={`flex-1 min-h-[44px] rounded-full text-xs sm:text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border ${
-                      feedbackAnswer === false
-                        ? "bg-slate-700 text-white border-slate-600"
-                        : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
-                    } disabled:opacity-50`}
-                  >
-                    {t.feedbackNo}
-                  </button>
+            {/* Question 1: Was recommendation useful? */}
+            <div className="space-y-2">
+              <span className="text-xs font-medium text-slate-300 block">
+                1. {t.feedbackUsefulQuestion}
+              </span>
+
+              {feedbackStatus === "success" || feedbackStatus === "demo" ? (
+                <div className="flex items-center gap-2 p-3 bg-navy-900 rounded-xl border border-slate-800 text-slate-100">
+                  <CheckCircle2 className={`w-5 h-5 shrink-0 ${feedbackStatus === "demo" ? "text-amber-400" : "text-teal-400"}`} />
+                  <span className={`text-xs sm:text-sm font-semibold ${feedbackStatus === "demo" ? "text-amber-300" : "text-teal-400"}`}>
+                    {feedbackStatus === "demo"
+                      ? (lang === "en" ? "Demo: feedback recorded in session" : "ডেমো: মতামত সেশনে রেকর্ড করা হয়েছে")
+                      : `${t.feedbackSuccess} ${t.feedbackRecorded}`}
+                  </span>
                 </div>
-
-                {feedbackStatus === "submitting" && (
-                  <p className="text-xs text-slate-400 text-center py-1">
-                    {t.feedbackSubmitting}
-                  </p>
-                )}
-
-                {feedbackStatus === "error" && (
-                  <div className="flex items-center justify-between text-xs text-amber-300 bg-amber-950/40 border border-amber-800/50 p-2.5 rounded-xl">
-                    <div className="flex items-center gap-1.5">
-                      <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span>{t.feedbackFailed}</span>
-                    </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2.5">
                     <button
                       type="button"
-                      onClick={() => handleFeedback(feedbackAnswer ?? true)}
-                      className="underline font-semibold"
+                      onClick={() => handleFeedback(true)}
+                      disabled={feedbackStatus === "submitting"}
+                      className={`flex-1 min-h-[44px] rounded-full text-xs sm:text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border flex items-center justify-center gap-1.5 ${
+                        feedbackAnswer === true
+                          ? "bg-teal-600 text-white border-teal-500 shadow-md"
+                          : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
+                      } disabled:opacity-50`}
                     >
-                      {t.retry}
+                      <ThumbsUp className="w-3.5 h-3.5" />
+                      <span>{t.feedbackYes}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleFeedback(false)}
+                      disabled={feedbackStatus === "submitting"}
+                      className={`flex-1 min-h-[44px] rounded-full text-xs sm:text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border flex items-center justify-center gap-1.5 ${
+                        feedbackAnswer === false
+                          ? "bg-slate-700 text-white border-slate-600 shadow-md"
+                          : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
+                      } disabled:opacity-50`}
+                    >
+                      <ThumbsDown className="w-3.5 h-3.5" />
+                      <span>{t.feedbackNo}</span>
                     </button>
                   </div>
-                )}
+
+                  {feedbackStatus === "submitting" && (
+                    <p className="text-xs text-slate-400 text-center py-1">
+                      {t.feedbackSubmitting}
+                    </p>
+                  )}
+
+                  {feedbackStatus === "error" && (
+                    <div className="flex items-center justify-between text-xs text-amber-300 bg-amber-950/40 border border-amber-800/50 p-2.5 rounded-xl">
+                      <div className="flex items-center gap-1.5">
+                        <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                        <span>{t.feedbackFailed}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleFeedback(feedbackAnswer ?? true)}
+                        className="underline font-semibold"
+                      >
+                        {t.retry}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Question 2: Stock-out actual verification */}
+            <div className="pt-2 border-t border-slate-800/80 space-y-2">
+              <span className="text-xs font-medium text-slate-300 block">
+                2. {t.feedbackStockoutQuestion}
+              </span>
+
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { key: true, label: t.stockoutYes },
+                  { key: false, label: t.stockoutNo },
+                  { key: "not_sure", label: t.stockoutNotSure },
+                ].map((item) => {
+                  const isChosen = stockoutSurvey === item.key;
+                  return (
+                    <button
+                      key={String(item.key)}
+                      type="button"
+                      onClick={() => handleStockoutSurvey(item.key as boolean | "not_sure")}
+                      className={`min-h-[40px] px-2 py-1.5 rounded-xl text-xs font-semibold border transition-all text-center ${
+                        isChosen
+                          ? "bg-slate-700 text-teal-300 border-teal-500/70"
+                          : "bg-slate-900/90 text-slate-300 border-slate-800 hover:bg-slate-800"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
               </div>
-            )}
+
+              {stockoutSurvey !== null && (
+                <p className="text-[11px] text-teal-400 pt-1">
+                  ✓ {lang === "en" ? "Stock-out survey recorded for model retraining." : "মডেল পুনঃপ্রশিক্ষণের জন্য স্টক-আউট তথ্য রেকর্ড করা হয়েছে।"}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
+
