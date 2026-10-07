@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserCheck, MapPin, BarChart3, Sparkles } from "lucide-react";
+import { UserCheck, MapPin, BarChart3, Sparkles, Banknote } from "lucide-react";
 import { useLang, LangToggle } from "@/lib/lang";
 import { ThemeToggle } from "@/lib/theme";
 
@@ -26,8 +26,8 @@ export function Navigation() {
               className="group flex items-center gap-2.5 transition-transform duration-150 active:scale-[0.98]"
               aria-label="CashReady home"
             >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-slate-950 font-black text-lg shadow-glow-emerald/40 shadow-sm border border-emerald-300/40 group-hover:scale-105 transition-transform">
-                ৳
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-slate-950 shadow-glow-emerald/40 shadow-sm border border-emerald-300/40 group-hover:scale-105 transition-transform">
+                <Banknote className="w-5 h-5 text-slate-950" />
               </div>
               <div className="flex flex-col">
                 <span className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">

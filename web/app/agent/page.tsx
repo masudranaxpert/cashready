@@ -36,6 +36,11 @@ import {
   Activity,
   Layers,
   ArrowUpRight,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  X,
+  ChevronDown,
 } from "lucide-react";
 
 function getTodayIsoDate(): string {
@@ -217,18 +222,19 @@ export default function AgentPage() {
                       {currentAgent ? `• ${currentAgent.area_id} (${currentAgent.area_type})` : ""}
                     </span>
                   </div>
-                  <Search className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
+                  <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 ml-2 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
 
                 {isDropdownOpen && (
                   <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-navy-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-white/[0.12] z-50 p-2.5 max-h-72 overflow-y-auto">
-                    <div className="p-1 mb-2">
+                    <div className="relative p-1 mb-2">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="text"
                         placeholder={t.agentSelectorPlaceholder}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-white/[0.1] rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 dark:bg-navy-950 border border-slate-200 dark:border-white/[0.1] rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                         autoFocus
                       />
                     </div>
@@ -243,8 +249,8 @@ export default function AgentPage() {
                               setSearchQuery("");
                             }}
                             className={`w-full min-h-[44px] px-3 py-2 text-left text-xs rounded-xl flex items-center justify-between transition-colors ${ag.agent_id === selectedAgentId
-                                ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-500/30"
-                                : "hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
+                              ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-500/30"
+                              : "hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
                               }`}
                             role="option"
                             aria-selected={ag.agent_id === selectedAgentId}
@@ -285,11 +291,13 @@ export default function AgentPage() {
 
               <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 px-1 border-b border-slate-200 dark:border-white/[0.04] pb-1.5">
                 <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400/90 font-semibold">
-                  ← {t.scaleLess}
+                  <ArrowLeft className="w-3 h-3 shrink-0" />
+                  <span>{t.scaleLess}</span>
                 </span>
                 <span className="font-bold text-slate-500 dark:text-slate-400">{t.scaleBase}</span>
                 <span className="flex items-center gap-1 text-amber-700 dark:text-amber-400/90 font-semibold">
-                  {t.scaleMore} →
+                  <span>{t.scaleMore}</span>
+                  <ArrowRight className="w-3 h-3 shrink-0" />
                 </span>
               </div>
 
@@ -324,10 +332,10 @@ export default function AgentPage() {
                               </span>
                               <span
                                 className={`font-bold tabular-nums text-xs px-1.5 py-0.5 rounded-md ${isPositive
-                                    ? "bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20"
-                                    : isNegative
-                                      ? "bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20"
-                                      : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                                  ? "bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20"
+                                  : isNegative
+                                    ? "bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20"
+                                    : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                                   }`}
                               >
                                 {isPositive ? `+${impact.toFixed(2)}` : impact.toFixed(2)}
@@ -398,23 +406,25 @@ export default function AgentPage() {
                       type="button"
                       onClick={() => handleFeedback(true)}
                       disabled={feedbackStatus === "submitting"}
-                      className={`flex-1 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition-all duration-150 active:scale-[0.96] border ${feedbackAnswer === true
-                          ? "bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-sm"
-                          : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-navy-900/80 dark:text-slate-200 dark:border-white/[0.08] dark:hover:bg-slate-800/80"
+                      className={`flex-1 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition-all duration-150 active:scale-[0.96] border flex items-center justify-center gap-1.5 ${feedbackAnswer === true
+                        ? "bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40 shadow-sm"
+                        : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-navy-900/80 dark:text-slate-200 dark:border-white/[0.08] dark:hover:bg-slate-800/80"
                         } disabled:opacity-50`}
                     >
-                      ✓ {t.feedbackYes}
+                      <Check className="w-4 h-4 shrink-0" />
+                      <span>{t.feedbackYes}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleFeedback(false)}
                       disabled={feedbackStatus === "submitting"}
-                      className={`flex-1 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition-all duration-150 active:scale-[0.96] border ${feedbackAnswer === false
-                          ? "bg-amber-600 text-white border-amber-600 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40 shadow-sm"
-                          : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-navy-900/80 dark:text-slate-200 dark:border-white/[0.08] dark:hover:bg-slate-800/80"
+                      className={`flex-1 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition-all duration-150 active:scale-[0.96] border flex items-center justify-center gap-1.5 ${feedbackAnswer === false
+                        ? "bg-amber-600 text-white border-amber-600 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40 shadow-sm"
+                        : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 dark:bg-navy-900/80 dark:text-slate-200 dark:border-white/[0.08] dark:hover:bg-slate-800/80"
                         } disabled:opacity-50`}
                     >
-                      ✗ {t.feedbackNo}
+                      <X className="w-4 h-4 shrink-0" />
+                      <span>{t.feedbackNo}</span>
                     </button>
                   </div>
 
@@ -526,8 +536,8 @@ export default function AgentPage() {
                           aria-checked={isSelected}
                           onClick={() => handleRiskChange(tier.key)}
                           className={`min-h-[44px] py-2 px-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-150 active:scale-[0.96] text-center truncate ${isSelected
-                              ? "bg-emerald-600 dark:bg-emerald-500/20 text-white dark:text-emerald-300 border border-emerald-600 dark:border-emerald-500/40 shadow-sm"
-                              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40"
+                            ? "bg-emerald-600 dark:bg-emerald-500/20 text-white dark:text-emerald-300 border border-emerald-600 dark:border-emerald-500/40 shadow-sm"
+                            : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40"
                             }`}
                         >
                           {tier.label}
