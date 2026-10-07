@@ -13,7 +13,6 @@ import {
   RotateCcw,
   TrendingUp,
   Banknote,
-  Info,
   Award,
   Layers,
   BarChart3,
@@ -513,17 +512,6 @@ export default function EvidencePage() {
               </div>
             </div>
           </section>
-
-          {/* Footer with Algorithmic Disclosures */}
-          <footer className="card-soft text-center space-y-2 py-5 sm:py-6 border border-slate-200 dark:border-white/[0.06]">
-            <p className="text-xs text-slate-600 dark:text-slate-300 font-semibold">
-              {t.footerSynthetic}
-            </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-              <Info className="w-3.5 h-3.5 inline mr-1 text-slate-500 dark:text-slate-400" />
-              {t.footerLlmDisclosure}
-            </p>
-          </footer>
         </div>
       )}
     </div>
