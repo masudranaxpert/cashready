@@ -1,0 +1,30 @@
+/* CashReady Theme - Teal Accent (#1F9E89) & Deep Dark (#0B1220) */
+
+:root {
+  --md-primary-fg-color: #1F9E89;
+  --md-primary-fg-color--light: #2DB39D;
+  --md-primary-fg-color--dark: #17806F;
+  --md-accent-fg-color: #1F9E89;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #0B1220;
+  --md-default-bg-color--light: #111B2E;
+  --md-default-bg-color--lighter: #16233B;
+  --md-default-bg-color--lightest: #1E2F4F;
+  --md-primary-fg-color: #1F9E89;
+  --md-accent-fg-color: #1F9E89;
+  --md-code-bg-color: #0F172A;
+}
+
+/* Polished badge styling for evaluation metrics */
+.metric-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background-color: rgba(31, 158, 137, 0.15);
+  color: #1F9E89;
+  border: 1px solid rgba(31, 158, 137, 0.3);
+}

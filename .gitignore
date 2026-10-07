@@ -17,3 +17,4 @@ data/ground_truth/
 artifacts/models/
 artifacts/serve/feedback.jsonl
 .nd/
+site/
