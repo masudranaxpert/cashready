@@ -18,7 +18,20 @@ export function WelcomeIntro() {
   // 4: Final Transition
   const [stage, setStage] = useState<number>(0);
   const [messagePart2Visible, setMessagePart2Visible] = useState<boolean>(false);
-  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const isLogged =
+          document.cookie.includes("cr_role=") || document.cookie.includes("cr_token=");
+        if (isLogged) return false;
+        const alreadyShown = window.sessionStorage.getItem(STORAGE_KEY) === "1";
+        return !alreadyShown;
+      } catch {
+        return false;
+      }
+    }
+    return true;
+  });
   const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
   const [isReducedMotion, setIsReducedMotion] = useState<boolean>(false);
 
@@ -88,6 +101,14 @@ export function WelcomeIntro() {
       // Ignore URL parsing errors
     }
 
+    // Never auto-play intro if user is logged in
+    const isLogged =
+      document.cookie.includes("cr_role=") || document.cookie.includes("cr_token=");
+    if (isLogged && !forceIntro) {
+      setIsVisible(false);
+      return;
+    }
+
     let alreadyShown = false;
     try {
       alreadyShown = window.sessionStorage.getItem(STORAGE_KEY) === "1";
@@ -97,6 +118,8 @@ export function WelcomeIntro() {
 
     if (forceIntro || !alreadyShown) {
       playIntro();
+    } else {
+      setIsVisible(false);
     }
 
     return () => {

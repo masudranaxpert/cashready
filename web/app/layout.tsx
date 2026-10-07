@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { Navigation } from "@/components/Navigation";
 import { WelcomeIntro } from "@/components/WelcomeIntro";
@@ -32,12 +33,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = cookies();
+  const token = cookieStore.get("cr_token")?.value;
+  const isAuthenticated = Boolean(token);
+
   return (
     <html lang="bn" className="dark" suppressHydrationWarning>
       <body className="min-h-screen bg-navy-950 text-slate-100 flex flex-col antialiased selection:bg-teal-500/20 selection:text-teal-300 overflow-x-hidden transition-colors duration-200">
         <ThemeProvider>
           <LangProvider>
-            <WelcomeIntro />
+            {!isAuthenticated && <WelcomeIntro />}
             <Navigation />
             <main className="flex-1 safe-page-pad pb-36 sm:pb-32 md:pb-12 pt-3 sm:pt-4 px-3 sm:px-6 w-full max-w-full overflow-x-hidden">
               {children}

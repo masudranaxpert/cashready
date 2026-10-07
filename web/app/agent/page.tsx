@@ -522,7 +522,7 @@ export default function AgentPage() {
                     {t.reasonsHeading}
                   </h3>
                 </div>
-                <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-white/[0.06]">
+                <span className="shrink-0 whitespace-nowrap text-[10px] text-slate-600 dark:text-slate-400 font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-white/[0.06]">
                   {t.shapCaption}
                 </span>
               </div>
@@ -791,9 +791,9 @@ export default function AgentPage() {
                   {/* Confirmed stock-out hours */}
                   <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t.confirmedStockoutHours}</span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 min-w-0">{t.confirmedStockoutHours}</span>
+                        <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
                           {t.badgeConfirmed}
                         </span>
                       </div>
@@ -815,9 +815,9 @@ export default function AgentPage() {
                   {/* Model-estimated stock-out hours */}
                   <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t.estimatedStockoutHours}</span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 min-w-0">{t.estimatedStockoutHours}</span>
+                        <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
                           {t.badgeEstimated}
                         </span>
                       </div>
@@ -833,9 +833,9 @@ export default function AgentPage() {
                   {/* Estimated missed cash-outs */}
                   <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t.estimatedMissedCashouts}</span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 min-w-0">{t.estimatedMissedCashouts}</span>
+                        <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
                           {t.badgeEstimated}
                         </span>
                       </div>
@@ -853,9 +853,9 @@ export default function AgentPage() {
                   {/* Estimated lost commission */}
                   <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between gap-1 mb-1">
-                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{t.estimatedLostCommission}</span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 min-w-0">{t.estimatedLostCommission}</span>
+                        <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
                           {t.badgeEstimated}
                         </span>
                       </div>
@@ -870,8 +870,8 @@ export default function AgentPage() {
                 </div>
 
                 {/* Days the plan was followed */}
-                <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] flex items-center justify-between">
-                  <div>
+                <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] flex items-center justify-between gap-2">
+                  <div className="min-w-0">
                     <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">{t.daysPlanFollowed}</span>
                     <span className="text-sm font-bold text-slate-900 dark:text-white">
                       {periodConfirmations.length > 0 ? (
@@ -881,7 +881,7 @@ export default function AgentPage() {
                       )}
                     </span>
                   </div>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
+                  <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
                     {t.badgeConfirmed}
                   </span>
                 </div>
@@ -899,7 +899,7 @@ export default function AgentPage() {
                         {t.lostDemandHeading}
                       </h3>
                     </div>
-                    <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-white/[0.06]">
+                    <span className="shrink-0 whitespace-nowrap text-[11px] font-semibold text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-white/[0.06]">
                       {lostDemand.week}
                     </span>
                   </div>
