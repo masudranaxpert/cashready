@@ -96,8 +96,16 @@ export default function AgentPage() {
         const list = await getAgents();
         setAgents(list);
         if (list.length > 0) {
+          let initialId = list[0].agent_id;
+          if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const qId = params.get("id") || params.get("agent_id");
+            if (qId && list.some((a) => a.agent_id === qId)) {
+              initialId = qId;
+            }
+          }
           setSelectedAgentId((prev) =>
-            list.find((a) => a.agent_id === prev) ? prev : list[0].agent_id
+            list.find((a) => a.agent_id === (initialId || prev)) ? (initialId || prev) : list[0].agent_id
           );
         }
       } catch (err: unknown) {

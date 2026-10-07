@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import type {
   Area,
   AreaRiskResponse,
@@ -8,8 +9,8 @@ import type {
   AreaAgentRisk,
 } from "@/lib/types";
 import { getAreas, getAreaRisk, getAreaLostDemand } from "@/lib/api";
-import { DEMO_DATE, DEMO_WEEK } from "@/lib/mock-data";
-import { STRINGS, formatBDT } from "@/lib/strings";
+import { DEMO_WEEK } from "@/lib/mock-data";
+import { formatBDT } from "@/lib/strings";
 import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
 import {
@@ -20,6 +21,10 @@ import {
   ArrowDown,
   AlertTriangle,
   TrendingDown,
+  Users,
+  ShieldAlert,
+  ArrowRight,
+  ExternalLink,
 } from "lucide-react";
 import {
   BarChart,
@@ -139,6 +144,24 @@ export default function AreaPage() {
     });
   }, [riskData, sortField, sortDirection]);
 
+  // Agent network risk distribution counts
+  const networkCounts = useMemo(() => {
+    if (!riskData?.agents) return { total: 0, normal: 0, watch: 0, critical: 0 };
+    const total = riskData.agents.length;
+    const critical = riskData.agents.filter((a) => a.stockout_prob_habit >= 0.3).length;
+    const watch = riskData.agents.filter((a) => a.stockout_prob_habit >= 0.15 && a.stockout_prob_habit < 0.3).length;
+    const normal = total - critical - watch;
+    return { total, normal, watch, critical };
+  }, [riskData]);
+
+  // Priority Attention View: agents requiring immediate liquidity attention (risk >= 30%)
+  const attentionAgents = useMemo(() => {
+    if (!riskData?.agents) return [];
+    return riskData.agents
+      .filter((a) => a.stockout_prob_habit >= 0.3)
+      .sort((a, b) => b.stockout_prob_habit - a.stockout_prob_habit);
+  }, [riskData]);
+
   // Chart data for area lost demand
   const chartData = useMemo(() => {
     if (!lostDemandData?.areas) return [];
@@ -152,11 +175,11 @@ export default function AreaPage() {
 
   const selectedAreaLostInfo = lostDemandData?.areas[selectedAreaId];
   const hasDigitalShift = selectedAreaLostInfo?.demand_shift === 1;
-
   const currentArea = areas.find((a) => a.area_id === selectedAreaId);
 
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+      {/* 1. Header & Selectors */}
       <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5" aria-label={t.areaViewBadge}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           <div>
@@ -164,7 +187,7 @@ export default function AreaPage() {
               <h1 className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight">
                 {t.areaHeading}
               </h1>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-teal-300 border border-slate-700/60">
                 {t.areaViewBadge}
               </span>
             </div>
@@ -212,6 +235,112 @@ export default function AreaPage() {
         </div>
       </section>
 
+      {/* 2. Agent Network Overview Cards */}
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4" aria-label={t.managerOverviewTitle}>
+        <div className="p-4 bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-400">{t.totalAgentsLabel}</span>
+            <Users className="w-4 h-4 text-slate-400" />
+          </div>
+          <div className="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-100 tabular-nums">
+            {networkCounts.total}
+          </div>
+          <span className="text-[10px] text-slate-500 mt-0.5 block">
+            {selectedAreaId} ({currentArea?.area_type})
+          </span>
+        </div>
+
+        <div className="p-4 bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-emerald-400">🟢 {t.normalRiskLabel}</span>
+            <span className="text-[10px] text-slate-500">&lt; 15%</span>
+          </div>
+          <div className="mt-2 text-2xl sm:text-3xl font-extrabold text-emerald-400 tabular-nums">
+            {networkCounts.normal}
+          </div>
+          <span className="text-[10px] text-slate-500 mt-0.5 block">
+            {lang === "en" ? "Adequate liquidity" : "পর্যাপ্ত তারল্য"}
+          </span>
+        </div>
+
+        <div className="p-4 bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-amber-400">🟡 {t.watchRiskLabel}</span>
+            <span className="text-[10px] text-slate-500">15-29%</span>
+          </div>
+          <div className="mt-2 text-2xl sm:text-3xl font-extrabold text-amber-400 tabular-nums">
+            {networkCounts.watch}
+          </div>
+          <span className="text-[10px] text-slate-500 mt-0.5 block">
+            {lang === "en" ? "Watch closely" : "নজরদারি প্রয়োজন"}
+          </span>
+        </div>
+
+        <div className="p-4 bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-red-400">🔴 {t.criticalRiskLabel}</span>
+            <span className="text-[10px] text-slate-500">&ge; 30%</span>
+          </div>
+          <div className="mt-2 text-2xl sm:text-3xl font-extrabold text-red-400 tabular-nums">
+            {networkCounts.critical}
+          </div>
+          <span className="text-[10px] text-slate-500 mt-0.5 block">
+            {lang === "en" ? "Immediate action" : "জরুরি সমন্বয় প্রয়োজন"}
+          </span>
+        </div>
+      </section>
+
+      {/* 3. Priority View: Agents Requiring Attention */}
+      {attentionAgents.length > 0 && (
+        <section className="bg-red-950/20 rounded-2xl border border-red-800/60 p-4 sm:p-5 space-y-3" aria-label={t.agentsAttentionTitle}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-red-400 shrink-0" />
+              <div>
+                <h2 className="text-sm sm:text-base font-bold text-red-300">
+                  {t.agentsAttentionTitle} ({attentionAgents.length})
+                </h2>
+                <p className="text-xs text-red-400/80 mt-0.5">
+                  {t.agentsAttentionSubtitle}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
+            {attentionAgents.map((ag) => {
+              const percent = Math.round(ag.stockout_prob_habit * 100);
+              return (
+                <div
+                  key={ag.agent_id}
+                  className="p-3 bg-navy-900/90 rounded-xl border border-red-900/60 flex items-center justify-between gap-3 shadow-sm"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-slate-100 text-sm">{ag.agent_id}</span>
+                      <span className="text-[10px] font-bold text-red-400 px-1.5 py-0.2 rounded bg-red-950/60 border border-red-800">
+                        {percent}%
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                      {t.riskTime(ag.risk_hour)}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/agent?id=${encodeURIComponent(ag.agent_id)}`}
+                    className="px-2.5 py-1.5 rounded-lg bg-red-950/60 hover:bg-red-900/60 text-red-200 border border-red-800/60 text-xs font-semibold flex items-center gap-1 transition-colors shrink-0"
+                  >
+                    <span>{t.viewAgentPlan}</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* 4. Detailed Agent Risk Table & Area Lost Demand Chart */}
       {error ? (
         <ErrorState onRetry={() => setSelectedAreaId(selectedAreaId)} />
       ) : loading ? (
@@ -226,6 +355,7 @@ export default function AreaPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 animate-fade-in">
+          {/* Left: Agent Risk Table */}
           <div className="lg:col-span-2 bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
               <div>
@@ -243,6 +373,7 @@ export default function AreaPage() {
               </div>
             </div>
 
+            {/* Mobile View Cards */}
             <div className="block sm:hidden space-y-2.5">
               <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-slate-800/80">
                 <span className="text-[11px]">{t.sortBy}</span>
@@ -283,22 +414,21 @@ export default function AreaPage() {
                 </div>
               </div>
 
-              {/* Agent Cards for Mobile */}
               {sortedAgents.map((ag: AreaAgentRisk) => {
-                const isHighRisk = ag.stockout_prob_habit >= 0.3;
+                const isCritical = ag.stockout_prob_habit >= 0.3;
                 const percent = Math.round(ag.stockout_prob_habit * 100);
 
                 return (
                   <div
                     key={ag.agent_id}
-                    className={`p-3 rounded-xl border border-slate-800 bg-navy-900/90 transition-colors ${
-                      isHighRisk ? "border-l-2 border-l-red-500 bg-red-950/20" : ""
+                    className={`p-3.5 rounded-xl border border-slate-800 bg-navy-900/90 transition-colors ${
+                      isCritical ? "border-l-2 border-l-red-500 bg-red-950/20" : ""
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <span className="font-bold text-slate-100 text-sm">{ag.agent_id}</span>
-                        {isHighRisk && (
+                        {isCritical && (
                           <span className="text-[10px] font-semibold text-red-400 px-1.5 py-0.5 rounded bg-red-950/40 border border-red-900/50">
                             {t.riskWord}
                           </span>
@@ -309,29 +439,43 @@ export default function AreaPage() {
                       </span>
                     </div>
 
-                    <div className="mt-2 flex items-center justify-between pt-2 border-t border-slate-800/60">
-                      <span className="text-xs text-slate-400">{t.shortfallProb}:</span>
-                      {isHighRisk ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-950/40 text-amber-300 border border-amber-800/50">
-                          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                          <span>{t.cashShortfall} ({percent}%)</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700/60">
-                          {t.normal} ({percent}%)
-                        </span>
-                      )}
+                    <div className="mt-2.5 flex items-center justify-between pt-2 border-t border-slate-800/60">
+                      <div>
+                        {isCritical ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-950/40 text-red-300 border border-red-800/50">
+                            <AlertTriangle className="w-3 h-3 text-red-400 shrink-0" />
+                            <span>{t.cashShortfall} ({percent}%)</span>
+                          </span>
+                        ) : ag.stockout_prob_habit >= 0.15 ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-950/40 text-amber-300 border border-amber-800/50">
+                            {t.watchRiskLabel} ({percent}%)
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700/60">
+                            {t.normal} ({percent}%)
+                          </span>
+                        )}
+                      </div>
+
+                      <Link
+                        href={`/agent?id=${encodeURIComponent(ag.agent_id)}`}
+                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 text-xs font-semibold flex items-center gap-1"
+                      >
+                        <span>{t.viewAgentPlan}</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
                     </div>
                   </div>
                 );
               })}
             </div>
 
+            {/* Desktop Table View */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    <th className="pb-3 pr-4">
+                    <th className="pb-3 pr-3">
                       <button
                         type="button"
                         onClick={() => handleSort("agent_id")}
@@ -351,7 +495,7 @@ export default function AreaPage() {
                       </button>
                     </th>
 
-                    <th className="pb-3 px-4">
+                    <th className="pb-3 px-3">
                       <button
                         type="button"
                         onClick={() => handleSort("stockout_prob_habit")}
@@ -371,11 +515,11 @@ export default function AreaPage() {
                       </button>
                     </th>
 
-                    <th className="pb-3 pl-4 text-right">
+                    <th className="pb-3 px-3">
                       <button
                         type="button"
                         onClick={() => handleSort("risk_hour")}
-                        className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100 ml-auto"
+                        className="flex items-center gap-1 font-semibold text-slate-300 hover:text-slate-100"
                         aria-label={`${t.sortBy} ${t.riskHourCol}`}
                       >
                         <span>{t.riskHourCol}</span>
@@ -390,25 +534,29 @@ export default function AreaPage() {
                         )}
                       </button>
                     </th>
+
+                    <th className="pb-3 pl-3 text-right">
+                      <span>{t.rebalanceAction}</span>
+                    </th>
                   </tr>
                 </thead>
 
                 <tbody className="divide-y divide-slate-800/80">
                   {sortedAgents.map((ag: AreaAgentRisk) => {
-                    const isHighRisk = ag.stockout_prob_habit >= 0.3;
+                    const isCritical = ag.stockout_prob_habit >= 0.3;
                     const percent = Math.round(ag.stockout_prob_habit * 100);
 
                     return (
                       <tr
                         key={ag.agent_id}
                         className={`transition-colors hover:bg-slate-800/40 ${
-                          isHighRisk ? "border-l-2 border-l-red-500 bg-red-950/20" : ""
+                          isCritical ? "border-l-2 border-l-red-500 bg-red-950/20" : ""
                         }`}
                       >
-                        <td className="py-3.5 pr-4 font-bold text-slate-100 whitespace-nowrap">
+                        <td className="py-3.5 pr-3 font-bold text-slate-100 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <span>{ag.agent_id}</span>
-                            {isHighRisk && (
+                            {isCritical && (
                               <span className="text-[11px] font-semibold text-red-400">
                                 {t.riskWord}
                               </span>
@@ -416,11 +564,15 @@ export default function AreaPage() {
                           </div>
                         </td>
 
-                        <td className="py-3.5 px-4 whitespace-nowrap">
-                          {isHighRisk ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-950/40 text-amber-300 border border-amber-800/50">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <td className="py-3.5 px-3 whitespace-nowrap">
+                          {isCritical ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-950/40 text-red-300 border border-red-800/50">
+                              <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
                               <span>{t.cashShortfallRisk} ({percent}%)</span>
+                            </span>
+                          ) : ag.stockout_prob_habit >= 0.15 ? (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-950/40 text-amber-300 border border-amber-800/50">
+                              {t.watchRiskLabel} ({percent}%)
                             </span>
                           ) : (
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700/60">
@@ -429,8 +581,18 @@ export default function AreaPage() {
                           )}
                         </td>
 
-                        <td className="py-3.5 pl-4 text-right font-medium text-slate-300 tabular-nums whitespace-nowrap">
+                        <td className="py-3.5 px-3 font-medium text-slate-300 tabular-nums whitespace-nowrap">
                           {t.riskTime(ag.risk_hour)}
+                        </td>
+
+                        <td className="py-3.5 pl-3 text-right whitespace-nowrap">
+                          <Link
+                            href={`/agent?id=${encodeURIComponent(ag.agent_id)}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 text-xs font-semibold transition-colors"
+                          >
+                            <span>{t.viewAgentPlan}</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
                         </td>
                       </tr>
                     );
@@ -440,6 +602,7 @@ export default function AreaPage() {
             </div>
           </div>
 
+          {/* Right: Area Lost Demand & Digital Shift Chart */}
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4">
               <div className="flex items-start justify-between gap-2">
@@ -536,3 +699,4 @@ export default function AreaPage() {
     </div>
   );
 }
+
