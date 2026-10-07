@@ -1,7 +1,8 @@
 import json
-from datetime import datetime, timezone
+import uuid
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from fastapi import HTTPException, status
 
 from api.config import settings
@@ -174,3 +175,66 @@ def save_feedback(agent_id: str, payload_dict: dict) -> None:
     }
     with open(out_file, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+
+def save_confirmation(
+    agent_id: str,
+    area_id: str,
+    payload_dict: dict,
+    model_version: str = "v1.2-temporal",
+) -> dict:
+    """Persist structured stockout confirmation record to JSONL."""
+    out_file = settings.artifacts_dir / "confirmations.jsonl"
+    record = {
+        "id": f"conf_{uuid.uuid4().hex[:12]}",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "agent_id": agent_id,
+        "area_id": area_id,
+        "model_version": model_version,
+        **payload_dict,
+    }
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    return record
+
+
+def get_confirmations(
+    agent_id: Optional[str] = None,
+    area_id: Optional[str] = None,
+    days: int = 30,
+) -> List[dict]:
+    """Retrieve filtered confirmations from JSONL matching agent/area within days window."""
+    out_file = settings.artifacts_dir / "confirmations.jsonl"
+    if not out_file.exists():
+        return []
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    records: List[dict] = []
+    with open(out_file, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+                if agent_id and rec.get("agent_id") != agent_id:
+                    continue
+                if area_id and rec.get("area_id") != area_id:
+                    continue
+                ts_str = rec.get("timestamp")
+                if ts_str:
+                    try:
+                        ts = datetime.fromisoformat(ts_str)
+                        if ts.tzinfo is None:
+                            ts = ts.replace(tzinfo=timezone.utc)
+                        if ts < cutoff:
+                            continue
+                    except Exception:
+                        pass
+                records.append(rec)
+            except Exception:
+                continue
+    records.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+    return records
+

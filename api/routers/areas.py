@@ -6,11 +6,13 @@ from api.schemas import (
     AreaItem,
     AreaRiskResponse,
     AreaLostDemandResponse,
+    StockoutConfirmationResponse,
 )
 from api.services.plan_service import (
     load_artifact,
     ensure_area_risk,
     ensure_lost_demand,
+    get_confirmations,
 )
 
 router = APIRouter(prefix="/areas", tags=["Areas"], dependencies=[Depends(verify_api_key)])
@@ -75,3 +77,25 @@ def get_area_lost_demand(
         filtered = {k: v for k, v in doc["areas"].items() if k == current_user.area_id}
         return {"week": week, "areas": filtered}
     return {"week": week, "areas": doc["areas"]}
+
+
+@router.get("/{area_id}/confirmations", response_model=List[StockoutConfirmationResponse], summary="Get area agents stock-out confirmations")
+def list_area_confirmations(
+    area_id: Annotated[str, FPath(max_length=32, pattern=r"^[A-Za-z0-9_-]+$")],
+    days: Annotated[int, Query(ge=1, le=90)] = 30,
+    current_user: AuthUser = Depends(get_current_user),
+) -> List[StockoutConfirmationResponse]:
+    if current_user.role == "agent":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: agent cannot access area confirmations",
+        )
+    if current_user.role == "manager" and current_user.area_id != area_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Forbidden: manager cannot access area {area_id}",
+        )
+
+    results = get_confirmations(area_id=area_id, days=days)
+    return [StockoutConfirmationResponse(**r) for r in results]
+

@@ -137,3 +137,41 @@ export interface MetricsResponse {
     };
   };
 }
+
+export interface StockoutConfirmationPayload {
+  date: string;
+  cash_ran_out: boolean;
+  from_hour?: number | null;
+  to_hour?: number | null;
+  customers_turned_away?: number | null;
+  kept_recommended_cash: "yes" | "partly" | "no";
+  opening_cash_kept?: number | null;
+}
+
+export interface StockoutConfirmation extends StockoutConfirmationPayload {
+  id: string;
+  timestamp: string;
+  agent_id: string;
+  area_id: string;
+  model_version: string;
+}
+
+export interface AreaImpactAgent {
+  agent_id: string;
+  confirmed_stockout_hours: number;
+  estimated_missed_amount: number;
+  estimated_lost_commission: number;
+  plan_adoption: string;
+  needs_liquidity_support: boolean;
+}
+
+export interface AreaImpactResponse {
+  area_id: string;
+  days: number;
+  total_lost_cashout_bdt: number;
+  total_lost_commission_bdt: number;
+  confirmed_stockout_hours: number;
+  agents_reporting: number;
+  agents: AreaImpactAgent[];
+}
+

@@ -161,6 +161,53 @@ type Dict = {
   adminOnlyRestrictedTitle: string;
   adminOnlyRestrictedDesc: string;
   adminOnlyLoginAction: string;
+
+  // Step 2: Confirmation form
+  confirmationFormTitle: string;
+  confirmationFormDesc: string;
+  qCashRanOut: string;
+  qRanOutYes: string;
+  qRanOutNo: string;
+  qFromHour: string;
+  qToHour: string;
+  qCustomersTurnedAway: string;
+  qKeptRecommended: string;
+  optKeptYes: string;
+  optKeptPartly: string;
+  optKeptNo: string;
+  qOpeningCashKept: string;
+  btnSubmitConfirmation: string;
+  confirmationSuccess: string;
+  badgeConfirmed: string;
+  badgeEstimated: string;
+
+  // Step 3: Agent impact card ("আমার ব্যবসার অবস্থা")
+  agentImpactHeading: string;
+  agentImpactSubheading: string;
+  period7Days: string;
+  period30Days: string;
+  confirmedStockoutHours: string;
+  noConfirmationsYet: string;
+  estimatedStockoutHours: string;
+  estimatedMissedCashouts: string;
+  estimatedLostCommission: string;
+  daysPlanFollowed: string;
+  notReportedYet: string;
+
+  // Step 4: Manager area impact ("এলাকার Business Impact")
+  areaImpactHeading: string;
+  areaImpactSubheading: string;
+  totalLostCashoutBdt: string;
+  totalLostCommissionBdt: string;
+  areaConfirmedStockouts: string;
+  agentsReportingCount: string;
+  agentImpactTableTitle: string;
+  colAgentId: string;
+  colConfirmedStockoutHours: string;
+  colEstimatedMissedAmount: string;
+  colEstimatedLostCommission: string;
+  colPlanAdoption: string;
+  top5LiquidityNeedBadge: string;
 };
 
 const BN: Dict = {
@@ -329,6 +376,53 @@ const BN: Dict = {
   adminOnlyRestrictedTitle: "অ্যাডমিন অ্যাক্সেস প্রয়োজন",
   adminOnlyRestrictedDesc: "মডেল মূল্যায়ন মেট্রিক্স, ক্যাপিটাল কম্প্যারিজন এবং পাইলট প্ল্যান শুধুমাত্র বিচারক ও অ্যাডমিনের জন্য সংরক্ষিত।",
   adminOnlyLoginAction: "অ্যাডমিন হিসেবে লগইন করুন",
+
+  // Step 2: Confirmation form
+  confirmationFormTitle: "দৈনিক নগদ ও স্টক-আউট রিপোর্ট",
+  confirmationFormDesc: "আজকের প্রকৃত ক্যাশ অবস্থা নিশ্চিত করুন (মডেলের পূর্বাভাস যাচাইয়ে সহায়তা করবে)",
+  qCashRanOut: "আজকে কি নগদ ফুরিয়ে গিয়েছিল?",
+  qRanOutYes: "হ্যাঁ, ফুরিয়েছিল",
+  qRanOutNo: "না, নগদ পর্যাপ্ত ছিল",
+  qFromHour: "কখন থেকে ঘাটতি শুরু হয়েছিল? (ঘণ্টা)",
+  qToHour: "কখন পর্যন্ত ঘাটতি ছিল? (ঘণ্টা)",
+  qCustomersTurnedAway: "কতজন গ্রাহক ফিরে গেছেন? (ঐচ্ছিক)",
+  qKeptRecommended: "সুপারিশকৃত প্রারম্ভিক নগদ রেখেছিলেন?",
+  optKeptYes: "হ্যাঁ, সম্পূর্ণ",
+  optKeptPartly: "আংশিক",
+  optKeptNo: "না",
+  qOpeningCashKept: "প্রকৃত প্রারম্ভিক নগদ টাকা (ঐচ্ছিক)",
+  btnSubmitConfirmation: "রিপোর্ট জমা দিন",
+  confirmationSuccess: "ধন্যবাদ! আপনার রিপোর্ট সংরক্ষিত হয়েছে।",
+  badgeConfirmed: "Confirmed by agent",
+  badgeEstimated: "Simulated / estimated",
+
+  // Step 3: Agent impact card ("আমার ব্যবসার অবস্থা")
+  agentImpactHeading: "আমার ব্যবসার অবস্থা",
+  agentImpactSubheading: "মডেলের পূর্বাভাস এবং আপনার নিশ্চিত করা তথ্যের ভিত্তিতে ব্যবসার প্রভাব বিশ্লেষণ",
+  period7Days: "গত ৭ দিন",
+  period30Days: "গত ৩০ দিন",
+  confirmedStockoutHours: "নিশ্চিত স্টক-আউট সময়",
+  noConfirmationsYet: "No confirmations yet",
+  estimatedStockoutHours: "মডেল-আনুমানিক স্টক-আউট সময়",
+  estimatedMissedCashouts: "অনুপস্থিত ক্যাশ-আউট লেনদেন",
+  estimatedLostCommission: "হারানো কমিশন আয় (১.৮% হার)",
+  daysPlanFollowed: "প্ল্যান অনুসরণের দিন",
+  notReportedYet: "Not reported yet",
+
+  // Step 4: Manager area impact ("এলাকার Business Impact")
+  areaImpactHeading: "এলাকার Business Impact",
+  areaImpactSubheading: "ম্যানেজারের এলাকার এজেন্টদের সামগ্রিক নগদ ঘাটতি ও কমিশনের প্রভাব বিশ্লেষণ",
+  totalLostCashoutBdt: "মোট সম্ভাব্য হারানো ক্যাশ-আউট",
+  totalLostCommissionBdt: "মোট সম্ভাব্য হারানো কমিশন",
+  areaConfirmedStockouts: "মোট নিশ্চিত স্টক-আউট ঘণ্টা",
+  agentsReportingCount: "রিপোর্ট প্রদানকারী এজেন্ট",
+  agentImpactTableTitle: "এলাকার এজেন্টদের ব্যবসায়িক প্রভাব তালিকা",
+  colAgentId: "এজেন্ট আইডি",
+  colConfirmedStockoutHours: "নিশ্চিত স্টক-আউট ঘণ্টা",
+  colEstimatedMissedAmount: "আনুমানিক হারানো পরিমাণ",
+  colEstimatedLostCommission: "হারানো কমিশন",
+  colPlanAdoption: "প্ল্যান গ্রহণ/অনুসরণ",
+  top5LiquidityNeedBadge: "তারল্য সহায়তা প্রয়োজন (শীর্ষ ৫)",
 };
 
 const EN: Dict = {
@@ -496,6 +590,53 @@ const EN: Dict = {
   adminOnlyRestrictedTitle: "Admin Access Required",
   adminOnlyRestrictedDesc: "Model verification metrics, capital-matched evaluation, and trial designs are restricted to judges and administrators.",
   adminOnlyLoginAction: "Log in as Admin",
+
+  // Step 2: Confirmation form
+  confirmationFormTitle: "Daily Stock-Out Confirmation",
+  confirmationFormDesc: "Confirm today's actual cash status (helps verify algorithm forecast)",
+  qCashRanOut: "Did cash run out today?",
+  qRanOutYes: "Yes, ran out",
+  qRanOutNo: "No, had enough",
+  qFromHour: "Start of stock-out (hour, 24h)",
+  qToHour: "End of stock-out (hour, 24h)",
+  qCustomersTurnedAway: "Customers turned away (optional)",
+  qKeptRecommended: "Did you keep recommended opening cash?",
+  optKeptYes: "Yes, fully",
+  optKeptPartly: "Partly",
+  optKeptNo: "No",
+  qOpeningCashKept: "Actual opening cash held (BDT, optional)",
+  btnSubmitConfirmation: "Submit Report",
+  confirmationSuccess: "Thank you! Your feedback has been confirmed and recorded.",
+  badgeConfirmed: "Confirmed by agent",
+  badgeEstimated: "Simulated / estimated",
+
+  // Step 3: Agent impact card ("আমার ব্যবসার অবস্থা")
+  agentImpactHeading: "My Business Impact",
+  agentImpactSubheading: "Overview of your liquidity performance comparing confirmed feedback and algorithm estimates",
+  period7Days: "Last 7 days",
+  period30Days: "Last 30 days",
+  confirmedStockoutHours: "Confirmed stock-out hours",
+  noConfirmationsYet: "No confirmations yet",
+  estimatedStockoutHours: "Model-estimated stock-out hours",
+  estimatedMissedCashouts: "Missed cash-outs",
+  estimatedLostCommission: "Estimated lost commission (1.8%)",
+  daysPlanFollowed: "Days plan followed",
+  notReportedYet: "Not reported yet",
+
+  // Step 4: Manager area impact ("এলাকার Business Impact")
+  areaImpactHeading: "Area Business Impact",
+  areaImpactSubheading: "Aggregated liquidity loss, commission impact, and agent reports across your cluster",
+  totalLostCashoutBdt: "Total estimated lost cash-out",
+  totalLostCommissionBdt: "Total estimated lost commission",
+  areaConfirmedStockouts: "Confirmed stock-out hours",
+  agentsReportingCount: "Reporting agents",
+  agentImpactTableTitle: "Area Agents Performance & Impact",
+  colAgentId: "Agent ID",
+  colConfirmedStockoutHours: "Confirmed stock-outs",
+  colEstimatedMissedAmount: "Est. missed cash-out",
+  colEstimatedLostCommission: "Est. lost commission",
+  colPlanAdoption: "Plan adoption",
+  top5LiquidityNeedBadge: "Liquidity Support Needed (Top 5)",
 };
 
 export const STRINGS: Record<Lang, Dict> = { bn: BN, en: EN };

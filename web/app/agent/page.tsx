@@ -7,12 +7,16 @@ import type {
   AgentLostDemand,
   RiskLevel,
   Reason,
+  StockoutConfirmation,
+  StockoutConfirmationPayload,
 } from "@/lib/types";
 import {
   getAgents,
   getAgentPlan,
   getAgentLostDemand,
   submitAgentFeedback,
+  submitStockoutConfirmation,
+  getAgentConfirmations,
   ApiError,
 } from "@/lib/api";
 import { DEMO_DATE, DEMO_WEEK } from "@/lib/mock-data";
@@ -55,6 +59,19 @@ export default function AgentPage() {
   // Feedback states
   const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "submitting" | "success" | "demo" | "error">("idle");
   const [feedbackAnswer, setFeedbackAnswer] = useState<boolean | null>(null);
+
+  // Structured Confirmation states
+  const [cashRanOut, setCashRanOut] = useState<boolean>(false);
+  const [fromHour, setFromHour] = useState<number>(13);
+  const [toHour, setToHour] = useState<number>(15);
+  const [customersTurnedAway, setCustomersTurnedAway] = useState<string>("");
+  const [keptRecommended, setKeptRecommended] = useState<"yes" | "partly" | "no">("yes");
+  const [openingCashKept, setOpeningCashKept] = useState<string>("");
+  const [confSubmitting, setConfSubmitting] = useState<boolean>(false);
+  const [confSubmitted, setConfSubmitted] = useState<boolean>(false);
+  const [confError, setConfError] = useState<string | null>(null);
+  const [agentConfirmations, setAgentConfirmations] = useState<StockoutConfirmation[]>([]);
+  const [impactDays, setImpactDays] = useState<7 | 30>(30);
 
   // Check user session
   useEffect(() => {
@@ -150,19 +167,43 @@ export default function AgentPage() {
 
   const currentAgent = agents.find((a) => a.agent_id === selectedAgentId) || agents[0];
 
-  const handleFeedback = async (helpful: boolean) => {
-    if (feedbackStatus === "submitting" || feedbackStatus === "success") return;
-    setFeedbackStatus("submitting");
-    setFeedbackAnswer(helpful);
+  useEffect(() => {
+    async function loadConfirmations() {
+      if (!selectedAgentId) return;
+      try {
+        const confs = await getAgentConfirmations(selectedAgentId, impactDays);
+        setAgentConfirmations(confs);
+      } catch {
+        // ignore
+      }
+    }
+    loadConfirmations();
+  }, [selectedAgentId, impactDays]);
+
+  const handleConfirmationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (confSubmitting) return;
+    setConfSubmitting(true);
+    setConfError(null);
+
+    const payload: StockoutConfirmationPayload = {
+      date: selectedDate,
+      cash_ran_out: cashRanOut,
+      from_hour: cashRanOut ? Number(fromHour) : null,
+      to_hour: cashRanOut ? Number(toHour) : null,
+      customers_turned_away: customersTurnedAway ? Number(customersTurnedAway) : null,
+      kept_recommended_cash: keptRecommended,
+      opening_cash_kept: openingCashKept ? Number(openingCashKept) : null,
+    };
 
     try {
-      const resp = await submitAgentFeedback(selectedAgentId, {
-        helpful,
-        comment: helpful ? (lang === "en" ? "useful advice" : "কাজের পরামর্শ") : (lang === "en" ? "too much or too little cash" : "অতিরিক্ত বা কম নগদ"),
-      });
-      setFeedbackStatus(resp.demo_only ? "demo" : "success");
+      const res = await submitStockoutConfirmation(selectedAgentId, payload);
+      setAgentConfirmations((prev) => [res, ...prev]);
+      setConfSubmitted(true);
     } catch (err: unknown) {
-      setFeedbackStatus("error");
+      setConfError(lang === "en" ? "Failed to save confirmation" : "রিপোর্ট সংরক্ষণ করা যায়নি");
+    } finally {
+      setConfSubmitting(false);
     }
   };
 
@@ -518,73 +559,204 @@ export default function AgentPage() {
             </div>
           )}
 
-          <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-3">
-            <h3 className="text-sm font-bold text-slate-100 tracking-tight">
-              {t.feedbackHeading}
-            </h3>
-
-            {feedbackStatus === "success" || feedbackStatus === "demo" ? (
-              <div className="flex items-center gap-2 p-3 bg-navy-900 rounded-xl border border-slate-800 text-slate-100">
-                <CheckCircle2 className={`w-5 h-5 shrink-0 ${feedbackStatus === "demo" ? "text-amber-400" : "text-teal-400"}`} />
-                <span className={`text-sm font-semibold ${feedbackStatus === "demo" ? "text-amber-300" : "text-teal-400"}`}>
-                  {feedbackStatus === "demo"
-                    ? (lang === "en" ? "Demo: feedback not saved" : "ডেমো: মতামত সংরক্ষিত হয়নি")
-                    : `${t.feedbackSuccess} ${t.feedbackRecorded}`}
+          {/* Structured Confirmation Card (Replaces simple "was this useful?" thumbs) */}
+          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4" aria-label={t.confirmationFormTitle}>
+            <div className="border-b border-slate-800/80 pb-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-slate-100 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                  <span>{t.confirmationFormTitle}</span>
+                </h3>
+                <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-teal-300 border border-teal-800/40">
+                  {t.badgeConfirmed}
                 </span>
               </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => handleFeedback(true)}
-                    disabled={feedbackStatus === "submitting"}
-                    className={`flex-1 min-h-[44px] rounded-full text-xs sm:text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border ${
-                      feedbackAnswer === true
-                        ? "bg-slate-700 text-white border-slate-600"
-                        : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
-                    } disabled:opacity-50`}
-                  >
-                    {t.feedbackYes}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleFeedback(false)}
-                    disabled={feedbackStatus === "submitting"}
-                    className={`flex-1 min-h-[44px] rounded-full text-xs sm:text-sm font-semibold transition-transform duration-100 active:scale-[0.98] border ${
-                      feedbackAnswer === false
-                        ? "bg-slate-700 text-white border-slate-600"
-                        : "bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-800"
-                    } disabled:opacity-50`}
-                  >
-                    {t.feedbackNo}
-                  </button>
+              <p className="text-xs text-slate-400 mt-1">
+                {t.confirmationFormDesc}
+              </p>
+            </div>
+
+            {confSubmitted ? (
+              <div className="p-3.5 bg-teal-950/30 border border-teal-800/60 rounded-xl space-y-2 text-slate-100">
+                <div className="flex items-center gap-2 text-teal-300 font-semibold text-xs sm:text-sm">
+                  <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
+                  <span>{t.confirmationSuccess}</span>
                 </div>
-
-                {feedbackStatus === "submitting" && (
-                  <p className="text-xs text-slate-400 text-center py-1">
-                    {t.feedbackSubmitting}
-                  </p>
-                )}
-
-                {feedbackStatus === "error" && (
-                  <div className="flex items-center justify-between text-xs text-amber-300 bg-amber-950/40 border border-amber-800/50 p-2.5 rounded-xl">
-                    <div className="flex items-center gap-1.5">
-                      <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span>{t.feedbackFailed}</span>
-                    </div>
+                <p className="text-xs text-slate-300">
+                  {lang === "en"
+                    ? `Recorded: Cash ran out: ${cashRanOut ? "Yes" : "No"}, Kept plan: ${keptRecommended}.`
+                    : `সংরক্ষিত তথ্য: নগদ ফুরিয়েছিল: ${cashRanOut ? "হ্যাঁ" : "না"}, প্ল্যান অনুসরণ: ${keptRecommended === "yes" ? "হ্যাঁ" : keptRecommended === "partly" ? "আংশিক" : "না"}।`}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setConfSubmitted(false)}
+                  className="text-xs text-teal-400 underline hover:text-teal-300 font-medium pt-1"
+                >
+                  {lang === "en" ? "Update report" : "পুনরায় রিপোর্ট সংশোধন করুন"}
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleConfirmationSubmit} className="space-y-3.5 text-xs">
+                {/* Question 1: Cash ran out? */}
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-slate-200 block">
+                    {t.qCashRanOut}
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
-                      onClick={() => handleFeedback(feedbackAnswer ?? true)}
-                      className="underline font-semibold"
+                      onClick={() => setCashRanOut(false)}
+                      className={`min-h-[40px] px-3 py-2 rounded-xl font-medium border transition-colors ${
+                        !cashRanOut
+                          ? "bg-teal-950/60 border-teal-600 text-teal-200"
+                          : "bg-navy-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                      }`}
                     >
-                      {t.retry}
+                      {t.qRanOutNo}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCashRanOut(true)}
+                      className={`min-h-[40px] px-3 py-2 rounded-xl font-medium border transition-colors ${
+                        cashRanOut
+                          ? "bg-rose-950/60 border-rose-600 text-rose-200"
+                          : "bg-navy-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      {t.qRanOutYes}
                     </button>
                   </div>
+                </div>
+
+                {/* Conditional hours & customers turned away if cash ran out */}
+                {cashRanOut && (
+                  <div className="p-3 bg-navy-900/90 rounded-xl border border-rose-900/40 space-y-3 animate-fade-in">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-300 block mb-1">
+                          {t.qFromHour}
+                        </label>
+                        <select
+                          value={fromHour}
+                          onChange={(e) => setFromHour(Number(e.target.value))}
+                          className="w-full bg-navy-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 text-xs focus:outline-none focus:border-teal-500"
+                        >
+                          {Array.from({ length: 15 }, (_, i) => i + 8).map((h) => (
+                            <option key={h} value={h}>
+                              {h}:00
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-300 block mb-1">
+                          {t.qToHour}
+                        </label>
+                        <select
+                          value={toHour}
+                          onChange={(e) => setToHour(Number(e.target.value))}
+                          className="w-full bg-navy-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 text-xs focus:outline-none focus:border-teal-500"
+                        >
+                          {Array.from({ length: 15 }, (_, i) => i + 8).map((h) => (
+                            <option key={h} value={h}>
+                              {h}:00
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-medium text-slate-300 block mb-1">
+                        {t.qCustomersTurnedAway}
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="200"
+                        placeholder="e.g. 5"
+                        value={customersTurnedAway}
+                        onChange={(e) => setCustomersTurnedAway(e.target.value)}
+                        className="w-full bg-navy-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 text-xs focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+                  </div>
                 )}
-              </div>
+
+                {/* Question: Kept recommended cash? */}
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-slate-200 block">
+                    {t.qKeptRecommended}
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setKeptRecommended("yes")}
+                      className={`min-h-[38px] px-2 py-1.5 rounded-xl font-medium border text-center transition-colors ${
+                        keptRecommended === "yes"
+                          ? "bg-teal-950/60 border-teal-600 text-teal-200"
+                          : "bg-navy-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      {t.optKeptYes}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setKeptRecommended("partly")}
+                      className={`min-h-[38px] px-2 py-1.5 rounded-xl font-medium border text-center transition-colors ${
+                        keptRecommended === "partly"
+                          ? "bg-amber-950/60 border-amber-600 text-amber-200"
+                          : "bg-navy-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      {t.optKeptPartly}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setKeptRecommended("no")}
+                      className={`min-h-[38px] px-2 py-1.5 rounded-xl font-medium border text-center transition-colors ${
+                        keptRecommended === "no"
+                          ? "bg-rose-950/60 border-rose-600 text-rose-200"
+                          : "bg-navy-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                      }`}
+                    >
+                      {t.optKeptNo}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Optional opening cash kept */}
+                <div>
+                  <label className="font-semibold text-slate-200 block mb-1">
+                    {t.qOpeningCashKept}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="5000"
+                    placeholder="৳ 60,000"
+                    value={openingCashKept}
+                    onChange={(e) => setOpeningCashKept(e.target.value)}
+                    className="w-full bg-navy-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+
+                {confError && (
+                  <div className="p-2 bg-rose-950/40 border border-rose-800 text-rose-300 rounded-lg text-xs">
+                    {confError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={confSubmitting}
+                  className="w-full min-h-[44px] rounded-xl font-bold bg-teal-500 hover:bg-teal-400 text-navy-950 transition-colors disabled:opacity-50 text-xs sm:text-sm shadow-soft"
+                >
+                  {confSubmitting ? t.loading : t.btnSubmitConfirmation}
+                </button>
+              </form>
             )}
-          </div>
+          </section>
         </div>
       )}
     </div>

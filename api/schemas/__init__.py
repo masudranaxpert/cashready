@@ -6,6 +6,8 @@ from api.schemas.agent import (
     ReasonItem,
     PlanResponse,
     AgentLostDemandResponse,
+    StockoutConfirmationCreate,
+    StockoutConfirmationResponse,
 )
 from api.schemas.area import (
     AreaItem,
@@ -24,6 +26,8 @@ __all__ = [
     "ReasonItem",
     "PlanResponse",
     "AgentLostDemandResponse",
+    "StockoutConfirmationCreate",
+    "StockoutConfirmationResponse",
     "AreaItem",
     "AreaAgentRiskItem",
     "AreaRiskResponse",

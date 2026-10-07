@@ -9,6 +9,9 @@ import type {
   AreaLostDemandResponse,
   MetricsResponse,
   RiskLevel,
+  StockoutConfirmationPayload,
+  StockoutConfirmation,
+  AreaImpactResponse,
 } from "./types";
 import {
   DEMO_DATE,
@@ -309,3 +312,125 @@ export async function getMetrics(): Promise<MetricsResponse> {
   }
   return MOCK_METRICS;
 }
+
+/**
+ * POST /agents/{agent_id}/confirmations
+ */
+export async function submitStockoutConfirmation(
+  agentId: string,
+  payload: StockoutConfirmationPayload
+): Promise<StockoutConfirmation> {
+  if (isRealApiConfigured()) {
+    try {
+      return await fetchFromApi<StockoutConfirmation>(
+        `/agents/${encodeURIComponent(agentId)}/confirmations`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+    } catch (err) {
+      if (err instanceof ApiError && (err.isForbidden || err.isUnauthorized)) {
+        throw err;
+      }
+      console.warn("API unavailable, falling back to local confirmation:", err);
+      setIsUsingMockFallback(true);
+    }
+  }
+  return {
+    id: `conf_mock_${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    agent_id: agentId,
+    area_id: "A01",
+    model_version: "v1.2-temporal",
+    ...payload,
+  };
+}
+
+/**
+ * GET /agents/{agent_id}/confirmations?days=7|30
+ */
+export async function getAgentConfirmations(
+  agentId: string,
+  days: number = 30
+): Promise<StockoutConfirmation[]> {
+  if (isRealApiConfigured()) {
+    try {
+      return await fetchFromApi<StockoutConfirmation[]>(
+        `/agents/${encodeURIComponent(agentId)}/confirmations?days=${days}`
+      );
+    } catch (err) {
+      if (err instanceof ApiError && (err.isForbidden || err.isUnauthorized)) {
+        throw err;
+      }
+      console.warn("API unavailable, falling back to local agent confirmations:", err);
+      setIsUsingMockFallback(true);
+    }
+  }
+  return [];
+}
+
+/**
+ * GET /areas/{area_id}/confirmations?days=7|30
+ */
+export async function getAreaConfirmations(
+  areaId: string,
+  days: number = 30
+): Promise<StockoutConfirmation[]> {
+  if (isRealApiConfigured()) {
+    try {
+      return await fetchFromApi<StockoutConfirmation[]>(
+        `/areas/${encodeURIComponent(areaId)}/confirmations?days=${days}`
+      );
+    } catch (err) {
+      if (err instanceof ApiError && (err.isForbidden || err.isUnauthorized)) {
+        throw err;
+      }
+      console.warn("API unavailable, falling back to local area confirmations:", err);
+      setIsUsingMockFallback(true);
+    }
+  }
+  return [];
+}
+
+/**
+ * GET /areas/{area_id}/impact?days=7|30
+ */
+export async function getAreaImpact(
+  areaId: string,
+  days: number = 30
+): Promise<AreaImpactResponse> {
+  if (isRealApiConfigured()) {
+    try {
+      return await fetchFromApi<AreaImpactResponse>(
+        `/areas/${encodeURIComponent(areaId)}/impact?days=${days}`
+      );
+    } catch (err) {
+      if (err instanceof ApiError && (err.isForbidden || err.isUnauthorized)) {
+        throw err;
+      }
+      console.warn("API unavailable, falling back to local area impact:", err);
+      setIsUsingMockFallback(true);
+    }
+  }
+  return {
+    area_id: areaId,
+    days,
+    total_lost_cashout_bdt: 42500,
+    total_lost_commission_bdt: 765,
+    confirmed_stockout_hours: 4,
+    agents_reporting: 3,
+    agents: [
+      {
+        agent_id: "T0039",
+        confirmed_stockout_hours: 2,
+        estimated_missed_amount: 18500,
+        estimated_lost_commission: 333,
+        plan_adoption: "100%",
+        needs_liquidity_support: true,
+      },
+    ],
+  };
+}
+
