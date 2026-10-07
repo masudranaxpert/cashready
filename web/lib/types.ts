@@ -25,6 +25,7 @@ export interface AgentPlan {
   date: string;
   agent_id: string;
   opening_cash: number;
+  opening_cash_by_level?: Record<string, number>;
   stockout_prob_plan: Record<RiskLevel | string, number>;
   stockout_prob_habit: Record<RiskLevel | string, number>;
   risk_hour: number;
@@ -44,6 +45,7 @@ export interface AgentLostDemand {
 
 export interface FeedbackPayload {
   helpful: boolean;
+  had_stockout?: boolean | "not_sure";
   comment?: string;
 }
 

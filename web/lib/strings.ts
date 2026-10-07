@@ -125,6 +125,63 @@ type Dict = {
 
   footerSynthetic: string;
   footerLlmDisclosure: string;
+
+  greetingMorning: (name: string) => string;
+  greetingAfternoon: (name: string) => string;
+  greetingEvening: (name: string) => string;
+
+  liquidityStatusLabel: string;
+  statusLowRisk: string;
+  statusMediumRisk: string;
+  statusHighRisk: string;
+  recommendedOpeningCash: string;
+  confirmCashBtn: string;
+  cashConfirmedSuccess: string;
+  changeConfirmation: string;
+
+  stockoutRiskCardTitle: string;
+  expectedShortageWindow: string;
+  shortageWindowUnavailable: string;
+  requestRebalancingBtn: string;
+  rebalancingRequested: string;
+  rebalancingLogged: string;
+
+  whyRecommendationTitle: string;
+  deterministicNotice: string;
+
+  timelineTitle: string;
+  timelineSubtitle: string;
+  morningPhase: string;
+  middayPhase: string;
+  afternoonPhase: string;
+  eveningPhase: string;
+  peakShortageWarning: string;
+
+  feedbackStockoutQuestion: string;
+  stockoutYes: string;
+  stockoutNo: string;
+  stockoutNotSure: string;
+
+  managerOverviewTitle: string;
+  totalAgentsLabel: string;
+  normalRiskLabel: string;
+  watchRiskLabel: string;
+  criticalRiskLabel: string;
+  agentsAttentionTitle: string;
+  agentsAttentionSubtitle: string;
+  rebalanceAction: string;
+  statusNormal: string;
+  statusWatch: string;
+  statusCritical: string;
+  viewAgentPlan: string;
+
+  simulationDisclaimer: string;
+  simulationDisclaimerNotice: string;
+  modelTransparencyTitle: string;
+  modelVersion: string;
+  dataVersion: string;
+  lastUpdated: string;
+  explainabilityMethod: string;
 };
 
 const BN: Dict = {
@@ -258,6 +315,63 @@ const BN: Dict = {
 
   footerSynthetic: "সব সংখ্যা সিনথেটিক ডেটার উপর মূল্যায়ন থেকে; কোড: github.com/masudranaxpert/cashready",
   footerLlmDisclosure: "স্বীকৃতি: লার্জ ল্যাঙ্গুয়েজ মডেল (LLM) কেবল সিদ্ধান্ত সারসংক্ষেপ তৈরি করে; সমস্ত গাণিতিক সংখ্যা অ্যালগরিদমের মাধ্যমে নির্ধারিত।",
+
+  greetingMorning: (name: string) => `শুভ সকাল, ${name} 👋`,
+  greetingAfternoon: (name: string) => `শুভ অপরাহ্ন, ${name} 👋`,
+  greetingEvening: (name: string) => `শুভ সন্ধ্যা, ${name} 👋`,
+
+  liquidityStatusLabel: "আজকের তারল্য অবস্থা",
+  statusLowRisk: "কম ঝুঁকি",
+  statusMediumRisk: "নজরদারি",
+  statusHighRisk: "উচ্চ ঝুঁকি",
+  recommendedOpeningCash: "প্রস্তাবিত শুরুর ক্যাশ",
+  confirmCashBtn: "ক্যাশ প্রস্তুত নিশ্চিত করুন",
+  cashConfirmedSuccess: "আজকের ক্যাশ প্রস্তুত নিশ্চিত হয়েছে",
+  changeConfirmation: "পরিবর্তন",
+
+  stockoutRiskCardTitle: "ক্যাশ শেষ হওয়ার ঝুঁকি",
+  expectedShortageWindow: "সম্ভাব্য ঘাটতির সময়",
+  shortageWindowUnavailable: "ঘাটতির সময় অনুপলব্ধ",
+  requestRebalancingBtn: "রিব্যালান্স অনুরোধ",
+  rebalancingRequested: "রিব্যালান্স অনুরোধ পাঠানো হয়েছে",
+  rebalancingLogged: "ক্যাশ সমন্বয়ের জন্য সুপারভাইজারকে জানানো হয়েছে",
+
+  whyRecommendationTitle: "কেন এই পরামর্শ?",
+  deterministicNotice: "SHAP ভিত্তিক নিশ্চিত কারণ — কোনো অনুমানভিত্তিক তথ্য নয়",
+
+  timelineTitle: "আজকের তারল্য টাইমলাইন",
+  timelineSubtitle: "সারাদিনের লেনদেনের গতিপ্রকৃতি ও সম্ভাব্য চাপের সময়",
+  morningPhase: "সকালের শুরু",
+  middayPhase: "সর্বোচ্চ চাহিদার সময়",
+  afternoonPhase: "স্বাভাবিক প্রবাহ",
+  eveningPhase: "দিনের হিসাব সমাপ্তি",
+  peakShortageWarning: "এই সময়ে ক্যাশ ঘাটতির সর্বোচ্চ ঝুঁকি রয়েছে",
+
+  feedbackStockoutQuestion: "আজকে কি সত্যিই ক্যাশ শেষ হয়েছিল?",
+  stockoutYes: "হ্যাঁ",
+  stockoutNo: "না",
+  stockoutNotSure: "নিশ্চিত নই",
+
+  managerOverviewTitle: "এজেন্ট নেটওয়ার্ক ওভারভিউ",
+  totalAgentsLabel: "মোট এজেন্ট",
+  normalRiskLabel: "স্বাভাবিক",
+  watchRiskLabel: "নজরদারি",
+  criticalRiskLabel: "সংকটপূর্ণ",
+  agentsAttentionTitle: "জরুরি নজরদারি প্রয়োজন এমন এজেন্ট",
+  agentsAttentionSubtitle: "ঘাটতির ঝুঁকি ৩০% বা তার বেশি—দ্রুত নগদ সমন্বয় প্রয়োজন",
+  rebalanceAction: "তারল্য যাচাই",
+  statusNormal: "স্বাভাবিক",
+  statusWatch: "নজরদারি",
+  statusCritical: "জরুরি",
+  viewAgentPlan: "প্ল্যান দেখুন",
+
+  simulationDisclaimer: "৩০ দিনের সিমুলেশন প্রাক্কলন",
+  simulationDisclaimerNotice: "বিজ্ঞপ্তি: এই ফলাফলগুলো ৩০ দিনের নিয়ন্ত্রিত সিমুলেশনের মাধ্যমে পরিমাপকৃত, লাইভ প্রোডাকশন টেলিমিতি নয়।",
+  modelTransparencyTitle: "মডেল ও আর্টিফ্যাক্ট স্বচ্ছতা",
+  modelVersion: "মডেল ভার্সন",
+  dataVersion: "ডেটা পাইপলাইন ভার্সন",
+  lastUpdated: "সর্বশেষ মূল্যায়নের তারিখ",
+  explainabilityMethod: "ব্যাখ্যা ইঞ্জিন",
 };
 
 const EN: Dict = {
@@ -390,6 +504,63 @@ const EN: Dict = {
 
   footerSynthetic: "All numbers come from synthetic-data evaluation; code: github.com/masudranaxpert/cashready",
   footerLlmDisclosure: "Disclosure: Language models summarize advisory text; all numeric recommendations are computed algorithmically.",
+
+  greetingMorning: (name: string) => `Good Morning, ${name} 👋`,
+  greetingAfternoon: (name: string) => `Good Afternoon, ${name} 👋`,
+  greetingEvening: (name: string) => `Good Evening, ${name} 👋`,
+
+  liquidityStatusLabel: "Today's Liquidity Status",
+  statusLowRisk: "LOW RISK",
+  statusMediumRisk: "WATCH",
+  statusHighRisk: "HIGH RISK",
+  recommendedOpeningCash: "Recommended Opening Cash",
+  confirmCashBtn: "Confirm Cash Available",
+  cashConfirmedSuccess: "Cash Confirmed for Today",
+  changeConfirmation: "Change",
+
+  stockoutRiskCardTitle: "Cash Stock-out Risk",
+  expectedShortageWindow: "Expected shortage window",
+  shortageWindowUnavailable: "Shortage window unavailable",
+  requestRebalancingBtn: "Request Rebalancing",
+  rebalancingRequested: "Rebalance Request Sent",
+  rebalancingLogged: "Area supervisor notified for liquidity support",
+
+  whyRecommendationTitle: "Why this recommendation?",
+  deterministicNotice: "Deterministic SHAP feature drivers — no generative hallucinations",
+
+  timelineTitle: "Today's Liquidity Timeline",
+  timelineSubtitle: "Expected intraday transaction rhythm & peak risk windows",
+  morningPhase: "Opening & Setup",
+  middayPhase: "Peak Demand Window",
+  afternoonPhase: "Normal Flow",
+  eveningPhase: "Reconciliation",
+  peakShortageWarning: "Peak shortage risk expected around this window",
+
+  feedbackStockoutQuestion: "Was there actually a stock-out today?",
+  stockoutYes: "Yes",
+  stockoutNo: "No",
+  stockoutNotSure: "Not Sure",
+
+  managerOverviewTitle: "Agent Network Overview",
+  totalAgentsLabel: "Total Agents",
+  normalRiskLabel: "Normal",
+  watchRiskLabel: "Watch",
+  criticalRiskLabel: "Critical",
+  agentsAttentionTitle: "Agents Requiring Attention",
+  agentsAttentionSubtitle: "Agents with stock-out risk ≥ 30% requiring immediate liquidity support",
+  rebalanceAction: "Review Liquidity",
+  statusNormal: "Normal",
+  statusWatch: "Watch",
+  statusCritical: "Critical",
+  viewAgentPlan: "View Plan",
+
+  simulationDisclaimer: "30-day simulation estimate",
+  simulationDisclaimerNotice: "Notice: Metrics are benchmarked via 30-day simulated evaluation against hidden ground-truth, not live production telemetry.",
+  modelTransparencyTitle: "Model & Artifact Transparency",
+  modelVersion: "Model Version",
+  dataVersion: "Data Pipeline Version",
+  lastUpdated: "Last Evaluation Date",
+  explainabilityMethod: "Explainability Engine",
 };
 
 export const STRINGS: Record<Lang, Dict> = { bn: BN, en: EN };

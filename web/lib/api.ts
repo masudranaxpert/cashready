@@ -124,6 +124,7 @@ export async function getAgentPlan(
       return {
         ...res,
         opening_cash,
+        opening_cash_by_level: byLevel,
         selected_risk: risk,
       };
     } catch (err) {

@@ -106,6 +106,11 @@ export function getMockAgentPlan(agentId: string, date: string = DEMO_DATE, risk
     date,
     agent_id: agentId,
     opening_cash,
+    opening_cash_by_level: {
+      "0.8": Math.round(base.cash * 0.86),
+      "0.9": base.cash,
+      "0.95": Math.round(base.cash * 1.18),
+    },
     stockout_prob_plan: {
       "0.8": 0.15,
       "0.9": 0.10,
