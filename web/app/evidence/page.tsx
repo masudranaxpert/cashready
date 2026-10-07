@@ -15,7 +15,6 @@ import {
   RotateCcw,
   TrendingUp,
   Banknote,
-  Info,
   Award,
   Layers,
   Scale,
@@ -405,9 +404,6 @@ export default function EvidencePage() {
                   <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                     {t.pilotPlanHeading}
                   </h2>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30 shrink-0">
-                    {t.pilotPlanBadge}
-                  </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                   {lang === "en"
@@ -577,9 +573,6 @@ export default function EvidencePage() {
                   <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                     {t.recallProgressionHeading}
                   </h2>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30 shrink-0">
-                    {t.recallProgressionBadge}
-                  </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                   {t.recallProgressionDesc}
@@ -873,16 +866,6 @@ export default function EvidencePage() {
               </div>
             </div>
           </section>
-
-          <footer className="card-soft text-center space-y-2 py-5 sm:py-6">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              {t.footerSynthetic}
-            </p>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 max-w-2xl mx-auto leading-relaxed">
-              <Info className="w-3.5 h-3.5 inline mr-1 text-slate-400 dark:text-slate-500" />
-              {t.footerLlmDisclosure}
-            </p>
-          </footer>
         </div>
       )}
     </div>

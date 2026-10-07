@@ -407,9 +407,6 @@ export default function AgentPage() {
                   {t.confirmationFormDesc}
                 </p>
               </div>
-              <span className="shrink-0 whitespace-nowrap text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
-                {t.badgeConfirmed}
-              </span>
             </div>
 
             {confSubmitted ? (
@@ -651,9 +648,6 @@ export default function AgentPage() {
                       {t.heroPlanHeading}
                     </h2>
                   </div>
-                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30 shadow-sm shadow-emerald-500/10">
-                    {riskLevel === "0.8" ? t.planBadgeSafe : riskLevel === "0.9" ? t.planBadgeBalanced : t.planBadgeCautious}
-                  </span>
                 </div>
 
                 <div className="py-2 sm:py-3 relative z-10">
@@ -806,9 +800,6 @@ export default function AgentPage() {
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-1.5">
                         <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 min-w-0">{t.confirmedStockoutHours}</span>
-                        <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
-                          {t.badgeConfirmed}
-                        </span>
                       </div>
                       <div className="text-xl font-black text-slate-900 dark:text-white tabular-nums">
                         {periodConfirmations.length > 0 ? (
@@ -885,9 +876,6 @@ export default function AgentPage() {
                       )}
                     </span>
                   </div>
-                  <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
-                    {t.badgeConfirmed}
-                  </span>
                 </div>
               </section>
 
