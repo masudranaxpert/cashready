@@ -54,6 +54,7 @@ WARMUP_DAYS = 14              # days 0-13: agents use fixed initial buffers
 DAY_SHOCK = (0.70, 1.50)      # per agent-day demand shock, U(a, b)
 REBALANCE_PROB = 0.25         # per depleted hour: agent tops up cash/float
 REBALANCE_FRAC = 0.8          # top up to 80% of habit level
+REBALANCE_TRIP_COST = 100.0   # assumed travel/time cost per emergency distributor rebalance trip (BDT)
 DEPLETE_FRAC = 0.15           # "depleted" = below 15% of day's opening
 CLOSURE_PROB = {"urban_market": 0.02, "peri_urban": 0.03, "rural": 0.04}
 

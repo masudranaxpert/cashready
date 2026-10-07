@@ -123,9 +123,17 @@ export interface MetricsResponse {
       opening_ratio: number;
     };
     same_capital_comparison?: {
-      habit_lost_pct: number;
-      cashready_lost_pct: number;
+      habit_lost_pct?: number;
+      cashready_lost_pct?: number;
       habit_mean_opening_scaled?: number;
+      total_opening_cash?: { baseline: number; cashready: number; difference: number };
+      stockout_hours?: { baseline: number; cashready: number; difference: number };
+      completed_cashouts_bdt?: { baseline: number; cashready: number; difference: number };
+      lost_cashout_pct?: { baseline: number; cashready: number; difference: number };
+      agent_commission_bdt?: { baseline: number; cashready: number; difference: number };
+      avg_idle_cash_bdt?: { baseline: number; cashready: number; difference: number };
+      rebalance_trips?: { baseline: number; cashready: number; difference: number };
+      rebalance_cost_bdt?: { baseline: number; cashready: number; difference: number };
     };
   };
 }

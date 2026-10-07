@@ -5,31 +5,71 @@
   ],
   "total_true_demand_bdt": 352735370.0,
   "habit_policy": {
-    "lost_bdt": 63830138.0,
-    "lost_pct": 18.1
+    "lost_bdt": 4883947.0,
+    "lost_pct": 1.4
   },
   "cashready_policy": {
-    "lost_bdt": 698857.0,
-    "lost_pct": 0.2
+    "lost_bdt": 73235.0,
+    "lost_pct": 0.01
   },
   "lost_commission_bdt": {
-    "habit": 1148942.0,
-    "cashready": 12579.0
+    "habit": 87642.0,
+    "cashready": 635.0
   },
-  "commission_saved_bdt": 1136363.0,
+  "commission_saved_bdt": 88177.0,
   "opening_comparison": {
     "habit_mean_opening": 40047.0,
     "cashready_mean_opening": 83750.0,
     "opening_ratio": 2.091
   },
   "same_capital_comparison": {
-    "habit_lost_pct": 1.57,
-    "cashready_lost_pct": 0.2,
-    "habit_mean_opening_scaled": 81370.0
+    "total_opening_cash": {
+      "baseline": 732345121.0,
+      "cashready": 732345121.0,
+      "difference": 0.0
+    },
+    "stockout_hours": {
+      "baseline": 362,
+      "cashready": 12,
+      "difference": -350
+    },
+    "completed_cashouts_bdt": {
+      "baseline": 351568239.2,
+      "cashready": 352685002.0,
+      "difference": 1116762.8
+    },
+    "lost_cashout_pct": {
+      "baseline": 0.33,
+      "cashready": 0.01,
+      "difference": -0.32
+    },
+    "agent_commission_bdt": {
+      "baseline": 6328228.31,
+      "cashready": 6348330.04,
+      "difference": 20101.73
+    },
+    "avg_idle_cash_bdt": {
+      "baseline": 77954.33,
+      "cashready": 77749.67,
+      "difference": -204.66
+    },
+    "rebalance_trips": {
+      "baseline": 362,
+      "cashready": 12,
+      "difference": -350
+    },
+    "rebalance_cost_bdt": {
+      "baseline": 36200.0,
+      "cashready": 1200.0,
+      "difference": -35000.0
+    },
+    "habit_lost_pct": 0.33,
+    "cashready_lost_pct": 0.01,
+    "habit_mean_opening_scaled": 81372.0
   },
   "idle_cash_at_close_bdt": {
-    "habit_mean": 6661.0,
-    "habit_scaled_mean": 40180.0,
-    "cashready_mean": 42255.0
+    "habit_mean": 39275.0,
+    "habit_scaled_mean": 77954.0,
+    "cashready_mean": 77750.0
   }
 }

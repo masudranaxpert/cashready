@@ -125,6 +125,42 @@ type Dict = {
 
   footerSynthetic: string;
   footerLlmDisclosure: string;
+
+  // Same capital comparison & Pilot plan
+  sameCapitalHeading: string;
+  sameCapitalBadge: string;
+  sameCapitalDesc: string;
+  colMetric: string;
+  colBaseline: string;
+  colCashReady: string;
+  colDifference: string;
+  rowTotalOpeningCash: string;
+  rowStockoutHours: string;
+  rowCompletedCashouts: string;
+  rowLostCashoutPct: string;
+  rowAgentCommission: string;
+  rowAvgIdleCash: string;
+  rowRebalanceTrips: string;
+  rowRebalanceCost: string;
+
+  pilotPlanHeading: string;
+  pilotPlanBadge: string;
+  pilotPlanDuration: string;
+  pilotPlanDurationVal: string;
+  pilotPlanPairing: string;
+  pilotPlanPairingVal: string;
+  pilotPlanRandomization: string;
+  pilotPlanRandomizationVal: string;
+  pilotPlanMetrics: string;
+  pilotPlanMetricsVal: string;
+  pilotPlanAnalysis: string;
+  pilotPlanAnalysisVal: string;
+  pilotPlanGuardrails: string;
+  pilotPlanGuardrailsVal: string;
+
+  adminOnlyRestrictedTitle: string;
+  adminOnlyRestrictedDesc: string;
+  adminOnlyLoginAction: string;
 };
 
 const BN: Dict = {
@@ -258,6 +294,41 @@ const BN: Dict = {
 
   footerSynthetic: "সব সংখ্যা সিনথেটিক ডেটার উপর মূল্যায়ন থেকে; কোড: github.com/masudranaxpert/cashready",
   footerLlmDisclosure: "স্বীকৃতি: লার্জ ল্যাঙ্গুয়েজ মডেল (LLM) কেবল সিদ্ধান্ত সারসংক্ষেপ তৈরি করে; সমস্ত গাণিতিক সংখ্যা অ্যালগরিদমের মাধ্যমে নির্ধারিত।",
+
+  sameCapitalHeading: "একই মূলধন: বেসলাইন vs CashReady",
+  sameCapitalBadge: "সিমুলেটেড প্রভাব (সিন্থেটিক ডেটা)",
+  sameCapitalDesc: "সমান প্রারম্ভিক নগদ মূলধনে (পার্থক্য = ০) দুই পদ্ধতির সিমুলেশন ভিত্তিক তুলনামূলক বিশ্লেষণ।",
+  colMetric: "মেট্রিক / সূচক",
+  colBaseline: "বেসলাইন (অভ্যাস)",
+  colCashReady: "CashReady",
+  colDifference: "পার্থক্য",
+  rowTotalOpeningCash: "মোট প্রারম্ভিক নগদ (টাকা)",
+  rowStockoutHours: "স্টক-আউট সময় (ঘণ্টা)",
+  rowCompletedCashouts: "সম্পন্ন ক্যাশ-আউট (টাকা)",
+  rowLostCashoutPct: "হারানো ক্যাশ-আউট %",
+  rowAgentCommission: "এজেন্ট কমিশন (ধরে নেওয়া ১.৮% হার)",
+  rowAvgIdleCash: "গড় অলস নগদ (টাকা)",
+  rowRebalanceTrips: "জরুরি রিব্যালেন্স ট্রিপ",
+  rowRebalanceCost: "রিব্যালেন্স খরচ (১০০ টাকা/ট্রিপ)",
+
+  pilotPlanHeading: "ফিল্ড পাইলট প্ল্যান ও ট্রায়াল ফ্রেমওয়ার্ক",
+  pilotPlanBadge: "পরিকল্পিত পাইলট",
+  pilotPlanDuration: "পরিকল্পিত সময়কাল",
+  pilotPlanDurationVal: "২ সপ্তাহের বেসলাইন পর্যবেক্ষণ + ৪ সপ্তাহের তুলনামূলক ফিল্ড ট্রায়াল",
+  pilotPlanPairing: "এজেন্ট পেয়ারিং ও ক্লাস্টার",
+  pilotPlanPairingVal: "এলাকার ধরন, লেনদেন ভলিউম ও প্রারম্ভিক মূলধনের ভিত্তিতে এজেন্টদের জোড়া তৈরি",
+  pilotPlanRandomization: "র‍্যান্ডম বরাদ্দ",
+  pilotPlanRandomizationVal: "প্রতি জোড়ার মধ্যে লটারির মাধ্যমে একটি ট্রিটমেন্ট এবং একটি কন্ট্রোল গ্রুপে বরাদ্দ",
+  pilotPlanMetrics: "মূল্যায়িত মেট্রিক্স",
+  pilotPlanMetricsVal: "নিশ্চিত হওয়া স্টক-আউট ঘণ্টা, সম্পন্ন ক্যাশ-আউট, কমিশন আয়, অলস নগদ ও প্ল্যান অনুসরণের হার",
+  pilotPlanAnalysis: "পরিসংখ্যানগত বিশ্লেষণ",
+  pilotPlanAnalysisVal: "Difference-in-differences (DiD) এবং পেয়ার্ড কম্প্যারিজন অ্যানালাইসিস",
+  pilotPlanGuardrails: "সেফটি গার্ডরেইল",
+  pilotPlanGuardrailsVal: "যদি ট্রিটমেন্ট গ্রুপের স্টক-আউট কন্ট্রোল গ্রুপকে ছাড়িয়ে যায়, তবে তৎক্ষণাৎ ট্রায়াল স্থগিত",
+
+  adminOnlyRestrictedTitle: "অ্যাডমিন অ্যাক্সেস প্রয়োজন",
+  adminOnlyRestrictedDesc: "মডেল মূল্যায়ন মেট্রিক্স, ক্যাপিটাল কম্প্যারিজন এবং পাইলট প্ল্যান শুধুমাত্র বিচারক ও অ্যাডমিনের জন্য সংরক্ষিত।",
+  adminOnlyLoginAction: "অ্যাডমিন হিসেবে লগইন করুন",
 };
 
 const EN: Dict = {
@@ -390,6 +461,41 @@ const EN: Dict = {
 
   footerSynthetic: "All numbers come from synthetic-data evaluation; code: github.com/masudranaxpert/cashready",
   footerLlmDisclosure: "Disclosure: Language models summarize advisory text; all numeric recommendations are computed algorithmically.",
+
+  sameCapitalHeading: "Same capital: Baseline vs CashReady",
+  sameCapitalBadge: "Simulated impact (synthetic data)",
+  sameCapitalDesc: "Comparative replay under identical opening capital (difference = 0) on the held-out evaluation window.",
+  colMetric: "Metric",
+  colBaseline: "Baseline (Habit)",
+  colCashReady: "CashReady",
+  colDifference: "Difference",
+  rowTotalOpeningCash: "Total opening cash (BDT)",
+  rowStockoutHours: "Stock-out duration (hours)",
+  rowCompletedCashouts: "Completed cash-outs (BDT)",
+  rowLostCashoutPct: "Lost cash-out %",
+  rowAgentCommission: "Agent commission (illustrative 1.8% assumed rate)",
+  rowAvgIdleCash: "Average idle cash (BDT)",
+  rowRebalanceTrips: "Emergency rebalancing trips",
+  rowRebalanceCost: "Rebalancing cost (100 BDT/trip)",
+
+  pilotPlanHeading: "Field Pilot Plan & Trial Design",
+  pilotPlanBadge: "Proposed Pilot",
+  pilotPlanDuration: "Timeline & Phase",
+  pilotPlanDurationVal: "2-week baseline observation + 4-week active comparison trial",
+  pilotPlanPairing: "Agent Cohort Pairing",
+  pilotPlanPairingVal: "Agents matched in pairs by area type, historical transaction volume, and capital size",
+  pilotPlanRandomization: "Random Assignment",
+  pilotPlanRandomizationVal: "Random 1:1 assignment within each matched pair into treatment and control arms",
+  pilotPlanMetrics: "Measured Metrics",
+  pilotPlanMetricsVal: "Confirmed stock-out hours, completed cash-outs, agent commission, idle cash, and plan adoption rate",
+  pilotPlanAnalysis: "Statistical Evaluation",
+  pilotPlanAnalysisVal: "Difference-in-differences (DiD) estimation with paired longitudinal comparisons",
+  pilotPlanGuardrails: "Safety Guardrails",
+  pilotPlanGuardrailsVal: "Immediate rollback if treatment stock-out frequency exceeds the matched control group",
+
+  adminOnlyRestrictedTitle: "Admin Access Required",
+  adminOnlyRestrictedDesc: "Model verification metrics, capital-matched evaluation, and trial designs are restricted to judges and administrators.",
+  adminOnlyLoginAction: "Log in as Admin",
 };
 
 export const STRINGS: Record<Lang, Dict> = { bn: BN, en: EN };

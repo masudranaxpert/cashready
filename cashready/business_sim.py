@@ -64,98 +64,163 @@ def simulate_business(panel: pd.DataFrame, forecasts: pd.DataFrame) -> dict:
     hours = tru[key + ["true_cashout_demand_amount"]].rename(
         columns={"true_cashout_demand_amount": "demand"})
 
-    # agent habit policy: opening = trailing mean of observed out over 7d
+    # Intraday cash-in flow from panel
+    if "cash_in_amt" in panel.columns:
+        in_flow = panel[key + ["cash_in_amt"]]
+        hours = hours.merge(in_flow, on=key, how="left").fillna({"cash_in_amt": 0.0})
+    else:
+        hours["cash_in_amt"] = 0.0
+
+    # Agent habit policy: opening = trailing mean of observed out over 7d
     daily_obs = compute_daily_habit(panel)
 
     plan = plan_opening(forecasts, 0.90)
     plan = plan.merge(daily_obs[["agent_id", "day_idx", "habit", "habit_std"]],
                       on=["agent_id", "day_idx"], how="left")
-    plan["opening_cash_habit"] = plan.habit * config.OPEN_BUFFER
-    plan = plan.fillna(0)
+    plan["opening_cash_habit"] = (plan.habit * config.OPEN_BUFFER).fillna(0.0)
+
+    # CashReady opening capital with rounding and minimum cash constraint
+    plan["opening_cash_cr"] = plan.opening_cash.round(0).clip(lower=config.AMOUNT_MIN).fillna(config.AMOUNT_MIN)
+    total_cr_capital = float(plan.opening_cash_cr.sum())
+
+    # Baseline habit scaled so total capital matches CashReady exactly
+    raw_habit = plan.opening_cash_habit.clip(lower=config.AMOUNT_MIN)
+    raw_habit_sum = float(raw_habit.sum())
+    if raw_habit_sum > 0:
+        scaled = (raw_habit * (total_cr_capital / raw_habit_sum)).round(0).clip(lower=config.AMOUNT_MIN)
+        diff = int(total_cr_capital - scaled.sum())
+        if diff != 0 and len(scaled) > 0:
+            scaled.loc[scaled.idxmax()] += diff
+        plan["opening_cash_habit_scaled"] = scaled
+    else:
+        plan["opening_cash_habit_scaled"] = plan.opening_cash_cr.copy()
 
     merged = hours.merge(plan, on=["agent_id", "day_idx"], how="left")
     merged = merged.sort_values(["agent_id", "day_idx", "hour"])
 
-    def replay(opening_col):
-        tmp = merged[["agent_id", "day_idx", "hour", "demand", opening_col]].copy()
-        tmp = tmp.rename(columns={opening_col: "cash"})
-        served = []
-        for _, g in tmp.groupby(["agent_id", "day_idx"], sort=False):
-            c = g.cash.iloc[0]
-            for d in g.demand.fillna(0):
-                s = min(c, d)
-                served.append(s)
-                c -= s
-        tmp["served"] = served
-        lost = tmp.demand.fillna(0) - tmp.served
-        return float(lost.sum())
+    def simulate_policy(opening_col: str):
+        tmp = merged[["agent_id", "day_idx", "hour", "demand", "cash_in_amt", opening_col]].copy()
+        total_served = 0.0
+        total_lost = 0.0
+        stockout_hours = 0
+        rebalance_trips = 0
+        idle_cash_list = []
 
-    lost_habit = replay("opening_cash_habit")
-    lost_cashready = replay("opening_cash")
+        for _, g in tmp.groupby(["agent_id", "day_idx"], sort=False):
+            open_cash = float(g[opening_col].iloc[0])
+            c = open_cash
+            for row in g.itertuples():
+                d = float(row.demand) if np.isfinite(row.demand) else 0.0
+                cin = float(row.cash_in_amt) if np.isfinite(row.cash_in_amt) else 0.0
+                c += cin
+                if c >= d:
+                    served = d
+                    c -= d
+                else:
+                    served = c
+                    lost = d - c
+                    total_lost += lost
+                    c = 0.0
+                    stockout_hours += 1
+                    rebalance_trips += 1
+                    c += open_cash * config.REBALANCE_FRAC
+                total_served += served
+            idle_cash_list.append(c)
+
+        tot_demand = total_served + total_lost
+        lost_pct = round(100.0 * total_lost / tot_demand, 2) if tot_demand > 0 else 0.0
+        return {
+            "total_opening_cash": round(float(plan[opening_col].sum()), 2),
+            "stockout_hours": int(stockout_hours),
+            "completed_cashouts_bdt": round(float(total_served), 2),
+            "lost_cashout_pct": lost_pct,
+            "agent_commission_bdt": round(float(total_served * COMMISSION_RATE), 2),
+            "avg_idle_cash_bdt": round(float(np.mean(idle_cash_list)), 2),
+            "rebalance_trips": int(rebalance_trips),
+            "rebalance_cost_bdt": round(float(rebalance_trips * config.REBALANCE_TRIP_COST), 2),
+        }
+
+    base_sim = simulate_policy("opening_cash_habit_scaled")
+    cr_sim = simulate_policy("opening_cash_cr")
+    unscaled_sim = simulate_policy("opening_cash_habit")
+
     total_demand = float(merged.demand.fillna(0).sum())
 
-    # AUDIT FIX: same-capital fairness baseline — scale habit openings so their
-    # MEAN equals CashReady's mean opening, then replay.
-    cr_mean = float(plan.opening_cash.mean())
-    hb_mean = float(plan.opening_cash_habit.replace(0, np.nan).mean())
-    scale = cr_mean / max(hb_mean, 1.0)
-    plan["opening_cash_habit_scaled"] = plan.opening_cash_habit * scale
-    merged = merged.merge(
-        plan[["agent_id", "day_idx", "opening_cash_habit_scaled"]],
-        on=["agent_id", "day_idx"], how="left")
-    merged["opening_cash_habit_scaled"] = merged.opening_cash_habit_scaled.fillna(0)
-    lost_habit_scaled = replay("opening_cash_habit_scaled")
-
-    # idle cash at close (leftover the agent carried all day) per policy
-    def idle_cash(opening_col):
-        tmp = merged[["agent_id", "day_idx", "hour", "demand", opening_col]].copy()
-        tmp = tmp.rename(columns={opening_col: "cash"})
-        leftovers = []
-        for _, gday in tmp.groupby(["agent_id", "day_idx"], sort=False):
-            c = gday.cash.iloc[0]
-            for d in gday.demand.fillna(0):
-                c -= min(c, d)
-            leftovers.append(max(c, 0.0))
-        return float(np.mean(leftovers)), float(np.sum(leftovers))
-
-    idle_habit_mean, idle_habit_total = idle_cash("opening_cash_habit")
-    idle_cr_mean, idle_cr_total = idle_cash("opening_cash")
-    idle_scaled_mean, idle_scaled_total = idle_cash("opening_cash_habit_scaled")
-
-    # stock-out probability comparison (normal approx on plan vs habit)
-    from scipy.stats import norm
+    # Stock-out probability comparison
     plan_rows = plan[plan.habit > 0]
-    p_cr = [1 - norm.cdf(0, loc=p.opening_cash, scale=max(p.habit_std, 1))
-            for p in plan_rows.itertuples()]
     so_prob = {
         "habit_mean_opening": round(float(plan_rows.opening_cash_habit.mean()), 0),
-        "cashready_mean_opening": round(float(plan_rows.opening_cash.mean()), 0),
-        "opening_ratio": round(float(plan_rows.opening_cash.mean()
+        "cashready_mean_opening": round(float(plan_rows.opening_cash_cr.mean()), 0),
+        "opening_ratio": round(float(plan_rows.opening_cash_cr.mean()
                                      / max(plan_rows.opening_cash_habit.mean(), 1)), 3),
     }
 
     metrics = {
         "test_days": list(te_days),
         "total_true_demand_bdt": round(total_demand, 0),
-        "habit_policy": {"lost_bdt": round(lost_habit, 0),
-                          "lost_pct": round(100 * lost_habit / total_demand, 2)},
-        "cashready_policy": {"lost_bdt": round(lost_cashready, 0),
-                              "lost_pct": round(100 * lost_cashready / total_demand, 2)},
+        "habit_policy": {
+            "lost_bdt": round(unscaled_sim["total_opening_cash"] * unscaled_sim["lost_cashout_pct"] / 100.0, 0),
+            "lost_pct": unscaled_sim["lost_cashout_pct"],
+        },
+        "cashready_policy": {
+            "lost_bdt": round(cr_sim["total_opening_cash"] * cr_sim["lost_cashout_pct"] / 100.0, 0),
+            "lost_pct": cr_sim["lost_cashout_pct"],
+        },
         "lost_commission_bdt": {
-            "habit": round(lost_habit * COMMISSION_RATE, 0),
-            "cashready": round(lost_cashready * COMMISSION_RATE, 0)},
-        "commission_saved_bdt": round((lost_habit - lost_cashready) * COMMISSION_RATE, 0),
+            "habit": round(unscaled_sim["completed_cashouts_bdt"] * (unscaled_sim["lost_cashout_pct"] / 100.0) * COMMISSION_RATE, 0),
+            "cashready": round(cr_sim["completed_cashouts_bdt"] * (cr_sim["lost_cashout_pct"] / 100.0) * COMMISSION_RATE, 0),
+        },
+        "commission_saved_bdt": round(cr_sim["agent_commission_bdt"] - unscaled_sim["agent_commission_bdt"], 0),
         "opening_comparison": so_prob,
-        # AUDIT FIX: fair same-capital comparison + idle-cash cost
         "same_capital_comparison": {
-            "habit_lost_pct": round(100 * lost_habit_scaled / total_demand, 2),
-            "cashready_lost_pct": round(100 * lost_cashready / total_demand, 2),
-            "habit_mean_opening_scaled": round(cr_mean, 0),
+            "total_opening_cash": {
+                "baseline": base_sim["total_opening_cash"],
+                "cashready": cr_sim["total_opening_cash"],
+                "difference": round(cr_sim["total_opening_cash"] - base_sim["total_opening_cash"], 2),
+            },
+            "stockout_hours": {
+                "baseline": base_sim["stockout_hours"],
+                "cashready": cr_sim["stockout_hours"],
+                "difference": cr_sim["stockout_hours"] - base_sim["stockout_hours"],
+            },
+            "completed_cashouts_bdt": {
+                "baseline": base_sim["completed_cashouts_bdt"],
+                "cashready": cr_sim["completed_cashouts_bdt"],
+                "difference": round(cr_sim["completed_cashouts_bdt"] - base_sim["completed_cashouts_bdt"], 2),
+            },
+            "lost_cashout_pct": {
+                "baseline": base_sim["lost_cashout_pct"],
+                "cashready": cr_sim["lost_cashout_pct"],
+                "difference": round(cr_sim["lost_cashout_pct"] - base_sim["lost_cashout_pct"], 2),
+            },
+            "agent_commission_bdt": {
+                "baseline": base_sim["agent_commission_bdt"],
+                "cashready": cr_sim["agent_commission_bdt"],
+                "difference": round(cr_sim["agent_commission_bdt"] - base_sim["agent_commission_bdt"], 2),
+            },
+            "avg_idle_cash_bdt": {
+                "baseline": base_sim["avg_idle_cash_bdt"],
+                "cashready": cr_sim["avg_idle_cash_bdt"],
+                "difference": round(cr_sim["avg_idle_cash_bdt"] - base_sim["avg_idle_cash_bdt"], 2),
+            },
+            "rebalance_trips": {
+                "baseline": base_sim["rebalance_trips"],
+                "cashready": cr_sim["rebalance_trips"],
+                "difference": cr_sim["rebalance_trips"] - base_sim["rebalance_trips"],
+            },
+            "rebalance_cost_bdt": {
+                "baseline": base_sim["rebalance_cost_bdt"],
+                "cashready": cr_sim["rebalance_cost_bdt"],
+                "difference": round(cr_sim["rebalance_cost_bdt"] - base_sim["rebalance_cost_bdt"], 2),
+            },
+            "habit_lost_pct": base_sim["lost_cashout_pct"],
+            "cashready_lost_pct": cr_sim["lost_cashout_pct"],
+            "habit_mean_opening_scaled": round(base_sim["total_opening_cash"] / max(len(plan), 1), 0),
         },
         "idle_cash_at_close_bdt": {
-            "habit_mean": round(idle_habit_mean, 0),
-            "habit_scaled_mean": round(idle_scaled_mean, 0),
-            "cashready_mean": round(idle_cr_mean, 0),
+            "habit_mean": round(unscaled_sim["avg_idle_cash_bdt"], 0),
+            "habit_scaled_mean": round(base_sim["avg_idle_cash_bdt"], 0),
+            "cashready_mean": round(cr_sim["avg_idle_cash_bdt"], 0),
         },
     }
     Path("artifacts/eval").mkdir(parents=True, exist_ok=True)

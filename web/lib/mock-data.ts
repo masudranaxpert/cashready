@@ -215,5 +215,18 @@ export const MOCK_METRICS: MetricsResponse = {
       lost_bdt: 4785765,
     },
     commission_saved_bdt: 1062799,
+    same_capital_comparison: {
+      total_opening_cash: { baseline: 732345121, cashready: 732345121, difference: 0 },
+      stockout_hours: { baseline: 362, cashready: 12, difference: -350 },
+      completed_cashouts_bdt: { baseline: 351568239, cashready: 352685002, difference: 1116763 },
+      lost_cashout_pct: { baseline: 0.33, cashready: 0.01, difference: -0.32 },
+      agent_commission_bdt: { baseline: 6328228, cashready: 6348330, difference: 20102 },
+      avg_idle_cash_bdt: { baseline: 77954, cashready: 77750, difference: -204 },
+      rebalance_trips: { baseline: 362, cashready: 12, difference: -350 },
+      rebalance_cost_bdt: { baseline: 36200, cashready: 1200, difference: -35000 },
+      habit_lost_pct: 0.33,
+      cashready_lost_pct: 0.01,
+      habit_mean_opening_scaled: 81372,
+    },
   },
 };

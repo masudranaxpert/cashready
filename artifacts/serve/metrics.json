@@ -1,20 +1,77 @@
 {
- "forecast_metrics": {
-  "p50_mae_bdt": 1996.3,
-  "naive_mae_bdt": 3006.0,
-  "observed_target_mae_bdt": 2004.8,
-  "p50_pinball": 998.1,
-  "naive_pinball_p50": 1503.0,
-  "observed_target_pinball_p50": 1002.4,
-  "pinball_mean": 649.8,
-  "naive_pinball_mean": 1503.0,
-  "observed_target_pinball_mean": 1002.4,
-  "coverage_p10_p90": 0.8393,
-  "target_coverage": 0.8,
-  "mae_by_area_type": {
-   "peri_urban": 2310.8,
-   "rural": 1640.7,
-   "urban_market": 2872.3
+ "business_sim_metrics": {
+  "test_days": [
+   60,
+   90
+  ],
+  "total_true_demand_bdt": 352735370.0,
+  "habit_policy": {
+   "lost_bdt": 4883947.0,
+   "lost_pct": 1.4
+  },
+  "cashready_policy": {
+   "lost_bdt": 73235.0,
+   "lost_pct": 0.01
+  },
+  "lost_commission_bdt": {
+   "habit": 87642.0,
+   "cashready": 635.0
+  },
+  "commission_saved_bdt": 88177.0,
+  "opening_comparison": {
+   "habit_mean_opening": 40047.0,
+   "cashready_mean_opening": 83750.0,
+   "opening_ratio": 2.091
+  },
+  "same_capital_comparison": {
+   "total_opening_cash": {
+    "baseline": 732345121.0,
+    "cashready": 732345121.0,
+    "difference": 0.0
+   },
+   "stockout_hours": {
+    "baseline": 362,
+    "cashready": 12,
+    "difference": -350
+   },
+   "completed_cashouts_bdt": {
+    "baseline": 351568239.2,
+    "cashready": 352685002.0,
+    "difference": 1116762.8
+   },
+   "lost_cashout_pct": {
+    "baseline": 0.33,
+    "cashready": 0.01,
+    "difference": -0.32
+   },
+   "agent_commission_bdt": {
+    "baseline": 6328228.31,
+    "cashready": 6348330.04,
+    "difference": 20101.73
+   },
+   "avg_idle_cash_bdt": {
+    "baseline": 77954.33,
+    "cashready": 77749.67,
+    "difference": -204.66
+   },
+   "rebalance_trips": {
+    "baseline": 362,
+    "cashready": 12,
+    "difference": -350
+   },
+   "rebalance_cost_bdt": {
+    "baseline": 36200.0,
+    "cashready": 1200.0,
+    "difference": -35000.0
+   },
+   "habit_lost_pct": 0.33,
+   "cashready_lost_pct": 0.01,
+   "habit_mean_opening_scaled": 81372.0
+  },
+  "idle_cash_at_close_bdt": {
+   "habit_mean": 39275.0,
+   "habit_scaled_mean": 77954.0,
+   "cashready_mean": 77750.0
   }
  },
  "detector_metrics": {
@@ -55,39 +112,39 @@
    "n_all": 126000
   },
   "lgbm": {
-   "f1_macro": 0.7852,
-   "f1_cash_stockout": 0.3793,
-   "precision_cash_stockout": 0.5493,
-   "recall_cash_stockout": 0.2896,
+   "f1_macro": 0.8411,
+   "f1_cash_stockout": 0.5448,
+   "precision_cash_stockout": 0.5618,
+   "recall_cash_stockout": 0.5287,
    "n_evaluated": 114110,
-   "f1_macro_all": 0.6786,
+   "f1_macro_all": 0.7193,
    "f1_per_class_all": {
-    "normal": 0.9466,
-    "cash_stockout": 0.347,
-    "float_stockout": 0.9915,
+    "normal": 0.9472,
+    "cash_stockout": 0.5076,
+    "float_stockout": 0.9932,
     "closed": 0.4291
    },
-   "f1_cash_stockout_all": 0.347,
-   "precision_cash_stockout_all": 0.5493,
-   "recall_cash_stockout_all": 0.2536,
+   "f1_cash_stockout_all": 0.5076,
+   "precision_cash_stockout_all": 0.5618,
+   "recall_cash_stockout_all": 0.463,
    "n_all": 126000
   },
   "lgbm_10pct_feedback": {
-   "f1_macro": 0.7535,
-   "f1_cash_stockout": 0.2859,
-   "precision_cash_stockout": 0.7696,
-   "recall_cash_stockout": 0.1756,
+   "f1_macro": 0.7911,
+   "f1_cash_stockout": 0.3997,
+   "precision_cash_stockout": 0.639,
+   "recall_cash_stockout": 0.2908,
    "n_evaluated": 114110,
-   "f1_macro_all": 0.6555,
+   "f1_macro_all": 0.6822,
    "f1_per_class_all": {
     "normal": 0.9483,
-    "cash_stockout": 0.2563,
-    "float_stockout": 0.9883,
+    "cash_stockout": 0.3641,
+    "float_stockout": 0.9873,
     "closed": 0.4291
    },
-   "f1_cash_stockout_all": 0.2563,
-   "precision_cash_stockout_all": 0.7696,
-   "recall_cash_stockout_all": 0.1537,
+   "f1_cash_stockout_all": 0.3641,
+   "precision_cash_stockout_all": 0.639,
+   "recall_cash_stockout_all": 0.2546,
    "n_all": 126000,
    "train_days_used": 6
   },
@@ -96,7 +153,89 @@
   "validation_f1_macro": {
    "rule": 0.3997,
    "hmm": 0.6548,
-   "lgbm": 0.878
+   "lgbm": 0.9011
+  },
+  "threshold_tuning": {
+   "chosen_threshold": 0.39,
+   "validation": {
+    "chosen_threshold": 0.39,
+    "precision": 0.4371,
+    "recall": 0.5512,
+    "f1": 0.4876,
+    "tp": 893,
+    "fp": 1150,
+    "fn": 727,
+    "total_true_stockouts": 1620,
+    "total_hours": 41860
+   },
+   "test_comparison": {
+    "test_days": [
+     60,
+     89
+    ],
+    "train_days_test": [
+     0,
+     59
+    ],
+    "total_hours": 126000,
+    "total_true_stockouts": 3955,
+    "default_argmax": {
+     "precision": 0.5618,
+     "recall": 0.463,
+     "f1": 0.5076,
+     "tp": 1831,
+     "fp": 1428,
+     "fn": 2124
+    },
+    "tuned_threshold": {
+     "threshold": 0.39,
+     "precision": 0.455,
+     "recall": 0.5846,
+     "f1": 0.5117,
+     "tp": 2312,
+     "fp": 2769,
+     "fn": 1643
+    },
+    "delta": {
+     "precision": -0.1068,
+     "recall": 0.1216,
+     "f1": 0.0041,
+     "tp_delta": 481
+    }
+   },
+   "uncertain_band": {
+    "band_range": [
+     0.3,
+     0.39
+    ],
+    "uncertain_hours_total": 1744,
+    "hours_per_agent_week": 1.36,
+    "uncertain_true_positives": 316,
+    "uncertain_precision": 0.1812,
+    "recall_at_tuned_threshold": 0.5846,
+    "recall_if_confirmed": 0.6645,
+    "qualification": "if every uncertain-band confirmation is answered",
+    "recall_uplift_absolute": 0.0799,
+    "recall_uplift_relative_pct": 13.67
+   }
+  }
+ },
+ "forecast_metrics": {
+  "p50_mae_bdt": 1996.3,
+  "naive_mae_bdt": 3006.0,
+  "observed_target_mae_bdt": 2004.8,
+  "p50_pinball": 998.1,
+  "naive_pinball_p50": 1503.0,
+  "observed_target_pinball_p50": 1002.4,
+  "pinball_mean": 649.8,
+  "naive_pinball_mean": 1503.0,
+  "observed_target_pinball_mean": 1002.4,
+  "coverage_p10_p90": 0.8393,
+  "target_coverage": 0.8,
+  "mae_by_area_type": {
+   "peri_urban": 2310.8,
+   "rural": 1640.7,
+   "urban_market": 2872.3
   }
  },
  "recovery_metrics": {
@@ -116,40 +255,5 @@
   "demand_shift_area_weeks": 6,
   "recovery_gated_hours": 3336,
   "estimated_loss_in_normal_hours_pct": 41.31
- },
- "business_sim_metrics": {
-  "test_days": [
-   60,
-   90
-  ],
-  "total_true_demand_bdt": 352735370.0,
-  "habit_policy": {
-   "lost_bdt": 63830138.0,
-   "lost_pct": 18.1
-  },
-  "cashready_policy": {
-   "lost_bdt": 698857.0,
-   "lost_pct": 0.2
-  },
-  "lost_commission_bdt": {
-   "habit": 1148942.0,
-   "cashready": 12579.0
-  },
-  "commission_saved_bdt": 1136363.0,
-  "opening_comparison": {
-   "habit_mean_opening": 40047.0,
-   "cashready_mean_opening": 83750.0,
-   "opening_ratio": 2.091
-  },
-  "same_capital_comparison": {
-   "habit_lost_pct": 1.57,
-   "cashready_lost_pct": 0.2,
-   "habit_mean_opening_scaled": 81370.0
-  },
-  "idle_cash_at_close_bdt": {
-   "habit_mean": 6661.0,
-   "habit_scaled_mean": 40180.0,
-   "cashready_mean": 42255.0
-  }
  }
 }
