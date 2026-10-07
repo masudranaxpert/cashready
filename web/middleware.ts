@@ -5,11 +5,23 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("cr_token")?.value;
   const { pathname } = request.nextUrl;
 
+  // Inbound API rewrite token forwarding
+  if (pathname.startsWith("/api-backend")) {
+    const requestHeaders = new Headers(request.headers);
+    if (token) {
+      requestHeaders.set("Authorization", `Bearer ${token}`);
+    }
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
+
   // Allow static files, api routes, and login page
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
-    pathname.startsWith("/api-backend") ||
     pathname.startsWith("/docs") ||
     pathname === "/login" ||
     pathname === "/favicon.ico"
