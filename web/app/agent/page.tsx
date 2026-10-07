@@ -160,7 +160,22 @@ export default function AgentPage() {
 
   const handleRiskChange = (newRisk: RiskLevel) => {
     setRiskLevel(newRisk);
+    if (plan?.opening_cash_by_level?.[newRisk]) {
+      const nextCash = plan.opening_cash_by_level[newRisk];
+      setPlan((prev) => prev ? {
+        ...prev,
+        opening_cash: nextCash,
+        selected_risk: newRisk,
+      } : null);
+    }
   };
+
+  // Synchronize advisory message cash amount with selected opening cash
+  const displayMessage = useMemo(() => {
+    const raw = lang === "en" && plan?.message_en ? plan.message_en : plan?.message_bn;
+    if (!raw || !plan) return raw || "";
+    return raw.replace(/\b\d{1,3}(,\d{3})+\b|\b\d{4,}\b/, formatBDT(plan.opening_cash));
+  }, [plan, lang]);
 
   return (
     <div className="max-w-6xl mx-auto w-full">
@@ -481,7 +496,7 @@ export default function AgentPage() {
                   <div className="flex gap-2.5 items-start">
                     <Quote className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-1 opacity-90" />
                     <p className="text-[15px] sm:text-[16px] text-slate-800 dark:text-slate-200 leading-relaxed font-normal">
-                      {lang === "en" && plan.message_en ? plan.message_en : plan.message_bn}
+                      {displayMessage}
                     </p>
                   </div>
                 </div>

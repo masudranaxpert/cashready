@@ -21,6 +21,7 @@ import {
   getMockAreaRisk,
   getMockAreaLostDemand,
 } from "./mock-data";
+import { formatBDT } from "./strings";
 
 const API_BASE_URL = "/api-backend";
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
@@ -121,9 +122,16 @@ export async function getAgentPlan(
       const rawOpening = typeof res.opening_cash === "object" && res.opening_cash !== null ? (res.opening_cash as Record<string, number>)[risk] : res.opening_cash;
       const opening_cash = (byLevel?.[risk] ?? Number(rawOpening)) || 60000;
 
+      // Ensure advisory messages reflect the selected opening cash buffer
+      const formattedCash = formatBDT(opening_cash);
+      const message_bn = res.message_bn ? res.message_bn.replace(/\b\d{1,3}(,\d{3})+\b|\b\d{4,}\b/, formattedCash) : res.message_bn;
+      const message_en = res.message_en ? res.message_en.replace(/\b\d{1,3}(,\d{3})+\b|\b\d{4,}\b/, formattedCash) : res.message_en;
+
       return {
         ...res,
         opening_cash,
+        message_bn,
+        message_en,
         selected_risk: risk,
       };
     } catch (err) {

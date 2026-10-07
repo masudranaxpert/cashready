@@ -1,3 +1,4 @@
+import re
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, Path as FPath, Query, status
 
@@ -40,7 +41,19 @@ def get_agent_plan(
     if isinstance(res.get("opening_cash"), dict):
         by_level = res["opening_cash"]
         res["opening_cash_by_level"] = by_level
-        res["opening_cash"] = by_level.get(risk, by_level.get("0.9", 60000))
+        selected_cash = by_level.get(risk, by_level.get("0.9", 60000))
+        base_cash = by_level.get("0.9", 60000)
+        res["opening_cash"] = selected_cash
+        if selected_cash != base_cash:
+            old_str = f"{base_cash:,}"
+            new_str = f"{selected_cash:,}"
+            for key in ("message_bn", "message_en"):
+                val = res.get(key)
+                if isinstance(val, str):
+                    if old_str in val:
+                        res[key] = val.replace(old_str, new_str, 1)
+                    else:
+                        res[key] = re.sub(r"\b\d{1,3}(,\d{3})+\b|\b\d{4,}\b", new_str, val, count=1)
     return {"date": date, "agent_id": agent_id, **res}
 
 

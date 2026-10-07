@@ -51,6 +51,11 @@ describe("CashReady Frontend Contract & Verification Tests", () => {
     assert.ok(plan80.message_bn.includes(formatBDT(plan80.opening_cash)));
     assert.ok(plan95.message_bn.includes(formatBDT(plan95.opening_cash)));
 
+    // Verify opening_cash_by_level contains exact tier amounts
+    assert.equal(plan80.opening_cash_by_level["0.8"], plan80.opening_cash);
+    assert.equal(plan80.opening_cash_by_level["0.9"], plan90.opening_cash);
+    assert.equal(plan80.opening_cash_by_level["0.95"], plan95.opening_cash);
+
     // Verify SHAP reasons
     assert.ok(plan90.reasons.length <= 3 && plan90.reasons.length > 0);
     assert.ok(plan90.reasons[0].label_bn.length > 0);

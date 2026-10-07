@@ -42,6 +42,15 @@ def test_plan_endpoint(client):
     assert body["agent_id"] == aid
     assert "opening_cash" in body and "message_bn" in body
 
+    # Verify advisory message cash synchronization across risk levels
+    for risk in ("0.8", "0.9", "0.95"):
+        r_risk = client.get(f"/agents/{aid}/plan", params={"date": date, "risk": risk})
+        assert r_risk.status_code == 200
+        b_risk = r_risk.json()
+        assert f"{b_risk['opening_cash']:,}" in b_risk["message_bn"]
+        if b_risk.get("message_en"):
+            assert f"{b_risk['opening_cash']:,}" in b_risk["message_en"]
+
 
 def test_area_risk_and_lost(client):
     areas = client.get("/areas").json()

@@ -25,6 +25,7 @@ export interface AgentPlan {
   date: string;
   agent_id: string;
   opening_cash: number;
+  opening_cash_by_level?: Record<RiskLevel | string, number>;
   stockout_prob_plan: Record<RiskLevel | string, number>;
   stockout_prob_habit: Record<RiskLevel | string, number>;
   risk_hour: number;
