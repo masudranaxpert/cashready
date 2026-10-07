@@ -162,44 +162,51 @@
     padding-bottom: max(9rem, calc(7.5rem + env(safe-area-inset-bottom, 0px)));
   }
 
-  /* --- Light mode global overrides for semantic harmony --- */
+  /* --- Light mode global overrides for semantic harmony (bKash/Fintech design system) --- */
   html.light header {
-    background-color: rgba(255, 255, 255, 0.88) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
     border-bottom-color: #E2E8F0 !important;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
   }
 
   html.light nav.fixed {
-    background-color: rgba(255, 255, 255, 0.94) !important;
+    background-color: rgba(255, 255, 255, 0.96) !important;
     border-color: #CBD5E1 !important;
-    box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.15) !important;
+    box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.1) !important;
   }
 
-  html.light .bg-navy-950 {
+  /* Universal dark background to light background mapping */
+  html.light [class*="bg-navy-950"] {
     background-color: #F8FAFC !important;
   }
 
-  html.light .bg-navy-900,
-  html.light .bg-navy-900\/90,
-  html.light .bg-navy-900\/80,
-  html.light .bg-navy-900\/70,
-  html.light .bg-navy-900\/60 {
-    background-color: #F1F5F9 !important;
-  }
-
-  html.light .bg-navy-850,
-  html.light .bg-navy-850\/90,
-  html.light .bg-navy-850\/80 {
+  html.light [class*="bg-navy-900"] {
     background-color: #FFFFFF !important;
   }
 
-  html.light .bg-slate-800\/80,
-  html.light .bg-slate-800\/60,
-  html.light .bg-slate-800\/50,
-  html.light .bg-slate-800\/40 {
-    background-color: #E2E8F0 !important;
+  html.light [class*="bg-navy-850"] {
+    background-color: #FFFFFF !important;
   }
 
+  html.light [class*="bg-slate-900"] {
+    background-color: #F8FAFC !important;
+  }
+
+  html.light [class*="bg-slate-800"] {
+    background-color: #F1F5F9 !important;
+  }
+
+  /* Universal border mapping */
+  html.light [class*="border-white"] {
+    border-color: #E2E8F0 !important;
+  }
+
+  html.light [class*="border-slate-800"],
+  html.light [class*="border-slate-700"] {
+    border-color: #E2E8F0 !important;
+  }
+
+  /* Text color harmonies */
   html.light .text-white {
     color: #0F172A !important;
   }
@@ -225,15 +232,19 @@
   }
 
   html.light .text-emerald-300 {
-    color: #065F46 !important;
+    color: #047857 !important;
   }
 
-  html.light .border-white\/\[0\.04\],
-  html.light .border-white\/\[0\.06\],
-  html.light .border-white\/\[0\.08\],
-  html.light .border-white\/\[0\.1\],
-  html.light .border-white\/\[0\.12\] {
-    border-color: #E2E8F0 !important;
+  html.light .text-emerald-400 {
+    color: #059669 !important;
+  }
+
+  html.light .text-teal-300 {
+    color: #0D9488 !important;
+  }
+
+  html.light .shadow-inner {
+    box-shadow: inset 0 1px 2px 0 rgba(15, 23, 42, 0.04) !important;
   }
 
   html.light input[type="date"],
