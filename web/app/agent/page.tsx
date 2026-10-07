@@ -24,7 +24,7 @@ import { STRINGS, formatBDT } from "@/lib/strings";
 import { useLang } from "@/lib/lang";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
 import { MockDataBanner } from "@/components/MockDataBanner";
-import { Search, Calendar, CheckCircle2, AlertCircle, Lock } from "lucide-react";
+import { Search, Calendar, CheckCircle2, AlertCircle, Lock, TrendingUp } from "lucide-react";
 
 function getTodayIsoDate(): string {
   const d = new Date();
@@ -210,6 +210,42 @@ export default function AgentPage() {
   const handleRiskChange = (newRisk: RiskLevel) => {
     setRiskLevel(newRisk);
   };
+
+  // Computed values for Agent Business Impact Card ("আমার ব্যবসার অবস্থা")
+  const periodConfirmations = useMemo(() => {
+    const cutoff = Date.now() - impactDays * 24 * 60 * 60 * 1000;
+    return agentConfirmations.filter((c) => {
+      try {
+        const t = new Date(c.timestamp).getTime();
+        return t >= cutoff;
+      } catch {
+        return true;
+      }
+    });
+  }, [agentConfirmations, impactDays]);
+
+  const confirmedStockoutHours = useMemo(() => {
+    return periodConfirmations.reduce((sum, c) => {
+      if (!c.cash_ran_out) return sum;
+      if (c.from_hour != null && c.to_hour != null) {
+        return sum + Math.max(1, c.to_hour - c.from_hour);
+      }
+      return sum + 1;
+    }, 0);
+  }, [periodConfirmations]);
+
+  const daysPlanFollowed = useMemo(() => {
+    return periodConfirmations.filter((c) => c.kept_recommended_cash === "yes").length;
+  }, [periodConfirmations]);
+
+  const scale = impactDays === 30 ? 30 / 7 : 1.0;
+  const estimatedMissedCount = (lostDemand?.lost_count ?? 0) * scale;
+  const estimatedMissedBdt = (lostDemand?.lost_amount ?? 0) * scale;
+  const estimatedLostCommissionBdt = (lostDemand?.lost_commission ?? 0) * scale;
+  const estimatedStockoutHours = lostDemand?.lost_count
+    ? Math.max(1, Math.round((lostDemand.lost_count * scale) / 3.0))
+    : 0;
+
 
   return (
     <div className="max-w-md mx-auto space-y-3.5 sm:space-y-4 w-full">
@@ -558,6 +594,144 @@ export default function AgentPage() {
               </div>
             </div>
           )}
+
+          {/* Agent Business Impact Card ("আমার ব্যবসার অবস্থা") */}
+          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4" aria-label={t.agentImpactHeading}>
+            <div className="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-slate-100 flex items-center gap-1.5">
+                  <TrendingUp className="w-4.5 h-4.5 text-teal-400 shrink-0" />
+                  <span>{t.agentImpactHeading}</span>
+                </h3>
+                <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+                  {t.agentImpactSubheading}
+                </p>
+              </div>
+
+              {/* Period Selector: Last 7 / 30 days */}
+              <div className="inline-flex items-center bg-slate-900 rounded-full p-1 border border-slate-800 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setImpactDays(7)}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
+                    impactDays === 7
+                      ? "bg-teal-500 text-navy-950 shadow-xs"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  {t.period7Days}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImpactDays(30)}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
+                    impactDays === 30
+                      ? "bg-teal-500 text-navy-950 shadow-xs"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  {t.period30Days}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Confirmed stock-out hours */}
+              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="text-xs font-medium text-slate-400">{t.confirmedStockoutHours}</span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-950/60 text-teal-300 border border-teal-800/50">
+                      {t.badgeConfirmed}
+                    </span>
+                  </div>
+                  <div className="text-lg font-bold text-slate-100 tabular-nums">
+                    {periodConfirmations.length > 0 ? (
+                      `${confirmedStockoutHours} ${lang === "en" ? "hrs" : "ঘণ্টা"}`
+                    ) : (
+                      <span className="text-xs font-medium text-slate-500">{t.noConfirmationsYet}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-[11px] text-slate-500 mt-2 pt-2 border-t border-slate-800/80">
+                  {lang === "en"
+                    ? `${periodConfirmations.length} report${periodConfirmations.length === 1 ? "" : "s"} submitted`
+                    : `${periodConfirmations.length}টি রিপোর্ট জমা হয়েছে`}
+                </div>
+              </div>
+
+              {/* Model-estimated stock-out hours */}
+              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="text-xs font-medium text-slate-400">{t.estimatedStockoutHours}</span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
+                      {t.badgeEstimated}
+                    </span>
+                  </div>
+                  <div className="text-lg font-bold text-teal-400 tabular-nums">
+                    {`${estimatedStockoutHours} ${lang === "en" ? "hrs" : "ঘণ্টা"}`}
+                  </div>
+                </div>
+                <div className="text-[11px] text-slate-500 mt-2 pt-2 border-t border-slate-800/80">
+                  {lang === "en" ? "Based on historical drawdown risk" : "ঐতিহাসিক ঘাটতি ঝুঁকির ভিত্তিতে"}
+                </div>
+              </div>
+
+              {/* Estimated missed cash-outs */}
+              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="text-xs font-medium text-slate-400">{t.estimatedMissedCashouts}</span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
+                      {t.badgeEstimated}
+                    </span>
+                  </div>
+                  <div className="text-lg font-bold text-slate-100 tabular-nums">
+                    ৳ {formatBDT(estimatedMissedBdt)}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-0.5">
+                    {lang === "en" ? `~${Math.round(estimatedMissedCount)} customers turned away` : `~${Math.round(estimatedMissedCount)} জন গ্রাহক ফিরে গেছেন`}
+                  </div>
+                </div>
+              </div>
+
+              {/* Estimated lost commission */}
+              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="text-xs font-medium text-slate-400">{t.estimatedLostCommission}</span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
+                      {t.badgeEstimated}
+                    </span>
+                  </div>
+                  <div className="text-lg font-bold text-rose-400 tabular-nums">
+                    ৳ {formatBDT(estimatedLostCommissionBdt)}
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">
+                    {lang === "en" ? "Assumed 1.8% commission rate" : "ধরে নেওয়া ১.৮% কমিশন হার"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Days the plan was followed */}
+            <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-medium text-slate-400 block">{t.daysPlanFollowed}</span>
+                <span className="text-sm font-bold text-slate-100">
+                  {periodConfirmations.length > 0 ? (
+                    `${daysPlanFollowed} / ${periodConfirmations.length} ${lang === "en" ? "days" : "দিন"}`
+                  ) : (
+                    <span className="text-slate-500 font-normal">{t.notReportedYet}</span>
+                  )}
+                </span>
+              </div>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-950/60 text-teal-300 border border-teal-800/50">
+                {t.badgeConfirmed}
+              </span>
+            </div>
+          </section>
 
           {/* Structured Confirmation Card (Replaces simple "was this useful?" thumbs) */}
           <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 space-y-4" aria-label={t.confirmationFormTitle}>
