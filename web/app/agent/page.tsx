@@ -384,17 +384,17 @@ export default function AgentPage() {
 
           {/* Structured Confirmation Form Card */}
           <section className="card-soft space-y-3.5" aria-label={t.confirmationFormTitle}>
-            <div className="flex items-center justify-between pb-1 border-b border-slate-200 dark:border-white/[0.06]">
-              <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <div className="flex items-start sm:items-center justify-between gap-3 pb-2.5 border-b border-slate-200 dark:border-white/[0.06]">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>{t.confirmationFormTitle}</span>
                 </h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                   {t.confirmationFormDesc}
                 </p>
               </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
+              <span className="shrink-0 whitespace-nowrap text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
                 {t.badgeConfirmed}
               </span>
             </div>
