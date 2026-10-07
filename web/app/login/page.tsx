@@ -65,7 +65,7 @@ export default function LoginPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-lg">
-                      {lang === "bn" ? "অ্যাডমিন (Admin)" : "Admin (Full Access)"}
+                      {lang === "bn" ? "অ্যাডমিন" : "Admin"}
                     </span>
                     <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-white/20 text-white uppercase tracking-wider">
                       {lang === "bn" ? "প্রস্তাবিত" : "Full Access"}

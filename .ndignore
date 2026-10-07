@@ -22,3 +22,5 @@ artifacts/models/
 # NextDeploy / tooling caches
 .nd/
 .git/
+.cache/
+.pytest_cache/
