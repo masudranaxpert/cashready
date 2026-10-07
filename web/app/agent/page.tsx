@@ -825,11 +825,8 @@ export default function AgentPage() {
                   {/* Model-estimated stock-out hours */}
                   <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
                     <div>
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <div className="mb-1.5">
                         <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 min-w-0">{t.estimatedStockoutHours}</span>
-                        <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
-                          {t.badgeEstimated}
-                        </span>
                       </div>
                       <div className="text-xl font-black text-emerald-700 dark:text-emerald-400 tabular-nums">
                         {`${estimatedStockoutHours} ${lang === "en" ? "hrs" : "ঘণ্টা"}`}
@@ -843,11 +840,8 @@ export default function AgentPage() {
                   {/* Estimated missed cash-outs */}
                   <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
                     <div>
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <div className="mb-1.5">
                         <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 min-w-0">{t.estimatedMissedCashouts}</span>
-                        <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
-                          {t.badgeEstimated}
-                        </span>
                       </div>
                       <div className="text-xl font-black text-rose-600 dark:text-rose-400 tabular-nums">
                         ৳ {formatBDT(estimatedMissedBdt)}
@@ -863,11 +857,8 @@ export default function AgentPage() {
                   {/* Estimated lost commission */}
                   <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] flex flex-col justify-between">
                     <div>
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <div className="mb-1.5">
                         <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 min-w-0">{t.estimatedLostCommission}</span>
-                        <span className="shrink-0 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
-                          {t.badgeEstimated}
-                        </span>
                       </div>
                       <div className="text-xl font-black text-amber-600 dark:text-amber-400 tabular-nums">
                         ৳ {formatBDT(estimatedLostCommissionBdt)}

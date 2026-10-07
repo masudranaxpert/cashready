@@ -412,11 +412,8 @@ export default function AreaPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Card 1: Total estimated lost cash-out BDT */}
               <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] space-y-1.5">
-                <div className="flex items-start justify-between gap-2">
+                <div>
                   <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 min-w-0">{t.totalLostCashoutBdt}</span>
-                  <span className="shrink-0 whitespace-nowrap text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
-                    {t.badgeEstimated}
-                  </span>
                 </div>
                 <div className="text-xl font-black text-emerald-700 dark:text-emerald-400 tabular-nums">
                   ৳ {formatBDT(impactData?.total_lost_cashout_bdt ?? 0)}
@@ -425,11 +422,8 @@ export default function AreaPage() {
 
               {/* Card 2: Total estimated lost commission */}
               <div className="p-3.5 bg-slate-50 dark:bg-navy-900/80 rounded-xl border border-slate-200 dark:border-white/[0.06] space-y-1.5">
-                <div className="flex items-start justify-between gap-2">
+                <div>
                   <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 min-w-0">{t.totalLostCommissionBdt}</span>
-                  <span className="shrink-0 whitespace-nowrap text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30">
-                    {t.badgeEstimated}
-                  </span>
                 </div>
                 <div className="text-xl font-black text-amber-600 dark:text-amber-400 tabular-nums">
                   ৳ {formatBDT(impactData?.total_lost_commission_bdt ?? 0)}
@@ -511,9 +505,6 @@ export default function AreaPage() {
                           className="flex items-center gap-1 font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                         >
                           <span>{t.colEstimatedMissedAmount}</span>
-                          <span className="shrink-0 whitespace-nowrap text-[9px] font-normal lowercase px-1 rounded bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30 ml-1">
-                            {t.badgeEstimated}
-                          </span>
                           {impactSortField === "estimated_missed_amount" ? (
                             impactSortDirection === "asc" ? <ArrowUp className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> : <ArrowDown className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                           ) : (
@@ -528,9 +519,6 @@ export default function AreaPage() {
                           className="flex items-center gap-1 font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                         >
                           <span>{t.colEstimatedLostCommission}</span>
-                          <span className="shrink-0 whitespace-nowrap text-[9px] font-normal lowercase px-1 rounded bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30 ml-1">
-                            {t.badgeEstimated}
-                          </span>
                           {impactSortField === "estimated_lost_commission" ? (
                             impactSortDirection === "asc" ? <ArrowUp className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> : <ArrowDown className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                           ) : (
