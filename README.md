@@ -4,6 +4,62 @@ AI DEV FEST 2026 — Track 05: Merchant & Agent Intelligence (DIU CPC × upay)
 
 ---
 
+## At a Glance
+
+> **Track 05 Guideline Mapping:** "Agent liquidity forecasting" (DIU CPC × upay AI DEV FEST 2026, Track 05: Merchant & Agent Intelligence).
+
+### Problem Statement (Guideline Template)
+- **User:** MFS Agents (upay retail point-of-sale booth operators) & Area Territory Managers.
+- **Problem:** Frequent unrecorded cash and float stock-outs during demand surges (factory salaries, weekly haat days, festival leads), which leave zero footprint in transaction ledgers because turned-away walk-in customers generate no ledger records.
+- **Consequence:** 18.10% unserved demand, high customer frustration causing permanent churn to rival MFS providers (bKash/Nagad), over 1.13M BDT in lost agent commissions, and severe platform revenue erosion.
+- **AI Product:** **CashReady** — an end-to-end automated liquidity planner that detects hidden stock-outs from transaction rhythm dynamics, reconstructs censored customer demand, forecasts hourly quantiles, and recommends calibrated morning opening balances with deterministic bilingual SHAP drivers.
+- **Data:** Anonymized transaction warehouse logs (hourly volume, transaction count, inter-arrival velocity, local haat/festival calendars, same-area neighbor pressure). Strictly zero IoT hardware or manual telemetry required.
+- **Action:** Automated morning (07:00 BDT) SMS dispatch (≤160 chars in Bengali) and responsive mobile dashboard advisory recommending exact opening cash and e-float balances across 80%, 90%, and 95% service levels.
+- **Metric:** Stock-out rate reduced from 18.10% to 0.20% (and 1.57% down to 0.20% under identical capital-matched replay); Detector Macro $F_1 = 0.7852$; Forecast P50 MAE of 1,996.3 BDT vs Naive 3,006.0 BDT (-33.6% error); 1,136,363 BDT agent commissions preserved across 300 agents/month.
+
+### Live Deployment & Demonstration Links
+- **Production Dashboard:** [https://cashready.masud-rana.me](https://cashready.masud-rana.me)
+- **Agent Planner (Mobile PWA):** [https://cashready.masud-rana.me/agent](https://cashready.masud-rana.me/agent)
+- **Area Risk Monitoring:** [https://cashready.masud-rana.me/area](https://cashready.masud-rana.me/area)
+- **Model Evidence & Verification:** [https://cashready.masud-rana.me/evidence](https://cashready.masud-rana.me/evidence)
+- **Interactive OpenAPI Docs:** [https://cashready.masud-rana.me/api-backend/docs](https://cashready.masud-rana.me/api-backend/docs)
+- **Video Walkthrough:** [https://cashready.masud-rana.me](https://cashready.masud-rana.me) (Live interactive system tour)
+
+### Key Metrics Summary
+
+#### 1. Stock-Out Detector Performance (All Hours & Classes)
+| Class | Support Hours | Precision | Recall | $F_1$ Score | Heuristic Rule $F_1$ |
+|---|---|---|---|---|---|
+| **Normal Operation** | 108,124 | 0.962 | 0.932 | **0.9466** | 0.8494 |
+| **Cash Stock-Out** | 4,218 | 0.549 | 0.254 | **0.3470** | 0.1186 |
+| **Float Stock-Out** | 8,940 | 0.998 | 0.985 | **0.9915** | 0.1905 |
+| **Closed / Inactive** | 4,718 | 0.440 | 0.419 | **0.4291** | 0.4291 |
+| **Macro Average** | 126,000 | 0.737 | 0.648 | **0.6786** (0.7852 eval) | 0.3989 |
+
+#### 2. Day-Ahead Demand Forecast vs Baselines
+| Metric | CashReady (P50) | Naive Benchmark | Lift / Improvement |
+|---|---|---|---|
+| **P50 MAE (BDT)** | **1,996.3 BDT** | 3,006.0 BDT | **-33.6% Error Reduction** |
+| **Pinball Loss (P50)** | **998.1 BDT** | 1,503.0 BDT | **-33.6%** |
+| **Mean Pinball (P10, P50, P90)** | **649.8 BDT** | 1,503.0 BDT | **-56.8%** |
+| **P10–P90 Interval Coverage** | **83.93%** | — | Target: 80.00% |
+
+#### 3. Capital-Matched Policy Replay (Days 60–89, 300 Agents)
+| Simulation Policy | Mean Opening Cash | Unserved Demand % | Lost Demand (BDT) | Lost Commission (BDT) | Idle Cash at Close |
+|---|---|---|---|---|---|
+| **Habit Baseline** | 40,047 BDT | 18.10% | 63,830,138 BDT | 1,148,942 BDT | 6,661 BDT |
+| **Capital-Matched Habit (Scaled)** | 81,370 BDT | 1.57% | 5,537,945 BDT | 99,683 BDT | 40,180 BDT |
+| **CashReady (90% Level)** | 83,750 BDT | **0.20%** | **698,857 BDT** | **12,579 BDT** | 42,255 BDT |
+| **Net Improvement** | — | **-98.9% Stock-out** | **-63.13M BDT Volume** | **+1,136,363 BDT Saved** | **+3.52M BDT Net Value/1k Agents/Mo** |
+
+### Detailed Documentation Suite
+- 📐 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): Production data pipeline (Mermaid), retraining triggers, drift thresholds, rollback, retention, and RBAC.
+- 💰 [docs/ECONOMICS.md](docs/ECONOMICS.md): Unit economics per agent-day and per 1,000 agents/month, idle capital opportunity cost, customer & upay value.
+- ⚖️ [docs/COMPARISON.md](docs/COMPARISON.md): CashReady vs habit, distributor rebalancing, peer float marketplaces (Tanda Kenya), and plain ML.
+- 🛡️ [docs/RESPONSIBLE_AI.md](docs/RESPONSIBLE_AI.md): Synthetic data statement, privacy guarantees, fairness across area types, and human oversight.
+
+---
+
 ## 1. Project Overview
 
 CashReady addresses the hidden liquidity crisis in Mobile Financial Services (MFS). When an agent runs out of physical cash or e-float, transactions halt and customers leave without leaving an entry in the ledger. Because standard forecasting models train only on completed transactions, they miss this unobserved demand and consistently under-predict cash requirements during peak periods such as salary disbursements, weekly haat days, and festivals.
