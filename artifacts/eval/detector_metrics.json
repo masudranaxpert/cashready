@@ -78,5 +78,68 @@
     "rule": 0.3997,
     "hmm": 0.6548,
     "lgbm": 0.878
+  },
+  "threshold_tuning": {
+    "chosen_threshold": 0.49,
+    "validation": {
+      "chosen_threshold": 0.49,
+      "precision": 0.4386,
+      "recall": 0.192,
+      "f1": 0.2671,
+      "tp": 311,
+      "fp": 398,
+      "fn": 1309,
+      "total_true_stockouts": 1620,
+      "total_hours": 41860
+    },
+    "test_comparison": {
+      "test_days": [
+        60,
+        89
+      ],
+      "train_days_test": [
+        0,
+        59
+      ],
+      "total_hours": 126000,
+      "total_true_stockouts": 3955,
+      "default_argmax": {
+        "precision": 0.5493,
+        "recall": 0.2536,
+        "f1": 0.347,
+        "tp": 1003,
+        "fp": 823,
+        "fn": 2952
+      },
+      "tuned_threshold": {
+        "threshold": 0.49,
+        "precision": 0.5335,
+        "recall": 0.2599,
+        "f1": 0.3495,
+        "tp": 1028,
+        "fp": 899,
+        "fn": 2927
+      },
+      "delta": {
+        "precision": -0.0158,
+        "recall": 0.0063,
+        "f1": 0.0025,
+        "tp_delta": 25
+      }
+    },
+    "uncertain_band": {
+      "band_range": [
+        0.3,
+        0.49
+      ],
+      "uncertain_hours_total": 4130,
+      "hours_per_agent_week": 3.21,
+      "uncertain_true_positives": 666,
+      "uncertain_precision": 0.1613,
+      "recall_at_tuned_threshold": 0.2599,
+      "recall_if_confirmed": 0.4283,
+      "recall_uplift_absolute": 0.1684,
+      "recall_uplift_relative_pct": 64.79
+    }
   }
 }
