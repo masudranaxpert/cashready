@@ -5,7 +5,7 @@ const nextConfig = {
     return [
       {
         source: '/api-backend/:path*',
-        destination: `${process.env.INTERNAL_API_URL || 'http://api:8100'}/:path*`,
+        destination: `${process.env.INTERNAL_API_URL || 'https://cashready.masud-rana.me/api-backend'}/:path*`,
       },
     ];
   },

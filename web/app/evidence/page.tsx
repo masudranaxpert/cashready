@@ -3,8 +3,10 @@
 import { useEffect, useState, useMemo } from "react";
 import type { MetricsResponse } from "@/lib/types";
 import { getMetrics } from "@/lib/api";
+import { MOCK_METRICS } from "@/lib/mock-data";
 import { STRINGS, formatBDT } from "@/lib/strings";
 import { useLang } from "@/lib/lang";
+import { useTheme } from "@/lib/theme";
 import { Skeleton, ErrorState } from "@/components/Skeleton";
 import {
   ShieldAlert,
@@ -14,6 +16,7 @@ import {
   Info,
   Award,
   Layers,
+  BarChart3,
   Cpu,
 } from "lucide-react";
 import {
@@ -28,8 +31,9 @@ import {
 
 export default function EvidencePage() {
   const { t, lang } = useLang();
-  const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { theme } = useTheme();
+  const [metrics, setMetrics] = useState<MetricsResponse | null>(MOCK_METRICS);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
@@ -85,25 +89,28 @@ export default function EvidencePage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
-      <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6" aria-label={t.evidenceHeading}>
+      <section className="card-soft" aria-label={t.evidenceHeading}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-100 tracking-tight">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-sm">
+                <BarChart3 className="w-4 h-4" />
+              </div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
                 {t.evidenceHeading}
               </h1>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 shrink-0">
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0">
                 {t.evidenceBadge}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-3xl">
+            <p className="text-xs sm:text-sm text-slate-400 mt-1.5 max-w-3xl leading-relaxed">
               {t.evidenceSubheading} {t.evidenceSubheading2}
             </p>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-950/40 text-teal-300 border border-teal-800/50 text-xs font-semibold self-start sm:self-auto shrink-0">
-            <Award className="w-4 h-4 text-teal-400" />
-            <span>AI DEV FEST 2026</span>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/15 to-teal-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-bold self-start sm:self-auto shrink-0 shadow-sm">
+            <Award className="w-4 h-4 text-emerald-400" />
+            <span>AI DEV FEST 2026 • Track 05</span>
           </div>
         </div>
       </section>
@@ -124,92 +131,93 @@ export default function EvidencePage() {
       ) : (
         <div className="space-y-4 sm:space-y-6 animate-fade-in">
           {/* Simulation Disclaimer Alert */}
-          <div className="flex items-start gap-2.5 p-3.5 bg-navy-850 rounded-2xl border border-slate-800 text-xs text-slate-300">
-            <Info className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+          <div className="card-soft flex items-start gap-2.5 text-xs text-slate-300">
+            <Info className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold text-slate-200 block">
+              <span className="font-semibold text-white block">
                 {t.simulationDisclaimerNotice}
               </span>
             </div>
           </div>
 
+          {/* 4 Top Executive KPI Cards */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" aria-label={t.evalEvidenceTitle}>
-            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
+            <div className="card-soft flex flex-col justify-between hover:border-emerald-500/30 transition-all">
               <div>
-                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
                   {t.kpiDetectorF1}
                 </span>
-                <div className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight tabular-nums">
+                <div className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
                   {metrics.detector_metrics.f1_macro?.toFixed(2) ?? "0.79"}
                 </div>
               </div>
-              <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
+              <p className="text-xs text-slate-400 mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
                 <span>{t.kpiLightgbm}</span>
-                <span className="text-slate-500">vs HMM 0.66</span>
+                <span className="text-emerald-400 font-bold">vs HMM 0.66</span>
               </p>
             </div>
 
-            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
+            <div className="card-soft flex flex-col justify-between hover:border-emerald-500/30 transition-all">
               <div>
-                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
                   {t.kpiCalibration}
                 </span>
-                <div className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight tabular-nums">
+                <div className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
                   {(metrics.forecast_metrics.coverage_p10_p90 * 100).toFixed(1)}%
                 </div>
               </div>
-              <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
+              <p className="text-xs text-slate-400 mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
                 <span>{t.kpiCoverage}</span>
-                <span className="text-slate-500">{t.kpiTarget80}</span>
+                <span className="text-emerald-400 font-bold">{t.kpiTarget80}</span>
               </p>
             </div>
 
-            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
+            <div className="card-soft flex flex-col justify-between border-emerald-500/25 bg-gradient-to-b from-navy-850/90 to-emerald-950/20 hover:border-emerald-500/40 transition-all">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     {t.kpiLostDemand}
                   </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-navy-900/80 text-slate-400 border border-white/[0.08]">
                     {t.simulationDisclaimer}
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-teal-400 tracking-tight tabular-nums">
+                  <span className="text-3xl sm:text-4xl font-black text-emerald-400 tracking-tight tabular-nums">
                     {metrics.business_sim_metrics.cashready_policy.lost_pct.toFixed(1)}%
                   </span>
-                  <span className="text-xs sm:text-sm font-medium text-slate-500 line-through tabular-nums">
+                  <span className="text-xs sm:text-sm font-semibold text-slate-500 line-through tabular-nums">
                     {metrics.business_sim_metrics.habit_policy.lost_pct.toFixed(1)}%
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
+              <p className="text-xs text-slate-400 mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
                 <span>{t.kpiVsHabit}</span>
-                <span className="text-teal-400 font-semibold">
+                <span className="text-emerald-400 font-black">
                   {`−${(metrics.business_sim_metrics.habit_policy.lost_pct - metrics.business_sim_metrics.cashready_policy.lost_pct).toFixed(1)} pp ${lang === "en" ? "reduction" : "হ্রাস"}`}
                 </span>
               </p>
             </div>
 
-            <div className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-5 flex flex-col justify-between">
+            <div className="card-soft flex flex-col justify-between hover:border-emerald-500/30 transition-all">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     {t.kpiCommissionSaved}
                   </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-navy-900/80 text-slate-400 border border-white/[0.08]">
                     {t.simulationDisclaimer}
                   </span>
                 </div>
-                <div className="text-2xl min-[390px]:text-3xl sm:text-4xl font-extrabold text-slate-100 tracking-tight tabular-nums">
+                <div className="text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">
                   {lang === "en"
                     ? `৳ ${(metrics.business_sim_metrics.commission_saved_bdt / 1_000_000).toFixed(2)}M`
                     : `৳ ${(metrics.business_sim_metrics.commission_saved_bdt / 100_000).toFixed(1)} লক্ষ`}
                 </div>
               </div>
-              <p className="text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800 flex items-center justify-between">
+              <p className="text-xs text-slate-400 mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
                 <span>{t.kpiTotalSaved}</span>
-                <span className="text-teal-400 font-bold tabular-nums">
+                <span className="text-emerald-400 font-bold tabular-nums">
                   ৳ {formatBDT(metrics.business_sim_metrics.commission_saved_bdt)}
                 </span>
               </p>
@@ -217,11 +225,11 @@ export default function EvidencePage() {
           </section>
 
           {/* 3 Core Empirical Proofs (Rigorous scientific validation) */}
-          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6 space-y-4" aria-label="Empirical Proofs">
-            <div className="border-b border-slate-800 pb-3">
-              <h2 className="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-2">
+          <section className="card-soft space-y-4" aria-label="Empirical Proofs">
+            <div className="border-b border-white/[0.06] pb-3">
+              <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                 <span>{lang === "en" ? "3 Core Empirical Proofs" : "৩টি প্রধান পরীক্ষামূলক প্রমাণ"}</span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-950/60 text-teal-300 border border-teal-800/50">
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                   {lang === "en" ? "Rigorous Benchmark" : "বৈজ্ঞানিক মানদণ্ড"}
                 </span>
               </h2>
@@ -234,24 +242,24 @@ export default function EvidencePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
               {/* Proof 1: Forecast vs Naive */}
-              <div className="p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex flex-col justify-between">
+              <div className="p-4 rounded-2xl bg-navy-950/80 border border-white/[0.06] flex flex-col justify-between shadow-sm">
                 <div>
-                  <div className="text-xs font-semibold text-teal-400 mb-1">
+                  <div className="text-xs font-bold text-emerald-400 mb-1">
                     {lang === "en" ? "1. Forecast Accuracy vs Causal Naive" : "১. পূর্বাভাস নির্ভুলতা বনাম ক্যাজুয়াল বেসলাইন"}
                   </div>
                   <div className="flex items-baseline gap-2 mt-2">
-                    <span className="text-2xl font-extrabold text-slate-100 tabular-nums">
+                    <span className="text-2xl font-black text-white tabular-nums">
                       ৳ {formatBDT(metrics.forecast_metrics.p50_mae_bdt)}
                     </span>
                     <span className="text-xs text-slate-500 line-through tabular-nums">
                       ৳ {formatBDT(metrics.forecast_metrics.naive_mae_bdt)}
                     </span>
                   </div>
-                  <div className="text-xs text-teal-400 font-medium mt-1">
+                  <div className="text-xs text-emerald-400 font-semibold mt-1">
                     {lang === "en" ? "P50 MAE vs Same Hour Last Week (Lag7)" : "P50 MAE বনাম গত সপ্তাহের একই ঘণ্টার চাহিদা"}
                   </div>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-3 pt-2.5 border-t border-slate-800/80">
+                <p className="text-[11px] text-slate-400 mt-3 pt-2.5 border-t border-white/[0.06] leading-relaxed">
                   {lang === "en"
                     ? `Quantile LightGBM reduces mean absolute error by ৳${formatBDT(metrics.forecast_metrics.naive_mae_bdt - metrics.forecast_metrics.p50_mae_bdt)} per agent-hour over trailing heuristics.`
                     : `ক্যাজুয়াল ৭-দিনের ল্যাগ বেসলাইনের তুলনায় ক্যাশরেডি প্রতি ঘণ্টায় গড়ে ৳${formatBDT(metrics.forecast_metrics.naive_mae_bdt - metrics.forecast_metrics.p50_mae_bdt)} ত্রুটি কমায়।`}
@@ -259,24 +267,24 @@ export default function EvidencePage() {
               </div>
 
               {/* Proof 2: Equal Capital (Same Capital) test */}
-              <div className="p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex flex-col justify-between">
+              <div className="p-4 rounded-2xl bg-navy-950/80 border border-white/[0.06] flex flex-col justify-between shadow-sm">
                 <div>
-                  <div className="text-xs font-semibold text-teal-400 mb-1">
+                  <div className="text-xs font-bold text-emerald-400 mb-1">
                     {lang === "en" ? "2. Controlled Capital Benchmark" : "২. একই পুঁজিতে নিয়ন্ত্রণ পরীক্ষা"}
                   </div>
                   <div className="flex items-baseline gap-2 mt-2">
-                    <span className="text-2xl font-extrabold text-teal-400 tabular-nums">
+                    <span className="text-2xl font-black text-emerald-400 tabular-nums">
                       {metrics.business_sim_metrics.cashready_policy.lost_pct.toFixed(2)}%
                     </span>
                     <span className="text-xs text-slate-500 line-through tabular-nums">
                       {(metrics.business_sim_metrics.same_capital_comparison?.habit_lost_pct ?? 1.67).toFixed(2)}%
                     </span>
                   </div>
-                  <div className="text-xs text-teal-400 font-medium mt-1">
+                  <div className="text-xs text-emerald-400 font-semibold mt-1">
                     {lang === "en" ? "Lost Demand at Identical Liquidity" : "একই পরিমাণ দৈনিক নগদ পুঁজিতে ঘাটতি"}
                   </div>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-3 pt-2.5 border-t border-slate-800/80">
+                <p className="text-[11px] text-slate-400 mt-3 pt-2.5 border-t border-white/[0.06] leading-relaxed">
                   {lang === "en"
                     ? "When habit buffers are scaled to use the exact same total cash, habit still loses 3.5× more customer demand due to misallocation."
                     : "অভ্যাসগত প্ল্যানকে সমপরিমাণ মোট পুঁজিতে স্কেল করলেও ভুল বণ্টনের কারণে অভ্যাসে ৩.৫ গুণ বেশি চাহিদা নষ্ট হয়।"}
@@ -284,24 +292,24 @@ export default function EvidencePage() {
               </div>
 
               {/* Proof 3: Cash Stockout Detector F1 */}
-              <div className="p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex flex-col justify-between">
+              <div className="p-4 rounded-2xl bg-navy-950/80 border border-white/[0.06] flex flex-col justify-between shadow-sm">
                 <div>
-                  <div className="text-xs font-semibold text-teal-400 mb-1">
+                  <div className="text-xs font-bold text-emerald-400 mb-1">
                     {lang === "en" ? "3. True Cash Stock-Out F1" : "৩. আসল নগদ ঘাটতি শনাক্তকরণ F1"}
                   </div>
                   <div className="flex items-baseline gap-2 mt-2">
-                    <span className="text-2xl font-extrabold text-slate-100 tabular-nums">
+                    <span className="text-2xl font-black text-white tabular-nums">
                       {((metrics.detector_metrics.f1_cash_stockout ?? 0.38) * 100).toFixed(1)}%
                     </span>
                     <span className="text-xs text-slate-500 line-through tabular-nums">
                       12.1% Rule / 0.0% HMM
                     </span>
                   </div>
-                  <div className="text-xs text-teal-400 font-medium mt-1">
+                  <div className="text-xs text-emerald-400 font-semibold mt-1">
                     {lang === "en" ? "Minority Class Detection F1" : "ক্যাশ ঘাটতি ক্লাসের সুনির্দিষ্ট F1 স্কোর"}
                   </div>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-3 pt-2.5 border-t border-slate-800/80">
+                <p className="text-[11px] text-slate-400 mt-3 pt-2.5 border-t border-white/[0.06] leading-relaxed">
                   {lang === "en"
                     ? "Heuristics and standard HMM fail to isolate cash depletion from digital shifts. CashReady's supervised gradient booster achieves 0.38 F1 on this rare state."
                     : "প্রচলিত নিয়ম ও HMM ক্যাশ ঘাটতি শনাক্তে ব্যর্থ হয়। ক্যাশরেডি বিরল ক্যাশ ঘাটতি ক্লাসে সর্বোচ্চ ৩ গুণ বেশি F1 অর্জন করে।"}
@@ -310,11 +318,12 @@ export default function EvidencePage() {
             </div>
           </section>
 
-          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6 space-y-4 sm:space-y-6" aria-label={t.whyTrustHeading}>
-            <div className="border-b border-slate-800 pb-3 sm:pb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-slate-100 tracking-tight flex items-center gap-2">
+          {/* Charts Section */}
+          <section className="card-soft space-y-4 sm:space-y-6" aria-label={t.whyTrustHeading}>
+            <div className="border-b border-white/[0.06] pb-3 sm:pb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight flex items-center gap-2">
                 <span>{t.whyTrustHeading}</span>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-navy-900 text-slate-300 border border-white/[0.08]">
                   {t.evalEvidenceTitle}
                 </span>
               </h2>
@@ -324,12 +333,13 @@ export default function EvidencePage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+              {/* Chart A: Recovery comparison */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-200">
+                  <h3 className="text-xs sm:text-sm font-bold text-white">
                     {t.recoveryChartTitle}
                   </h3>
-                  <span className="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60">
+                  <span className="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-navy-900 text-emerald-400 border border-emerald-500/20">
                     {t.recoveryCaption}
                   </span>
                 </div>
@@ -340,7 +350,7 @@ export default function EvidencePage() {
                   aria-label={
                     lang === "en"
                       ? `Comparison of MAE for 3 methods on censored demand recovery: Naive ${metrics.recovery_metrics.amount_mae_pct.naive_observed.toFixed(1)}%, Mean correction ${metrics.recovery_metrics.amount_mae_pct.mean_correction.toFixed(1)}%, CashReady ${metrics.recovery_metrics.amount_mae_pct.cashready_recovery.toFixed(1)}%`
-                      : `সেন্সরড চাহিদা পুনরুদ্ধারে ৩টি পদ্ধতির গড় ত্রুটির তুলনা চার্ট: Naive ${metrics.recovery_metrics.amount_mae_pct.naive_observed.toFixed(1)}%, Mean correction ${metrics.recovery_metrics.amount_mae_pct.mean_correction.toFixed(1)}%, CashReady ${metrics.recovery_metrics.amount_mae_pct.cashready_recovery.toFixed(1)}%`
+                      : `সেন্সরড চাহিদা পুনরুদ্ধারে ৩টি পদ্ধতির গড় ত্রুটির তুলনা চার্ট`
                   }
                 >
                   <ResponsiveContainer width="100%" height="100%">
@@ -352,31 +362,32 @@ export default function EvidencePage() {
                       <XAxis
                         type="number"
                         domain={[0, (dataMax: number) => Math.max(80, Math.ceil(dataMax * 1.1))]}
-                        tick={{ fill: "#94A3B8", fontSize: 11 }}
+                        tick={{ fill: theme === "light" ? "#475569" : "#94A3B8", fontSize: 11 }}
                         unit="%"
                       />
                       <YAxis
                         type="category"
                         dataKey="name"
-                        tick={{ fill: "#CBD5E1", fontSize: 11 }}
+                        tick={{ fill: theme === "light" ? "#334155" : "#CBD5E1", fontSize: 11, fontWeight: 600 }}
                         width={95}
                       />
                       <Tooltip
                         formatter={(val: number) => [`${val.toFixed(1)}% MAE`, t.errorLevel]}
                         labelFormatter={(_, payload) => payload?.[0]?.payload?.fullName || ""}
                         contentStyle={{
-                          backgroundColor: "#0B1120",
-                          borderRadius: "12px",
-                          border: "1px solid #334155",
-                          color: "#F8FAFC",
+                          backgroundColor: theme === "light" ? "#FFFFFF" : "#0A0F1D",
+                          borderRadius: "14px",
+                          border: theme === "light" ? "1px solid #E2E8F0" : "1px solid rgba(255, 255, 255, 0.12)",
+                          color: theme === "light" ? "#0F172A" : "#F8FAFC",
                           fontSize: "12px",
+                          boxShadow: theme === "light" ? "0 10px 25px -5px rgba(0,0,0,0.08)" : "0 10px 30px rgba(0,0,0,0.5)",
                         }}
                       />
                       <Bar dataKey="mae" radius={[0, 6, 6, 0]}>
                         {recoveryChartData.map((entry, idx) => (
                           <Cell
                             key={`recovery-${idx}`}
-                            fill={entry.isCashReady ? "#14B8A6" : "#334155"}
+                            fill={entry.isCashReady ? "#10B981" : theme === "light" ? "#CBD5E1" : "#1E293B"}
                           />
                         ))}
                       </Bar>
@@ -384,8 +395,8 @@ export default function EvidencePage() {
                   </ResponsiveContainer>
                 </div>
 
-                <div className="p-3 bg-navy-900/90 border border-slate-800 rounded-xl text-xs text-slate-300 space-y-1">
-                  <div className="font-semibold text-slate-200">{t.chartSummary}:</div>
+                <div className="p-3 bg-navy-950/80 border border-white/[0.06] rounded-xl text-xs text-slate-300 space-y-1">
+                  <div className="font-bold text-white">{t.chartSummary}:</div>
                   <p className="leading-relaxed">
                     {lang === "en"
                       ? `Naive baseline error is ${metrics.recovery_metrics.amount_mae_pct.naive_observed.toFixed(1)}% MAE and mean correction is ${metrics.recovery_metrics.amount_mae_pct.mean_correction.toFixed(1)}% MAE; CashReady recovery reduces error to ${metrics.recovery_metrics.amount_mae_pct.cashready_recovery.toFixed(1)}% MAE.`
@@ -394,12 +405,13 @@ export default function EvidencePage() {
                 </div>
               </div>
 
+              {/* Chart B: Forecast MAE by area type */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-200">
+                  <h3 className="text-xs sm:text-sm font-bold text-white">
                     {t.forecastChartTitle}
                   </h3>
-                  <span className="text-[11px] sm:text-xs text-slate-400">{t.meanDeviationBdt}</span>
+                  <span className="text-[11px] sm:text-xs text-slate-400 font-semibold">{t.meanDeviationBdt}</span>
                 </div>
 
                 <div
@@ -408,7 +420,7 @@ export default function EvidencePage() {
                   aria-label={
                     lang === "en"
                       ? `Forecast MAE by area type: Urban ৳${metrics.forecast_metrics.mae_by_area_type?.urban_market || 0}, Peri-urban ৳${metrics.forecast_metrics.mae_by_area_type?.peri_urban || 0}, Rural ৳${metrics.forecast_metrics.mae_by_area_type?.rural || 0}`
-                      : `এরিয়ার ধরন অনুযায়ী পূর্বাভাস গড় ত্রুটি চার্ট: শহর বাজার ৳${metrics.forecast_metrics.mae_by_area_type?.urban_market || 0}, উপশহর ৳${metrics.forecast_metrics.mae_by_area_type?.peri_urban || 0}, পল্লী অঞ্চল ৳${metrics.forecast_metrics.mae_by_area_type?.rural || 0}`
+                      : `এরিয়ার ধরন অনুযায়ী পূর্বাভাস গড় ত্রুটি চার্ট`
                   }
                 >
                   <ResponsiveContainer width="100%" height="100%">
@@ -418,31 +430,39 @@ export default function EvidencePage() {
                     >
                       <XAxis
                         dataKey="areaType"
-                        tick={{ fill: "#94A3B8", fontSize: 11 }}
+                        tick={{ fill: theme === "light" ? "#475569" : "#94A3B8", fontSize: 11, fontWeight: 600 }}
                         interval={0}
                       />
                       <YAxis
-                        tick={{ fill: "#94A3B8", fontSize: 11 }}
+                        tick={{ fill: theme === "light" ? "#475569" : "#94A3B8", fontSize: 11 }}
                         tickFormatter={(val) => `${val}`}
                       />
                       <Tooltip
                         formatter={(val: number) => [`৳ ${formatBDT(val)}`, "MAE"]}
                         labelFormatter={(label) => String(label)}
                         contentStyle={{
-                          backgroundColor: "#0B1120",
-                          borderRadius: "12px",
-                          border: "1px solid #334155",
-                          color: "#F8FAFC",
+                          backgroundColor: theme === "light" ? "#FFFFFF" : "#0A0F1D",
+                          borderRadius: "14px",
+                          border: theme === "light" ? "1px solid #E2E8F0" : "1px solid rgba(255, 255, 255, 0.12)",
+                          color: theme === "light" ? "#0F172A" : "#F8FAFC",
                           fontSize: "12px",
+                          boxShadow: theme === "light" ? "0 10px 25px -5px rgba(0,0,0,0.08)" : "0 10px 30px rgba(0,0,0,0.5)",
                         }}
                       />
-                      <Bar dataKey="mae" fill="#334155" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="mae" fill="#1E293B" radius={[6, 6, 0, 0]}>
+                        {forecastAreaChartData.map((_, idx) => (
+                          <Cell
+                            key={`forecast-${idx}`}
+                            fill={idx === 0 ? "#10B981" : theme === "light" ? "#CBD5E1" : "#1E293B"}
+                          />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
 
-                <div className="p-3 bg-navy-900/90 border border-slate-800 rounded-xl text-xs text-slate-300 space-y-1">
-                  <div className="font-semibold text-slate-200">{t.chartSummary}:</div>
+                <div className="p-3 bg-navy-950/80 border border-white/[0.06] rounded-xl text-xs text-slate-300 space-y-1">
+                  <div className="font-bold text-white">{t.chartSummary}:</div>
                   <p className="leading-relaxed">
                     {metrics.forecast_metrics.mae_by_area_type ? (
                       lang === "en"
@@ -457,106 +477,116 @@ export default function EvidencePage() {
             </div>
           </section>
 
-          {/* Model & Pipeline Transparency */}
-          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6 space-y-4" aria-label={t.modelTransparencyTitle}>
-            <div className="border-b border-slate-800 pb-3">
-              <h3 className="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-2">
-                <Cpu className="w-4 h-4 text-teal-400" />
-                <span>{t.modelTransparencyTitle}</span>
+          {/* End-to-End Pipeline Architecture */}
+          <section className="card-soft space-y-4" aria-label={t.pipelineTitle}>
+            <div className="flex items-center gap-2 pb-2 border-b border-white/[0.06]">
+              <div className="w-7 h-7 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+                <Layers className="w-3.5 h-3.5" />
+              </div>
+              <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                {t.pipelineTitle}
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                {lang === "en"
-                  ? "Production machine learning specifications and feature governance."
-                  : "মেশিন লার্নিং পাইপলাইনের প্রযুক্তিগত স্পেসিফিকেশন ও তথ্য স্বচ্ছতা।"}
-              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-xs">
-              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800">
-                <span className="text-slate-400 block">{t.modelVersion}</span>
-                <span className="font-bold text-slate-200 text-sm mt-0.5 block">LightGBM v2.1</span>
-                <span className="text-[10px] text-slate-500">Supervised Quantile Regressor</span>
-              </div>
-
-              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800">
-                <span className="text-slate-400 block">{t.dataVersion}</span>
-                <span className="font-bold text-slate-200 text-sm mt-0.5 block">Strict Day-Ahead Causal</span>
-                <span className="text-[10px] text-slate-500">T-1 Evening Lags (No leakage)</span>
-              </div>
-
-              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800">
-                <span className="text-slate-400 block">{t.explainabilityMethod}</span>
-                <span className="font-bold text-slate-200 text-sm mt-0.5 block">TreeExplainer SHAP</span>
-                <span className="text-[10px] text-slate-500">Deterministic Bilingual Output</span>
-              </div>
-
-              <div className="p-3 bg-navy-900/90 rounded-xl border border-slate-800">
-                <span className="text-slate-400 block">{t.lastUpdated}</span>
-                <span className="font-bold text-teal-400 text-sm mt-0.5 block">2026-10-02 (DEMO_DATE)</span>
-                <span className="text-[10px] text-slate-500">114,110 evaluated agent-hours</span>
-              </div>
-            </div>
-          </section>
-
-          <section className="bg-navy-850 rounded-2xl border border-slate-800/80 shadow-soft p-4 sm:p-6" aria-label={t.pipelineTitle}>
-            <h3 className="text-sm font-bold text-slate-100 tracking-tight mb-3 sm:mb-4 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-slate-400" />
-              <span>{t.pipelineTitle}</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
-              <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex items-start gap-3">
-                <div className="p-2 sm:p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-teal-400 shrink-0">
-                  <ShieldAlert className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="p-4 rounded-2xl bg-navy-950/80 border border-white/[0.06] flex items-start gap-3.5 hover:border-emerald-500/30 transition-all">
+                <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0">
+                  <ShieldAlert className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">{lang === "en" ? "Step 1" : "ধাপ ১"}</div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep1Title}</h4>
-                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep1Desc}</p>
+                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">{lang === "en" ? "Step 01" : "ধাপ ০১"}</div>
+                  <h4 className="text-sm font-extrabold text-white">{t.pipelineStep1Title}</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">{t.pipelineStep1Desc}</p>
                 </div>
               </div>
 
-              <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex items-start gap-3">
-                <div className="p-2 sm:p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-teal-400 shrink-0">
-                  <RotateCcw className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
+              <div className="p-4 rounded-2xl bg-navy-950/80 border border-white/[0.06] flex items-start gap-3.5 hover:border-emerald-500/30 transition-all">
+                <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0">
+                  <RotateCcw className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">{lang === "en" ? "Step 2" : "ধাপ ২"}</div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep2Title}</h4>
-                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep2Desc}</p>
+                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">{lang === "en" ? "Step 02" : "ধাপ ০২"}</div>
+                  <h4 className="text-sm font-extrabold text-white">{t.pipelineStep2Title}</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">{t.pipelineStep2Desc}</p>
                 </div>
               </div>
 
-              <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex items-start gap-3">
-                <div className="p-2 sm:p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-teal-400 shrink-0">
-                  <TrendingUp className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
+              <div className="p-4 rounded-2xl bg-navy-950/80 border border-white/[0.06] flex items-start gap-3.5 hover:border-emerald-500/30 transition-all">
+                <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0">
+                  <TrendingUp className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">{lang === "en" ? "Step 3" : "ধাপ ৩"}</div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep3Title}</h4>
-                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep3Desc}</p>
+                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">{lang === "en" ? "Step 03" : "ধাপ ০৩"}</div>
+                  <h4 className="text-sm font-extrabold text-white">{t.pipelineStep3Title}</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">{t.pipelineStep3Desc}</p>
                 </div>
               </div>
 
-              <div className="p-3.5 sm:p-4 rounded-xl bg-navy-900/90 border border-slate-800 flex items-start gap-3">
-                <div className="p-2 sm:p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-teal-400 shrink-0">
-                  <Banknote className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-teal-400" />
+              <div className="p-4 rounded-2xl bg-navy-950/80 border border-white/[0.06] flex items-start gap-3.5 hover:border-emerald-500/30 transition-all">
+                <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0">
+                  <Banknote className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500">{lang === "en" ? "Step 4" : "ধাপ ৪"}</div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-100">{t.pipelineStep4Title}</h4>
-                  <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">{t.pipelineStep4Desc}</p>
+                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">{lang === "en" ? "Step 04" : "ধাপ ০৪"}</div>
+                  <h4 className="text-sm font-extrabold text-white">{t.pipelineStep4Title}</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">{t.pipelineStep4Desc}</p>
                 </div>
               </div>
             </div>
           </section>
 
-          <footer className="card-soft text-center space-y-2 py-5 sm:py-6 border border-slate-800">
-            <p className="text-xs text-slate-400 font-medium">
+          {/* Model & Pipeline Transparency */}
+          <section className="card-soft space-y-4" aria-label={t.modelTransparencyTitle}>
+            <div className="flex items-center gap-2 pb-2 border-b border-white/[0.06]">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <Cpu className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                  {t.modelTransparencyTitle}
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {lang === "en"
+                    ? "Production machine learning specifications and feature governance."
+                    : "মেশিন লার্নিং পাইপলাইনের প্রযুক্তিগত স্পেসিফিকেশন ও তথ্য স্বচ্ছতা।"}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+              <div className="p-3.5 bg-navy-950/80 rounded-xl border border-white/[0.06]">
+                <span className="text-slate-400 block font-medium">{t.modelVersion}</span>
+                <span className="font-extrabold text-white text-sm mt-1 block">LightGBM v2.1</span>
+                <span className="text-[10px] text-slate-400">Supervised Quantile Regressor</span>
+              </div>
+
+              <div className="p-3.5 bg-navy-950/80 rounded-xl border border-white/[0.06]">
+                <span className="text-slate-400 block font-medium">{t.dataVersion}</span>
+                <span className="font-extrabold text-white text-sm mt-1 block">Strict Day-Ahead Causal</span>
+                <span className="text-[10px] text-slate-400">T-1 Evening Lags (No leakage)</span>
+              </div>
+
+              <div className="p-3.5 bg-navy-950/80 rounded-xl border border-white/[0.06]">
+                <span className="text-slate-400 block font-medium">{t.explainabilityMethod}</span>
+                <span className="font-extrabold text-white text-sm mt-1 block">TreeExplainer SHAP</span>
+                <span className="text-[10px] text-slate-400">Deterministic Bilingual Output</span>
+              </div>
+
+              <div className="p-3.5 bg-navy-950/80 rounded-xl border border-white/[0.06]">
+                <span className="text-slate-400 block font-medium">{t.lastUpdated}</span>
+                <span className="font-extrabold text-emerald-400 text-sm mt-1 block">2026-10-02 (DEMO_DATE)</span>
+                <span className="text-[10px] text-slate-400">114,110 evaluated agent-hours</span>
+              </div>
+            </div>
+          </section>
+
+          {/* Footer with Algorithmic Disclosures */}
+          <footer className="card-soft text-center space-y-2 py-5 sm:py-6 border border-white/[0.06]">
+            <p className="text-xs text-slate-300 font-semibold">
               {t.footerSynthetic}
             </p>
             <p className="text-[11px] text-slate-500 max-w-2xl mx-auto leading-relaxed">
-              <Info className="w-3.5 h-3.5 inline mr-1 text-slate-500" />
+              <Info className="w-3.5 h-3.5 inline mr-1 text-slate-400" />
               {t.footerLlmDisclosure}
             </p>
           </footer>

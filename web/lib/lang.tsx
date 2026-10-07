@@ -47,9 +47,9 @@ export function LangToggle({ compact = false }: { compact?: boolean }) {
   const { lang, setLang } = useLang();
   return (
     <div
-      className="inline-flex items-center rounded-full bg-slate-900 border border-slate-800 p-0.5"
+      className="inline-flex items-center rounded-full bg-navy-900/80 border border-white/[0.08] p-0.5 shadow-sm"
       role="group"
-      aria-label="Language"
+      aria-label="Language selection"
     >
       {(["bn", "en"] as Lang[]).map((l) => (
         <button
@@ -57,9 +57,9 @@ export function LangToggle({ compact = false }: { compact?: boolean }) {
           type="button"
           onClick={() => setLang(l)}
           aria-pressed={lang === l}
-          className={`px-2 py-0.5 rounded-full text-[11px] font-semibold transition-colors ${
+          className={`px-3 py-1.5 sm:py-1 rounded-full text-xs font-bold transition-all duration-150 active:scale-95 min-h-[36px] flex items-center justify-center ${
             lang === l
-              ? "bg-teal-500/20 text-teal-300"
+              ? "bg-emerald-400 dark:bg-emerald-400 light:bg-emerald-500 text-slate-950 dark:text-slate-950 light:text-white shadow-sm"
               : "text-slate-400 hover:text-slate-200"
           }`}
         >
